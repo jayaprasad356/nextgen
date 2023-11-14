@@ -1,0 +1,8 @@
+{
+  "projects": {
+    "default": "next-gen-74543",
+    "staging": "next-gen-74543"
+  },
+  "targets": {},
+  "etags": {}
+}
