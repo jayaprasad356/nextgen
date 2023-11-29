@@ -1,0 +1,21 @@
+import 'package:nextgen/util/index.dart';
+
+const kPrimaryColor =  Color(0xFF000BC0);
+const kSecondaryColor = Color(0xFF079ACB);
+const kSecondaryLColor = Color(0xFFF7F8FF);
+const kTextColor = Color(0xFFFFFFFF);
+const kTextDarkColor = Color(0xFF00034E);
+const kBrowneColor = Color(0xFFC14242);
+const kBgColor = Color(0xFF030D6E);
+const kContBgColor = Color(0xFFFFE1C3);
+const kBgLinear1 = Color(0xFF000BC0);
+const kBgLinear2 = Color(0xFF020A97);
+const kBgLinear3 = Color(0xFF04096B);
+const kBgLinear4 = Color(0xFF060839);
+const kPurpleColor = Color(0xFFE484FF);
+const kGreenColor = Color(0xFF3ABD00);
+const kLightBlueColor = Color(0xFF0CC1E0);
+const kWhiteColor = Color(0xFFFFFFFF);
+const kDisableColor = Colors.grey;
+const kHintText = Color(0xFFB5B2B2);
+const kHintTextColor = Color(0xFF717171);

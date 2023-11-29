@@ -1,0 +1,8 @@
+{
+  "projects": {
+    "default": "next-gen-a052d",
+    "staging": "next-gen-a052d"
+  },
+  "targets": {},
+  "etags": {}
+}
