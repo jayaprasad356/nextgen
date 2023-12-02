@@ -4,6 +4,7 @@ import 'dart:io';
 // import 'package:color_challenge/test.dart';
 import 'package:nextgen/controller/auth_con.dart';
 import 'package:nextgen/controller/full_time_page_con.dart';
+import 'package:nextgen/controller/notification_con.dart';
 import 'package:nextgen/controller/pcc_controller.dart';
 import 'package:nextgen/controller/home_con.dart';
 import 'package:nextgen/controller/profile_con.dart';
@@ -13,6 +14,7 @@ import 'package:nextgen/data/api/api_client.dart';
 import 'package:nextgen/data/repository/auth_repo.dart';
 import 'package:nextgen/data/repository/full_time_repo.dart';
 import 'package:nextgen/data/repository/home_repo.dart';
+import 'package:nextgen/data/repository/notification_repo.dart';
 import 'package:nextgen/data/repository/shorts_video_repo.dart';
 import 'package:nextgen/data/repository/upi_repo.dart';
 import 'package:nextgen/data/repository/wallet_repo.dart';
@@ -120,6 +122,17 @@ Future<void> main() async {
             storageLocal: storeLocal,
           )
       ),
+    ),
+  );
+
+  Get.put(
+    NotificationController(
+      notificationRepo: NotificationRepo(
+          apiClient: ApiClient(
+            appBaseUrl: Constant.MainBaseUrl,
+            storageLocal: storeLocal,
+          ),
+          storageLocal: storeLocal),
     ),
   );
 
@@ -353,6 +366,16 @@ class _MyAppState extends State<MyApp> {
                       storageLocal: storeLocal,
                     )
                   ),
+                ),
+              );
+              Get.put(
+                NotificationController(
+                  notificationRepo: NotificationRepo(
+                      apiClient: ApiClient(
+                        appBaseUrl: Constant.MainBaseUrl,
+                        storageLocal: storeLocal,
+                      ),
+                      storageLocal: storeLocal),
                 ),
               );
               Get.put(

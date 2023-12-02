@@ -36,7 +36,6 @@ class JobDetailScreen extends StatefulWidget {
 }
 
 class JobDetailScreenState extends State<JobDetailScreen> {
-
   List<String> jobDetailImage = [
     'assets/images/job_detail_1.png',
     'assets/images/job_detail_2.png',
@@ -56,20 +55,20 @@ class JobDetailScreenState extends State<JobDetailScreen> {
       body: DefaultBack(
         child: ListView.builder(
             physics: const BouncingScrollPhysics(),
-          itemCount: jobDetailImage.length,
-          itemBuilder: (context, index) {
-            return Container(
-              width: size.width,
-                margin: const EdgeInsets.symmetric(horizontal: 10,vertical: 5),
+            itemCount: jobDetailImage.length,
+            itemBuilder: (context, index) {
+              return Container(
+                width: size.width,
+                margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: ClipRRect(borderRadius: BorderRadius.circular(10),child: Image.asset(jobDetailImage[index])),
-            );
-          }
-        ),
+                child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.asset(jobDetailImage[index])),
+              );
+            }),
       ),
     );
   }
 }
-

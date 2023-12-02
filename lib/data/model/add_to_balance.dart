@@ -1,24 +1,17 @@
-class UserDetail {
+class AddedToBalance {
   bool? success;
   String? message;
   List<Data>? data;
-  List<Settings>? settings;
 
-  UserDetail({this.success, this.message, this.data, this.settings});
+  AddedToBalance({this.success, this.message, this.data});
 
-  UserDetail.fromJson(Map<String, dynamic> json) {
+  AddedToBalance.fromJson(Map<String, dynamic> json) {
     success = json['success'];
     message = json['message'];
     if (json['data'] != null) {
       data = <Data>[];
       json['data'].forEach((v) {
         data!.add(new Data.fromJson(v));
-      });
-    }
-    if (json['settings'] != null) {
-      settings = <Settings>[];
-      json['settings'].forEach((v) {
-        settings!.add(new Settings.fromJson(v));
       });
     }
   }
@@ -29,9 +22,6 @@ class UserDetail {
     data['message'] = message;
     if (this.data != null) {
       data['data'] = this.data!.map((v) => v.toJson()).toList();
-    }
-    if (settings != null) {
-      data['settings'] = settings!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -59,11 +49,11 @@ class Data {
   String? generateCoin;
   String? totalOrdersViewed;
   String? trailCompleted;
-  String? accountNum;
-  String? holderName;
-  String? bank;
-  String? branch;
-  String? ifsc;
+  Null? accountNum;
+  Null? holderName;
+  Null? bank;
+  Null? branch;
+  Null? ifsc;
   String? watchOrders;
   String? ordersCost;
   String? registeredDate;
@@ -282,91 +272,6 @@ class Data {
     data['level'] = level;
     data['hiring_earings'] = hiringEarings;
     data['orders_earnings'] = ordersEarnings;
-    return data;
-  }
-}
-
-class Settings {
-  String? id;
-  String? withdrawalStatus;
-  String? contactUs;
-  String? minWithdrawal;
-  String? jobVideo;
-  String? minDpCoins;
-  String? maxDpCoins;
-  String? challengeStatus;
-  String? postVideoUrl;
-  String? upi;
-  String? result;
-  String? whatsappChannelLink;
-  String? jobDetails;
-  String? purchasePlanLink;
-  String? postVideoDetails;
-  String? referCoins;
-  String? registerCoins;
-  String? watchOrdersStatus;
-
-  Settings(
-      {this.id,
-        this.withdrawalStatus,
-        this.contactUs,
-        this.minWithdrawal,
-        this.jobVideo,
-        this.minDpCoins,
-        this.maxDpCoins,
-        this.challengeStatus,
-        this.postVideoUrl,
-        this.upi,
-        this.result,
-        this.whatsappChannelLink,
-        this.jobDetails,
-        this.purchasePlanLink,
-        this.postVideoDetails,
-        this.referCoins,
-        this.registerCoins,
-        this.watchOrdersStatus});
-
-  Settings.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    withdrawalStatus = json['withdrawal_status'];
-    contactUs = json['contact_us'];
-    minWithdrawal = json['min_withdrawal'];
-    jobVideo = json['job_video'];
-    minDpCoins = json['min_dp_coins'];
-    maxDpCoins = json['max_dp_coins'];
-    challengeStatus = json['challenge_status'];
-    postVideoUrl = json['post_video_url'];
-    upi = json['upi'];
-    result = json['result'];
-    whatsappChannelLink = json['whatsapp_channel_link'];
-    jobDetails = json['job_details'];
-    purchasePlanLink = json['purchase_plan_link'];
-    postVideoDetails = json['post_video_details'];
-    referCoins = json['refer_coins'];
-    registerCoins = json['register_coins'];
-    watchOrdersStatus = json['watch_orders_status'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['id'] = id;
-    data['withdrawal_status'] = withdrawalStatus;
-    data['contact_us'] = contactUs;
-    data['min_withdrawal'] = minWithdrawal;
-    data['job_video'] = jobVideo;
-    data['min_dp_coins'] = minDpCoins;
-    data['max_dp_coins'] = maxDpCoins;
-    data['challenge_status'] = challengeStatus;
-    data['post_video_url'] = postVideoUrl;
-    data['upi'] = upi;
-    data['result'] = result;
-    data['whatsapp_channel_link'] = whatsappChannelLink;
-    data['job_details'] = jobDetails;
-    data['purchase_plan_link'] = purchasePlanLink;
-    data['post_video_details'] = postVideoDetails;
-    data['refer_coins'] = referCoins;
-    data['register_coins'] = registerCoins;
-    data['watch_orders_status'] = watchOrdersStatus;
     return data;
   }
 }

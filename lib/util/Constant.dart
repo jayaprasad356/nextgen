@@ -4,8 +4,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 const FlutterSecureStorage storeLocal = FlutterSecureStorage();
 
 class Constant {
-  // static const String MainBaseUrl = "https://nextgen.graymatterworks.com/";
-  static const String MainBaseUrl = "https://nextgen.abcdapp.in/";
+  static const String MainBaseUrl = "https://nextgen.graymatterworks.com/";
+  static const String NEXTGET_WEB_LINK = "https://next-gen-a052d.web.app";
+  // static const String MainBaseUrl = "https://nextgen.abcdapp.in/";
   //static const String MainBaseUrl = "https://demo.colorjobs.site/";
   static const String BaseUrl = "${MainBaseUrl}api/";
   static const String LOGIN_URL = "${BaseUrl}login.php";
@@ -41,8 +42,7 @@ class Constant {
 
   static const String ORDERAVAILABLE = "order_available";
   static const String LOGED_IN_STATUS = "loged_in";
-  static const String TOTAL_ORDERS = "total_orders";
-  static const String TODAY_ORDERS = "today_orders";
+  static const String TODAY_ORDERS_CON = "today_orders_con";
   static const String WORK_DAYS = "worked_days";
   // static const String LOGED_IN_STATUS = "loged_in";
 
@@ -80,17 +80,24 @@ class Constant {
   static const String OLD_PLAN = "old_plan";
   static const String PLAN = "plan";
   static const String TODAY_ADS_SYNC = "today_ads_sync";
+  static const String TODAY_ORDER = "today_orders";
+  static const String AVERAGE_ORDER = "average_orders";
   static const String TOTAL_ADS_SYNC = "total_ads_sync";
+  static const String TOTAL_ORDER = "total_orders";
   static const String BALANVE_SYNC = "balance_sync";
   static const String ADS_COST_SYNC = "ads_cost_sync";
   static const String ADS_TIME_SYNC = "ads_time_sync";
 
   static const String ID = "id";
+  static const String HIRING_EARNINGS = "hiring_earnings";
+  static const String ORDERS_EARNINGS = "orders_earnings";
   static const String LOGED_IN = "loged_in";
   static const String UPI = "upi";
   static const String EARN = "earn";
   static const String COINS = "coins";
   static const String BALANCE = "balance";
+  static const String BALANCE_NEXTGEN = "balance_nextgen";
+  static const String ORDER_COST = "orders_cost";
   static const String REFERRED_BY = "referred_by";
   static const String REFER_CODE = "refer_code";
   static const String STATUS = "status";

@@ -55,6 +55,7 @@ class HomeScreenState extends State<HomeScreen> {
   bool _isLoading = true;
   String balance = "0";
   String ads_cost = "0";
+  String orderCost = "0";
   bool timerStarted = false;
   bool isTrial = true, isPremium = false;
   Random random = Random();
@@ -74,13 +75,12 @@ class HomeScreenState extends State<HomeScreen> {
   int rewardAds = 0;
   double progressPercentage = 0.0;
   double progressPercentageTwo = 0.0;
-  late bool isButtonDisabled;
   late bool isClaimButtonDisabled;
   late String generatedOtp;
   late String syncType;
   int syncUniqueId = 1;
   double multiplyCostValue = 0;
-  double maximumValue = 120.0;
+  double maximumValue = 100.0;
   double currentValue = 60.0;
   double progressPercentage1 = 0.00;
   late String isWeb;
@@ -90,20 +90,32 @@ class HomeScreenState extends State<HomeScreen> {
   bool enablePlaceOrder = false;
   bool isPlaceOrder = false;
   bool isConfirm = false;
+  String workDays = "";
+  String averageOrders = "";
+  String balanceNextgen = "";
+  String todayOrder = "";
+  String totalOrders = "";
 
   @override
   void initState() {
     super.initState();
     resetValue();
     handleAsyncInit();
-    progressPercentage1 = currentValue / maximumValue;
 
-    isButtonDisabled = true;
     isClaimButtonDisabled = true;
 
-    loadTimerCount();
-    debugPrint("orderAvailable: $orderAvailable");
-    debugPrint("orderCount: $orderCount");
+    loadOrderCount();
+    // debugPrint("orderCount: $orderCount");
+    //
+    // if (orderCount <= 99) {
+    //   isClaimButtonDisabled = true; // Disable the button
+    // } else if (orderCount > 99) {
+    //   isClaimButtonDisabled = false; // Disable the button
+    // } else if (orderCount > 100) {
+    //   isClaimButtonDisabled = false; // Enable the button
+    // }
+
+    // isClaimButtonDisabled = true;
 
     // progressPercentageTwo = double.parse(reward_ads);
     // debugPrint("progressPercentageTwo : $progressPercentageTwo");
@@ -115,11 +127,11 @@ class HomeScreenState extends State<HomeScreen> {
     homeController.productEanCorrent(productEan);
     // homeController.handleAsyncInit();
     setState(() async {
-      var todayOrder = await storeLocal.read(key: Constant.TODAY_ORDERS);
-      var totalOrders = await storeLocal.read(key: Constant.TOTAL_ORDERS);
-      homeController.today_order.value = int.parse(todayOrder!);
-      homeController.total_order.value = int.parse(totalOrders!);
+      var todayOrder = await storeLocal.read(key: Constant.TODAY_ORDERS_CON);
+      homeController.today_order_con.value = int.parse(todayOrder!);
       isWeb = (await storeLocal.read(key: Constant.IS_WEB))!;
+      orderCost = (await storeLocal.read(key: Constant.ORDER_COST))!;
+      debugPrint("orderCost: $orderCost");
     });
   }
 
@@ -135,30 +147,40 @@ class HomeScreenState extends State<HomeScreen> {
     // TODO: implement setState
     super.setState(fn);
 
+    // debugPrint("orderCount: $orderCount");
+    //
+    // if (orderCount <= 99) {
+    //   isClaimButtonDisabled = true; // Disable the button
+    // } else if (orderCount > 99) {
+    //   isClaimButtonDisabled = false; // Disable the button
+    // } else if (orderCount > 100) {
+    //   isClaimButtonDisabled = false; // Enable the button
+    // }
+
     // balance;
     // total_ads;
     // today_ads;
     // multiplyCostValue = multiplyCost(orderCount, ads_cost)!;
-    if (orderCount < 100) {
-      isButtonDisabled = true; // Disable the button
-    } else if (orderCount >= 100) {
-      isButtonDisabled = false; // Enable the button
-    } else if (orderCount > 100) {
-      progressPercentage = 0.0;
-      isButtonDisabled = false; // Enable the button
-      orderCount = 0;
-    }
-    rewardAds = int.parse(reward_ads);
-    debugPrint("rewardAds : $rewardAds");
-    progressPercentageTwo = double.parse(reward_ads) / maximumValue;
-    debugPrint("progressPercentageTwo : $progressPercentageTwo");
-
-    if (rewardAds < 100) {
-      isClaimButtonDisabled = true; // Disable the button
-    } else if (rewardAds >= 100) {
-      syncUniqueId = homeController.generateRandomSixDigitNumber();
-      isClaimButtonDisabled = false; // Enable the button
-    }
+    // if (orderCount < 100) {
+    //   isClaimButtonDisabled = true; // Disable the button
+    // } else if (orderCount >= 100) {
+    //   isClaimButtonDisabled = false; // Enable the button
+    // } else if (orderCount > 100) {
+    //   progressPercentage = 0.0;
+    //   isClaimButtonDisabled = false; // Enable the button
+    //   orderCount = 0;
+    // }
+    // rewardAds = int.parse(reward_ads);
+    // debugPrint("rewardAds : $rewardAds");
+    // progressPercentageTwo = double.parse(reward_ads) / maximumValue;
+    // debugPrint("progressPercentageTwo : $progressPercentageTwo");
+    //
+    // if (rewardAds < 100) {
+    //   isClaimButtonDisabled = true; // Disable the button
+    // } else if (rewardAds >= 100) {
+    //   syncUniqueId = homeController.generateRandomSixDigitNumber();
+    //   isClaimButtonDisabled = false; // Enable the button
+    // }
   }
 
   // void startTimer() {
@@ -214,21 +236,35 @@ class HomeScreenState extends State<HomeScreen> {
   //   });
   // }
 
-  // Load timerCount from shared preferences
-  void loadTimerCount() async {
+// Load orderCount from shared preferences
+  void loadOrderCount() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      orderCount = prefs.getInt('timerCount') ?? 0;
-      multiplyCostValue = orderCount * double.parse(ads_cost);
+    setState(() async {
+      orderCount = prefs.getInt('orderCount')!;
+      // String? orderCountLoad = await storeLocal.read(key: 'orderCount');
+      // orderCount = int.parse(orderCountLoad!);
+      debugPrint("loadOrderCount orderCount: $orderCount");
+      multiplyCostValue = orderCount * double.parse(orderCost);
+      debugPrint("loadOrderCount multiplyCostValue: $multiplyCostValue");
       progressPercentage = (orderCount / maximumValue);
+      debugPrint("loadOrderCount progressPercentage: $progressPercentage");
+      if (orderCount <= 99) {
+        isClaimButtonDisabled = true; // Disable the button
+      } else if (orderCount > 99) {
+        isClaimButtonDisabled = false; // Disable the button
+      } else if (orderCount > 100) {
+        isClaimButtonDisabled = false; // Enable the button
+      }
     });
   }
 
-  // Save timerCount to shared preferences
-  void saveTimerCount(int count, double cost) async {
+// Save orderCount to shared preferences
+  void saveOrderCount(int count) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('timerCount', count);
-    await prefs.setDouble('multiplyCostValueLocal', cost);
+    // String orderCountSave = count.toString();
+    // await storeLocal.write(key: 'orderCount', value: orderCountSave);
+    debugPrint("count: $count");
+    await prefs.setInt('orderCount', count);
   }
 
   String separateNumber(String number) {
@@ -295,9 +331,7 @@ class HomeScreenState extends State<HomeScreen> {
                       percent: progressPercentage.clamp(0.0, 1.0),
                       backgroundWidth: 13,
                       center: Text(
-                        (progressPercentage * maximumValue)
-                            .toInt()
-                            .toString(),
+                        (progressPercentage * maximumValue).toInt().toString(),
                         style: const TextStyle(
                             fontFamily: 'MontserratBold',
                             fontSize: 16.0,
@@ -307,41 +341,48 @@ class HomeScreenState extends State<HomeScreen> {
                         ignoring: isClaimButtonDisabled,
                         child: InkWell(
                           onTap: () async {
-                            syncType = 'reward_sync';
-                            debugPrint("syncType: $syncType");
+                            // syncType = 'reward_sync';
+                            // debugPrint("syncType: $syncType");
                             try {
                               prefs = await SharedPreferences.getInstance();
-                              setState(() {
-                                syncUniqueId;
-                              });
-                              debugPrint("syncUniqueId: $syncUniqueId");
+                              // setState(() {
+                              //   syncUniqueId;
+                              // });
+                              // debugPrint("syncUniqueId: $syncUniqueId");
                               // Call the syncData function and get the result immediately
-                              // homeController.syncData(
-                              //   prefs.getString(Constant.ID),
-                              //   orderCount.toString(),
-                              //   (String syncDataSuccess) {
-                              //     debugPrint(
-                              //         "syncDataSuccess: $syncDataSuccess");
-                              //     // Perform actions based on the result of the syncData function
-                              //     if (syncDataSuccess == 'true') {
-                              //       setState(() {
-                              //         isClaimButtonDisabled = true;
-                              //         reward_ads = prefs.getString(
-                              //             Constant.REWARD_ADS)!;
-                              //         ads_time = prefs.getString(
-                              //             Constant.ADS_TIME)!;
-                              //         balance = prefs
-                              //             .getString(Constant.BALANCE)!;
-                              //         today_ads = prefs.getString(
-                              //             Constant.TODAY_ADS)!;
-                              //         total_ads = prefs.getString(
-                              //             Constant.TOTAL_ADS)!;
-                              //         ads_cost = prefs.getString(
-                              //             Constant.ADS_COST)!;
-                              //       });
-                              //     } else {}
-                              //   },
-                              // );
+                              var userID =
+                                  await storeLocal.read(key: Constant.ID);
+                              debugPrint("userID: $userID");
+                              homeController.syncData(
+                                userID,
+                                orderCount.toString(),
+                                (String syncDataNextgenSuccess) {
+                                  debugPrint(
+                                      "syncDataNextgenSuccess: $syncDataNextgenSuccess");
+                                  // Perform actions based on the result of the syncData function
+                                  if (syncDataNextgenSuccess == 'true') {
+                                    setState(() {
+                                      isClaimButtonDisabled = true;
+                                      orderCount = 0;
+                                      saveOrderCount(orderCount);
+                                      progressPercentage =
+                                          (orderCount / maximumValue);
+                                      orderAvailable = prefs
+                                          .getString(Constant.ORDERAVAILABLE)!;
+                                      workDays =
+                                          prefs.getString(Constant.WORK_DAYS)!;
+                                      todayOrder = prefs
+                                          .getString(Constant.TODAY_ORDER)!;
+                                      totalOrders = prefs
+                                          .getString(Constant.TOTAL_ORDER)!;
+                                      averageOrders = prefs
+                                          .getString(Constant.AVERAGE_ORDER)!;
+                                      balanceNextgen = prefs
+                                          .getString(Constant.BALANCE_NEXTGEN)!;
+                                    });
+                                  } else {}
+                                },
+                              );
                             } catch (e) {
                               // Handle any errors that occur during the process
                               debugPrint("Error: $e");
@@ -404,12 +445,26 @@ class HomeScreenState extends State<HomeScreen> {
                             horizontal: 15,
                             vertical: 10,
                           ),
-                          child: const Text(
-                            "Wallet Balance",
-                            style: TextStyle(
-                                fontFamily: 'MontserratBold',
-                                color: Colors.white,
-                                fontSize: Dimensions.FONT_SIZE_EXTRA_LARGE),
+                          child: Column(
+                            children: [
+                              const Text(
+                                "Wallet Balance",
+                                style: TextStyle(
+                                    fontFamily: 'MontserratBold',
+                                    color: Colors.white,
+                                    fontSize: Dimensions.FONT_SIZE_EXTRA_LARGE),
+                              ),
+                              Obx(
+                                () => Text(
+                                  "${balanceNextgen != "" ? balanceNextgen : authCon.balance_nextgen.toString()} + ${multiplyCostValue.toString()}",
+                                  style: const TextStyle(
+                                      fontFamily: 'MontserratBold',
+                                      color: Colors.white,
+                                      fontSize:
+                                          Dimensions.FONT_SIZE_EXTRA_LARGE),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         const SizedBox(
@@ -422,7 +477,7 @@ class HomeScreenState extends State<HomeScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "Today Orders :",
+                                  "Today Orders ",
                                   style: TextStyle(
                                       fontFamily: 'MontserratBold',
                                       color: kTextColor,
@@ -432,7 +487,7 @@ class HomeScreenState extends State<HomeScreen> {
                                     height:
                                         Dimensions.PADDING_SIZE_EXTRA_SMALL),
                                 Text(
-                                  "Total Orders :",
+                                  "Total Orders ",
                                   style: TextStyle(
                                       fontFamily: 'MontserratBold',
                                       color: kTextColor,
@@ -442,7 +497,7 @@ class HomeScreenState extends State<HomeScreen> {
                                     height:
                                         Dimensions.PADDING_SIZE_EXTRA_SMALL),
                                 Text(
-                                  "Work Days :",
+                                  "Work Days ",
                                   style: TextStyle(
                                       fontFamily: 'MontserratBold',
                                       color: kTextColor,
@@ -452,7 +507,7 @@ class HomeScreenState extends State<HomeScreen> {
                                     height:
                                         Dimensions.PADDING_SIZE_EXTRA_SMALL),
                                 Text(
-                                  "My Daily Average :",
+                                  "My Daily Average ",
                                   style: TextStyle(
                                       fontFamily: 'MontserratBold',
                                       color: kTextColor,
@@ -471,13 +526,13 @@ class HomeScreenState extends State<HomeScreen> {
                               ],
                             ),
                             const SizedBox(
-                                width: Dimensions.PADDING_SIZE_EXTRA_SMALL),
+                                width: Dimensions.PADDING_SIZE_SMALL),
                             Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Obx(
                                   () => Text(
-                                    homeController.today_order.toString(),
+                                    "${todayOrder != "" ? todayOrder : authCon.today_order} + ${homeController.today_order_con.toString()}",
                                     style: const TextStyle(
                                         fontFamily: 'MontserratBold',
                                         color: kTextColor,
@@ -489,7 +544,7 @@ class HomeScreenState extends State<HomeScreen> {
                                         Dimensions.PADDING_SIZE_EXTRA_SMALL),
                                 Obx(
                                   () => Text(
-                                    homeController.total_order.toString(),
+                                    "${totalOrders != "" ? totalOrders : authCon.total_order} + ${homeController.today_order_con.toString()}",
                                     style: const TextStyle(
                                         fontFamily: 'MontserratBold',
                                         color: kTextColor,
@@ -501,7 +556,9 @@ class HomeScreenState extends State<HomeScreen> {
                                         Dimensions.PADDING_SIZE_EXTRA_SMALL),
                                 Obx(
                                   () => Text(
-                                    authCon.work_days.toString(),
+                                    workDays != ""
+                                        ? workDays
+                                        : authCon.work_days.toString(),
                                     style: const TextStyle(
                                         fontFamily: 'MontserratBold',
                                         color: kTextColor,
@@ -511,12 +568,16 @@ class HomeScreenState extends State<HomeScreen> {
                                 const SizedBox(
                                     height:
                                         Dimensions.PADDING_SIZE_EXTRA_SMALL),
-                                const Text(
-                                  "500",
-                                  style: TextStyle(
-                                      fontFamily: 'MontserratBold',
-                                      color: kTextColor,
-                                      fontSize: Dimensions.FONT_SIZE_SMALL),
+                                Obx(
+                                  () => Text(
+                                    averageOrders != ""
+                                        ? averageOrders
+                                        : authCon.average_orders.toString(),
+                                    style: const TextStyle(
+                                        fontFamily: 'MontserratBold',
+                                        color: kTextColor,
+                                        fontSize: Dimensions.FONT_SIZE_SMALL),
+                                  ),
                                 ),
                               ],
                             ),
@@ -667,7 +728,8 @@ class HomeScreenState extends State<HomeScreen> {
                                     if (homeController.isCoped.value != true) {
                                       debugPrint(
                                           'homeController.isCoped.value: ${homeController.isCoped.value}');
-                                      homeController.pasteText(context,productEan);
+                                      homeController.pasteText(
+                                          context, productEan);
                                     }
                                   },
                                   child: Container(
@@ -992,76 +1054,146 @@ class HomeScreenState extends State<HomeScreen> {
                                         // setState(() {
                                         //   isPlaceOrder = true;
                                         // });
-                                        Timer(const Duration(seconds: 4), () {
-                                          // setState(() {
-                                          //   isPlaceOrder = false;
-                                          // });
-                                          homeController.todayOrders();
-                                          homeController.totalOrders();
-                                          orderCount++;
-                                          print('orderCount called $orderCount times.');
-                                          multiplyCostValue = orderCount * double.parse(ads_cost);
-                                          setState(() {
-                                            isPlaceOrder = false;
-                                            progressPercentage = (orderCount / maximumValue);
-                                            debugPrint("timerCount: $orderCount");
-                                            saveTimerCount(orderCount, multiplyCostValue);
-                                            if (orderCount < 99) {
-                                              isButtonDisabled = true; // Disable the button
-                                            } else if (orderCount >= 99) {
-                                              // syncUniqueId = homeController.generateRandomSixDigitNumber();
-                                              // debugPrint("syncUniqueId: $syncUniqueId");
-                                              isButtonDisabled = true; // Disable the button
-                                              // orderCount = 0;
-                                            } else if (orderCount == 120) {
-                                              isButtonDisabled = false; // Enable the button
-                                              // orderCount = 0;
-                                            } else if (orderCount > 120) {
-                                              progressPercentage = 0.0;
-                                              isButtonDisabled = false; // Enable the button
-                                              orderCount = 0;
-                                            }
-                                          });
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                              duration: const Duration(seconds: 3),
-                                              backgroundColor: kPurpleColor,
-                                              behavior: SnackBarBehavior.floating, // Add this line
-                                              margin: const EdgeInsets.only(bottom: 10, left: 15, right: 15),
-                                              content: RichText(
-                                                text: const TextSpan(
-                                                  style: TextStyle(
-                                                    fontFamily:
-                                                        'MontserratBold',
-                                                    color: Colors.white,
-                                                    fontSize: Dimensions
-                                                        .FONT_SIZE_DEFAULT,
-                                                  ),
-                                                  children: [
-                                                    TextSpan(
-                                                      text:
-                                                          'Order Placed Successfully ',
-                                                    ),
-                                                    TextSpan(
-                                                      text: '✔️',
-                                                      style: TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          color: Colors.green,
-                                                          fontSize: 20,
+                                        Timer(
+                                            const Duration(seconds: 4),
+                                            orderCount >= 100
+                                                ? () {
+                                                    setState(() {
+                                                      isPlaceOrder = false;
+                                                    });
+                                                    ScaffoldMessenger.of(
+                                                            context)
+                                                        .showSnackBar(
+                                                      const SnackBar(
+                                                        duration: Duration(
+                                                            seconds: 3),
+                                                        backgroundColor:
+                                                            kPurpleColor,
+                                                        behavior: SnackBarBehavior
+                                                            .floating, // Add this line
+                                                        margin: EdgeInsets.only(
+                                                            bottom: 10,
+                                                            left: 15,
+                                                            right: 15),
+                                                        content: Text(
+                                                          'Sync Now Try Again...',
+                                                          style: TextStyle(
+                                                            fontFamily:
+                                                                'MontserratBold',
+                                                            color: Colors.white,
+                                                            fontSize: Dimensions
+                                                                .FONT_SIZE_DEFAULT,
+                                                          ),
+                                                        ),
                                                       ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          );
-                                          resetValue();
-                                          productEan = homeController
-                                              .generateRandomNineDigitNumber()
-                                              .toString();
-                                        });
+                                                    );
+                                                    resetValue();
+                                                    productEan = homeController
+                                                        .generateRandomNineDigitNumber()
+                                                        .toString();
+                                                  }
+                                                : () {
+                                                    // setState(() {
+                                                    //   isPlaceOrder = false;
+                                                    // });
+                                                    homeController
+                                                        .todayOrders();
+                                                    multiplyCostValue =
+                                                        orderCount *
+                                                            double.parse(authCon
+                                                                .orders_cost
+                                                                .toString());
+                                                    setState(() {
+                                                      isPlaceOrder = false;
+                                                      orderCount++;
+                                                      // progressPercentage = (orderCount / maximumValue);
+                                                      print(
+                                                          'orderCount called $orderCount times.');
+                                                      debugPrint(
+                                                          "timerCount: $orderCount");
+                                                      if (orderCount <= 99) {
+                                                        // orderCount=99;
+                                                        progressPercentage =
+                                                            (orderCount /
+                                                                maximumValue);
+                                                        // print('orderCount called $orderCount times.');
+                                                        isClaimButtonDisabled =
+                                                            true; // Disable the button
+                                                      } else if (orderCount >
+                                                          99) {
+                                                        // syncUniqueId = homeController.generateRandomSixDigitNumber();
+                                                        // debugPrint("syncUniqueId: $syncUniqueId");
+                                                        // orderCount = 0;
+                                                        progressPercentage =
+                                                            (orderCount /
+                                                                maximumValue);
+                                                        isClaimButtonDisabled =
+                                                            false; // Disable the button
+                                                        // orderCount = 0;
+                                                      } else if (orderCount >
+                                                          100) {
+                                                        progressPercentage =
+                                                            0.0;
+                                                        isClaimButtonDisabled =
+                                                            false; // Enable the button
+                                                        orderCount = 0;
+                                                      }
+                                                      saveOrderCount(
+                                                          orderCount);
+                                                    });
+                                                    ScaffoldMessenger.of(
+                                                            context)
+                                                        .showSnackBar(
+                                                      SnackBar(
+                                                        duration:
+                                                            const Duration(
+                                                                seconds: 3),
+                                                        backgroundColor:
+                                                            kPurpleColor,
+                                                        behavior: SnackBarBehavior
+                                                            .floating, // Add this line
+                                                        margin: const EdgeInsets
+                                                            .only(
+                                                            bottom: 10,
+                                                            left: 15,
+                                                            right: 15),
+                                                        content: RichText(
+                                                          text: const TextSpan(
+                                                            style: TextStyle(
+                                                              fontFamily:
+                                                                  'MontserratBold',
+                                                              color:
+                                                                  Colors.white,
+                                                              fontSize: Dimensions
+                                                                  .FONT_SIZE_DEFAULT,
+                                                            ),
+                                                            children: [
+                                                              TextSpan(
+                                                                text:
+                                                                    'Order Placed Successfully ',
+                                                              ),
+                                                              TextSpan(
+                                                                text: '✔️',
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  color: Colors
+                                                                      .green,
+                                                                  fontSize: 20,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    );
+                                                    resetValue();
+                                                    productEan = homeController
+                                                        .generateRandomNineDigitNumber()
+                                                        .toString();
+                                                  });
                                       }
                                     : () {},
                                 child: Container(
@@ -1175,11 +1307,10 @@ class HomeScreenState extends State<HomeScreen> {
         ),
       ),
       floatingActionButton: InkWell(
-        onTap: (){
+        onTap: () {
           String text = 'Hello I need help in app';
           String encodedText = Uri.encodeFull(text);
-          String uri =
-              'https://tawk.to/chat/655e4f8ed600b968d3160d07/default';
+          String uri = 'https://tawk.to/chat/655e4f8ed600b968d3160d07/default';
           launchUrl(
             Uri.parse(uri),
             mode: LaunchMode.inAppWebView,
@@ -1189,20 +1320,10 @@ class HomeScreenState extends State<HomeScreen> {
           height: 60,
           width: 60,
           decoration: BoxDecoration(
-            color: Colors.green,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(1000),
-            border: Border(
-              bottom: BorderSide(
-                color: Colors.green.shade900,
-                width: 4.0,
-              ),
-              right: BorderSide(
-                color: Colors.green.shade900,
-                width: 2.0,
-              ),
-            ),
           ),
-          child: const Icon(Icons.support_agent,color: kWhiteColor,size: 30,),
+          child: Image.asset('assets/images/download-removebg-preview.png'),
         ),
       ),
     );

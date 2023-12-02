@@ -32,6 +32,11 @@ class AuthCon extends GetxController implements GetxService {
   RxBool obscured = true.obs;
   RxBool obscuredCreate = true.obs;
   RxString work_days = ''.obs;
+  RxString today_order = ''.obs;
+  RxString total_order = ''.obs;
+  RxString average_orders = ''.obs;
+  RxString balance_nextgen = ''.obs;
+  RxString orders_cost = ''.obs;
   RxString joinIsTrue = ''.obs;
 
   @override
@@ -193,6 +198,11 @@ class AuthCon extends GetxController implements GetxService {
       debugPrint("===> userDetail message: ${userDetail.message}");
       if (userDetail.data != null && userDetail.data!.isNotEmpty) {
         work_days.value = userDetail.data![0].workedDays.toString();
+        total_order.value = userDetail.data![0].totalOrders.toString();
+        today_order.value = userDetail.data![0].totalOrders.toString();
+        average_orders.value = userDetail.data![0].averageOrders.toString();
+        balance_nextgen.value = userDetail.data![0].balance.toString();
+        orders_cost.value = userDetail.data![0].ordersCost.toString();
 
         await storeLocal.write(key: Constant.ORDERAVAILABLE, value: userDetail.data![0].orderAvailable.toString());
         await storeLocal.write(key: Constant.WORK_DAYS, value: userDetail.data![0].workedDays.toString());
@@ -202,6 +212,7 @@ class AuthCon extends GetxController implements GetxService {
         await storeLocal.write(key: Constant.CITY, value: userDetail.data![0].location.toString());
         await storeLocal.write(key: Constant.DOB, value: userDetail.data![0].dob.toString());
         await storeLocal.write(key: Constant.HR_ID, value: userDetail.data![0].hrId.toString());
+        await storeLocal.write(key: Constant.ID, value: userDetail.data![0].id.toString());
         await storeLocal.write(key: Constant.AADHAAR_NUM, value: userDetail.data![0].aadhaarNum.toString());
         await storeLocal.write(key: Constant.REFER_BONUS, value: userDetail.data![0].referBonusSent.toString());
         await storeLocal.write(key: Constant.REFER_CODE, value: userDetail.data![0].referCode.toString());
@@ -214,6 +225,13 @@ class AuthCon extends GetxController implements GetxService {
         await storeLocal.write(key: Constant.IFSC, value: userDetail.data![0].ifsc.toString());
         await storeLocal.write(key: Constant.BANK, value: userDetail.data![0].bank.toString());
         await storeLocal.write(key: Constant.BRANCH, value: userDetail.data![0].branch.toString());
+        await storeLocal.write(key: Constant.HIRING_EARNINGS, value: userDetail.data![0].hiringEarings.toString());
+        await storeLocal.write(key: Constant.ORDERS_EARNINGS, value: userDetail.data![0].ordersEarnings.toString());
+        await storeLocal.write(key: Constant.TOTAL_ORDER, value: userDetail.data![0].totalOrders.toString());
+        await storeLocal.write(key: Constant.TODAY_ORDER, value: userDetail.data![0].todayOrders.toString());
+        await storeLocal.write(key: Constant.AVERAGE_ORDER, value: userDetail.data![0].averageOrders.toString());
+        await storeLocal.write(key: Constant.BALANCE_NEXTGEN, value: userDetail.data![0].balance.toString());
+        await storeLocal.write(key: Constant.ORDER_COST, value: userDetail.data![0].ordersCost.toString());
         update();
       }
       update();

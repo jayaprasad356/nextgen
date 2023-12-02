@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import '../../../util/Color.dart';
 import '../../../util/Constant.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 class BankDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -16,11 +17,17 @@ class BankDetailsScreen extends StatelessWidget {
       appBar: AppBar(
         centerTitle: true,
         automaticallyImplyLeading: false,
-        title: const Text('Bank Details',style: TextStyle(fontFamily: 'Montserra', color: colors.white),),
+        title: const Text(
+          'Bank Details',
+          style: TextStyle(fontFamily: 'Montserra', color: colors.white),
+        ),
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [colors.primary_color, colors.primary_color2], // Change these colors to your desired gradient colors
+              colors: [
+                colors.primary_color,
+                colors.primary_color2
+              ], // Change these colors to your desired gradient colors
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),
@@ -53,12 +60,13 @@ class _BankDetailsFormState extends State<BankDetailsForm> {
   TextEditingController _holdernameController = TextEditingController();
   TextEditingController _accountNumberController = TextEditingController();
   TextEditingController _ifscCodeController = TextEditingController();
-  TextEditingController _branchNameController = TextEditingController(); // New field for branch name
+  TextEditingController _branchNameController =
+      TextEditingController(); // New field for branch name
   late SharedPreferences prefs;
   String holder_name = "";
   String bank = "";
   String account_num = "";
-  String ifsc="";
+  String ifsc = "";
   String branch = "";
   @override
   void initState() {
@@ -69,6 +77,8 @@ class _BankDetailsFormState extends State<BankDetailsForm> {
     _accountNumberController.text = walletCon.accountNum.toString();
     _ifscCodeController.text = walletCon.ifscCode.toString();
     _branchNameController.text = walletCon.branch.toString();
+    debugPrint(
+        "_bankNameController.text: ${_bankNameController.text}\n_holdernameController.text: ${_holdernameController.text}\n_accountNumberController.text: ${_accountNumberController.text}\n_ifscCodeController.text: ${_ifscCodeController.text}\n_branchNameController.text: ${_branchNameController.text}");
     // SharedPreferences.getInstance().then((value) {
     //   prefs = value;
     //   setState(() {
@@ -87,13 +97,15 @@ class _BankDetailsFormState extends State<BankDetailsForm> {
     // });
   }
 
-
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Container(
-        width: MediaQuery.of(context).size.width, // Set width to the screen width
-        height: MediaQuery.of(context).size.height, // Set height to the screen height
+        width:
+            MediaQuery.of(context).size.width, // Set width to the screen width
+        height: MediaQuery.of(context)
+            .size
+            .height, // Set height to the screen height
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [colors.primary_color, colors.secondary_color],
@@ -110,33 +122,52 @@ class _BankDetailsFormState extends State<BankDetailsForm> {
               children: [
                 TextField(
                   controller: _holdernameController,
-                  decoration: const InputDecoration(labelText: 'Holder Name', labelStyle: TextStyle(color: Colors.white),hintStyle: TextStyle(color: Colors.white),),
+                  decoration: const InputDecoration(
+                    labelText: 'Holder Name',
+                    labelStyle: TextStyle(color: Colors.white),
+                    hintStyle: TextStyle(color: Colors.white),
+                  ),
                   style: const TextStyle(color: Colors.white),
-
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: _accountNumberController,
                   style: const TextStyle(color: Colors.white),
-                  decoration: const InputDecoration(labelText: 'Account Number', labelStyle: TextStyle(color: Colors.white),hintStyle: TextStyle(color: Colors.white),),
+                  decoration: const InputDecoration(
+                    labelText: 'Account Number',
+                    labelStyle: TextStyle(color: Colors.white),
+                    hintStyle: TextStyle(color: Colors.white),
+                  ),
                   keyboardType: TextInputType.number,
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: _ifscCodeController,
-                  decoration: const InputDecoration(labelText: 'IFSC Code', labelStyle: TextStyle(color: Colors.white),hintStyle: TextStyle(color: Colors.white),),
+                  decoration: const InputDecoration(
+                    labelText: 'IFSC Code',
+                    labelStyle: TextStyle(color: Colors.white),
+                    hintStyle: TextStyle(color: Colors.white),
+                  ),
                   style: const TextStyle(color: Colors.white),
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: _bankNameController,
-                  decoration: const InputDecoration(labelText: 'Bank Name', labelStyle: TextStyle(color: Colors.white),hintStyle: TextStyle(color: Colors.white),),
+                  decoration: const InputDecoration(
+                    labelText: 'Bank Name',
+                    labelStyle: TextStyle(color: Colors.white),
+                    hintStyle: TextStyle(color: Colors.white),
+                  ),
                   style: const TextStyle(color: Colors.white),
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: _branchNameController,
-                  decoration: const InputDecoration(labelText: 'Branch Name', labelStyle: TextStyle(color: Colors.white),hintStyle: TextStyle(color: Colors.white),),
+                  decoration: const InputDecoration(
+                    labelText: 'Branch Name',
+                    labelStyle: TextStyle(color: Colors.white),
+                    hintStyle: TextStyle(color: Colors.white),
+                  ),
                   style: const TextStyle(color: Colors.white),
                 ),
                 const SizedBox(height: 24),
@@ -151,7 +182,8 @@ class _BankDetailsFormState extends State<BankDetailsForm> {
                       String ifscCode = _ifscCodeController.text;
                       String branchName = _branchNameController.text;
 
-                      walletCon.updateBankDetails( holderName, bankName, accountNumber, branchName, ifscCode);
+                      walletCon.updateBankDetails(holderName, bankName,
+                          accountNumber, branchName, ifscCode);
 
                       // var url = Constant.UPDATE_BANK_DETAILS;
                       // Map<String, dynamic> bodyObject = {
@@ -186,8 +218,8 @@ class _BankDetailsFormState extends State<BankDetailsForm> {
       ),
     );
   }
-  void userDeatils() async {
 
+  void userDeatils() async {
     prefs = await SharedPreferences.getInstance();
     var url = Constant.USER_DETAIL_URL;
     Map<String, dynamic> bodyObject = {
@@ -215,7 +247,6 @@ class _BankDetailsFormState extends State<BankDetailsForm> {
     prefs.setString(Constant.BANK, user.bank);
     prefs.setString(Constant.BRANCH, user.branch);
     setState(() {
-
       holder_name = prefs.getString(Constant.HOLDER_NAME)!;
       bank = prefs.getString(Constant.BANK)!;
       account_num = prefs.getString(Constant.ACCOUNT_NUM)!;
@@ -228,5 +259,4 @@ class _BankDetailsFormState extends State<BankDetailsForm> {
       _branchNameController.text = branch;
     });
   }
-
 }

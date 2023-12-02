@@ -29,4 +29,12 @@ class WalletRepo {
     };
     return await apiClient.postData(Constant.WITHDRAWAL_URL, body, {});
   }
+
+  Future<Response> addToMainBalance(String userId, String walletType) async {
+    Map<String, String> body = {
+      'user_id': userId,
+      'wallet_type': walletType,
+    };
+    return await apiClient.postData(Constant.ADD_MAIN_BALANCE_URL, body, {});
+  }
 }

@@ -3,6 +3,7 @@ import 'dart:html';
 import 'dart:math';
 
 import 'package:flutter/services.dart';
+import 'package:nextgen/data/model/sync_data_nextget.dart';
 import 'package:nextgen/data/repository/full_time_repo.dart';
 import 'package:nextgen/data/repository/home_repo.dart';
 import 'package:nextgen/data/repository/work_repo.dart';
@@ -14,15 +15,16 @@ import 'package:nextgen/util/color_const.dart';
 import 'package:nextgen/util/dimensions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-typedef SyncDataCallback = void Function(String syncDataSuccess);
+typedef SyncDataNextgenCallback = void Function(String syncDataNextgenSuccess);
 
 class HomeController extends GetxController implements GetxService {
   final HomeRepo homeRepo;
   HomeController({required this.homeRepo});
-  late String syncDataSuccess = '';
+  late String syncDataNextgenSuccess = '';
   late SharedPreferences prefs;
-  String todayAds = "";
-  String totalAds = "";
+  String syncTodayOrders = "";
+  String syncTotalOrders = "";
+  String syncOrderAvailable = "";
   String balance = "";
   String ads_cost = "";
   String ads_time = "";
@@ -30,12 +32,15 @@ class HomeController extends GetxController implements GetxService {
   RxInt quantity = 0.obs; // Initial quantity
   RxString orderAvailable = ''.obs;
   RxString copiedText = ''.obs;
-  RxInt today_order = 0.obs;
-  RxInt total_order = 0.obs;
+  RxInt today_order_con = 0.obs;
   RxString productEanCnt = ''.obs;
   RxBool isCoped = false.obs;
   RxBool isCheck = false.obs;
-  // RxString work_day = ''.obs;
+  RxString workDays = ''.obs;
+  RxString totalOrder = ''.obs;
+  RxString todayOrder = ''.obs;
+  RxString averageOrders = ''.obs;
+  RxString balanceNextgen = ''.obs;
   int timer = 1;
   RxBool isLoading = false.obs;
   // String balance = "";
@@ -76,18 +81,10 @@ class HomeController extends GetxController implements GetxService {
   }
 
   void todayOrders() async {
-    today_order++; // Increment the today_order
-    await storeLocal.containsKey(key: Constant.TODAY_ORDERS);
+    today_order_con++; // Increment the today_order
+    await storeLocal.containsKey(key: Constant.TODAY_ORDERS_CON);
     await storeLocal.write(
-        key: Constant.TODAY_ORDERS, value: today_order.value.toString());
-    update();
-  }
-
-  void totalOrders() async {
-    total_order++; // Increment the today_order
-    await storeLocal.containsKey(key: Constant.TOTAL_ORDERS);
-    await storeLocal.write(
-        key: Constant.TOTAL_ORDERS, value: total_order.value.toString());
+        key: Constant.TODAY_ORDERS_CON, value: today_order_con.value.toString());
     update();
   }
 
@@ -205,59 +202,60 @@ class HomeController extends GetxController implements GetxService {
   Future<void> syncData(
     userId,
     orders,
-    SyncDataCallback callback, // Add the callback parameter
+      SyncDataNextgenCallback callback, // Add the callback parameter
   ) async {
     prefs = await SharedPreferences.getInstance();
     try {
       final value = await homeRepo.syncData(userId, orders);
       var responseData = value.body;
-      SyncDataList syncDataList = SyncDataList.fromJson(responseData);
-      debugPrint("===> SyncDataList: $syncDataList");
-      debugPrint("===> SyncDataList message: ${syncDataList.message}");
-      debugPrint("===> SyncDataList success: ${syncDataList.success}");
+      SyncDataNextgen syncDataNextgen = SyncDataNextgen.fromJson(responseData);
+      debugPrint("===> syncDataNextgen: $syncDataNextgen");
+      debugPrint("===> syncDataNextgen message: ${syncDataNextgen.message}");
+      debugPrint("===> syncDataNextgen success: ${syncDataNextgen.success}");
 
-      syncDataSuccess = syncDataList.success.toString();
+      // syncDataNextgenSuccess = syncDataNextgen.success.toString();
 
-      if (syncDataList.data != null && syncDataList.data!.isNotEmpty) {
-        todayAds = syncDataList.data![0].todayAds!;
-        totalAds = syncDataList.data![0].totalAds!;
-        balance = syncDataList.data![0].balance!;
-        ads_cost = syncDataList.data![0].adsCost!;
-        ads_time = syncDataList.data![0].adsTime!;
-        reward_ads = syncDataList.data![0].rewardAds!;
-        // balance = syncDataList.data![0].balance!;
-        // ads_cost.value = syncDataList.data![0].adsCost!;
-        prefs.remove(Constant.TODAY_ADS);
-        prefs.remove(Constant.TOTAL_ADS);
-        prefs.remove(Constant.BALANCE);
-        prefs.remove(Constant.ADS_COST);
-        prefs.remove(Constant.ADS_TIME);
-        prefs.remove(Constant.REWARD_ADS);
+      if (syncDataNextgen.data != null && syncDataNextgen.data!.isNotEmpty) {
+        // syncTotalOrders = syncDataNextgen.data![0].totalOrders!;
+        // syncTodayOrders = syncDataNextgen.data![0].totalOrders!;
+        syncOrderAvailable = syncDataNextgen.data![0].orderAvailable!;
+        workDays.value = syncDataNextgen.data![0].workedDays!;
+        todayOrder.value = syncDataNextgen.data![0].todayOrders!;
+        totalOrder.value = syncDataNextgen.data![0].totalOrders!;
+        averageOrders.value = syncDataNextgen.data![0].averageOrders!;
+        balanceNextgen.value = syncDataNextgen.data![0].averageOrders!;
 
-        prefs.setString(Constant.TODAY_ADS, todayAds);
-        prefs.setString(Constant.TOTAL_ADS, totalAds);
-        prefs.setString(Constant.BALANCE, balance);
-        prefs.setString(Constant.ADS_COST, ads_cost);
-        prefs.setString(Constant.ADS_TIME, ads_time);
-        prefs.setString(Constant.REWARD_ADS, reward_ads);
+        prefs.remove(Constant.ORDERAVAILABLE);
+        prefs.remove(Constant.WORK_DAYS);
+        prefs.remove(Constant.TODAY_ORDER);
+        prefs.remove(Constant.TOTAL_ORDER);
+        prefs.remove(Constant.AVERAGE_ORDER);
+        prefs.remove(Constant.BALANCE_NEXTGEN);
+
+        prefs.setString(Constant.ORDERAVAILABLE, syncOrderAvailable);
+        prefs.setString(Constant.WORK_DAYS, workDays.value);
+        prefs.setString(Constant.TOTAL_ORDER, totalOrder.value);
+        prefs.setString(Constant.TODAY_ORDER, todayOrder.value);
+        prefs.setString(Constant.AVERAGE_ORDER, averageOrders.value);
+        prefs.setString(Constant.BALANCE_NEXTGEN, balanceNextgen.value);
       }
-
+      //
       // prefs.setString(Constant.MOBILE, user.mobile);
 
       Get.snackbar(
-        syncDataList.success.toString(),
-        syncDataList.message.toString(),
+        syncDataNextgen.success.toString(),
+        syncDataNextgen.message.toString(),
         duration: const Duration(seconds: 3),
         colorText: kPrimaryColor,
         backgroundColor: kWhiteColor,
       );
 
       // Execute the callback after the function is completed
-      callback(syncDataList.success.toString());
+      callback(syncDataNextgen.success.toString());
     } catch (e) {
-      debugPrint("syncData errors: $e");
+      debugPrint("syncDataNextgen errors: $e");
       // Handle errors
-      callback('error');
+      callback('syncDataNextgen error');
     }
   }
 }

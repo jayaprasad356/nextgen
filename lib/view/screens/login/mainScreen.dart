@@ -63,6 +63,7 @@ class _MainScreenState extends State<MainScreen> {
   bool _logoutVisible = false;
   bool _leftArrowVisible = false;
   bool _notificationVisible = false;
+  bool _downloadVisible = false;
   bool _addPost = false;
   late Users user;
   late SharedPreferences prefs;
@@ -203,6 +204,7 @@ class _MainScreenState extends State<MainScreen> {
       if (index == 1) {
         title = "Job Detail";
         _actionsVisible = false;
+        _downloadVisible = false;
         _logoutVisible = false;
         _leftArrowVisible = false;
         _notificationVisible = false;
@@ -210,6 +212,7 @@ class _MainScreenState extends State<MainScreen> {
       } else if (index == 2) {
         title = "Notifications";
         _actionsVisible = false;
+        _downloadVisible = true;
         _logoutVisible = false;
         _leftArrowVisible = false;
         _notificationVisible = false;
@@ -217,6 +220,7 @@ class _MainScreenState extends State<MainScreen> {
       } else if (index == 3) {
         title = "Profile";
         _actionsVisible = false;
+        _downloadVisible = false;
         _logoutVisible = true;
         _leftArrowVisible = false;
         _notificationVisible = false;
@@ -225,6 +229,7 @@ class _MainScreenState extends State<MainScreen> {
         title = "Nextgen Orders Fulfilment";
         _actionsVisible = joinIsTrue == '' || joinIsTrue == 'false'
             ? true : false;
+        _downloadVisible = false;
         _logoutVisible = false;
         _leftArrowVisible = false;
         _notificationVisible = false;
@@ -314,6 +319,42 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                       )
                     : const Text(""),
+          _downloadVisible
+              ? Padding(
+                padding: const EdgeInsets.only(right: 20),
+                child: InkWell(
+                onTap: () {
+                  // String uri = ''; //place download link
+                  // launchUrl(
+                  //   Uri.parse(uri),
+                  //   mode: LaunchMode.inAppWebView,
+                  // );
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: kPurpleColor,
+                    borderRadius: BorderRadius.circular(1000),
+                    border: Border(
+                      bottom: BorderSide(
+                        color: Colors.purple.shade800,
+                        width: 4.0,
+                      ),
+                      right: BorderSide(
+                        color: Colors.purple.shade800,
+                        width: 2.0,
+                      ),
+                    ),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 10,horizontal: 20),
+                  child: const Text('Install App',
+                    style: TextStyle(
+                        fontFamily: 'MontserratBold',
+                        color: kWhiteColor,
+                        fontSize: Dimensions.FONT_SIZE_SMALL),),
+                )
+                          ),
+              )
+              : const Text(""),
                 _notificationVisible
                     ? GestureDetector(
                         onTap: () {

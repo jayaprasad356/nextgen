@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:nextgen/data/model/add_to_balance.dart';
 import 'package:nextgen/data/repository/update_bank_mod.dart';
 import 'package:nextgen/data/repository/wallet_repo.dart';
 import 'package:nextgen/util/Constant.dart';
@@ -29,6 +30,8 @@ class WalletCon extends GetxController {
   RxString bankName = "".obs;
   RxString branch = "".obs;
   RxString basicWallet = "".obs;
+  RxString hiringEarnings = "".obs;
+  RxString ordersEarnings = "".obs;
 
   @override
   void onInit() {
@@ -52,6 +55,8 @@ class WalletCon extends GetxController {
     ifscCode.value = (await storeLocal.read(key: Constant.IFSC))!;
     bankName.value = (await storeLocal.read(key: Constant.BANK))!;
     branch.value = (await storeLocal.read(key: Constant.BRANCH))!;
+    ordersEarnings.value = (await storeLocal.read(key: Constant.ORDERS_EARNINGS))!;
+    hiringEarnings.value = (await storeLocal.read(key: Constant.HIRING_EARNINGS))!;
     // double earnAmount = double.parse(earn);
     // totalRefund = 'Total Refund = Rs. ${(earnAmount / 2).toStringAsFixed(2)}';
     debugPrint(
@@ -71,11 +76,11 @@ class WalletCon extends GetxController {
       debugPrint("===> bankDetailsUpdate: $bankDetailsUpdate");
       debugPrint("===> bankDetailsUpdate message: ${bankDetailsUpdate.message}");
       debugPrint("===> bankDetailsUpdate message: ${bankDetailsUpdate.success}");
-      Get.snackbar('Sign In', bankDetailsUpdate.message.toString(),colorText: kPrimaryColor,backgroundColor: kWhiteColor,duration: const Duration(seconds: 3),);
+      Get.snackbar('Bank Details Update', bankDetailsUpdate.message.toString(),colorText: kPrimaryColor,backgroundColor: kWhiteColor,duration: const Duration(seconds: 3),);
 
       update();
     } catch (e) {
-      debugPrint("loginData errors: $e");
+      debugPrint("bankDetailsUpdate errors: $e");
     }
   }
 
@@ -94,6 +99,22 @@ class WalletCon extends GetxController {
       update();
     } catch (e) {
       debugPrint("loginData errors: $e");
+    }
+  }
+
+  Future<void> addToMainBalance(walletType) async {
+    try {
+      final value = await walletRepo.addToMainBalance(userId.value.toString(), walletType);
+      var responseData = value.body;
+      AddedToBalance addedToBalance = AddedToBalance.fromJson(responseData);
+      debugPrint("===> addedToBalance: $addedToBalance");
+      debugPrint("===> addedToBalance message: ${addedToBalance.message}");
+      debugPrint("===> addedToBalance message: ${addedToBalance.success}");
+      Get.snackbar('Balance', addedToBalance.message.toString(),colorText: kPrimaryColor,backgroundColor: kWhiteColor,duration: const Duration(seconds: 3),);
+
+      update();
+    } catch (e) {
+      debugPrint("addedToBalance errors: $e");
     }
   }
 }

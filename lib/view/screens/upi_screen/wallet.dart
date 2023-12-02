@@ -38,6 +38,8 @@ class _walletState extends State<wallet> {
   String name = "";
   String mobile = "";
   String earn = "0.00";
+  // String ordersEarnings = "0.00";
+  // String hiringEarnings = "0.00";
 
   late String _upiId;
   late String _fcmToken;
@@ -66,6 +68,7 @@ class _walletState extends State<wallet> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     bool _isDisabled = true;
     return Scaffold(
       backgroundColor: colors.secondary_color,
@@ -97,23 +100,46 @@ class _walletState extends State<wallet> {
             color: colors.white,
           ),
         ),
-      ),
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Container(
-          width: MediaQuery.of(context)
-              .size
-              .width, // Set width to the screen width
-          height: MediaQuery.of(context)
-              .size
-              .height, // Set height to the screen height
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [colors.primary_color, colors.secondary_color],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
+        actions: [                    Padding(
+          padding: const EdgeInsets.only(right: 20),
+          child: MaterialButton(
+            color: colors.primary,
+            onPressed: () {
+              // Navigate to the BankDetailsScreen when the button is clicked
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => BankDetailsScreen(),
+                ),
+              );
+            },
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6),
             ),
+            child: const Text('Update Bank Detail',
+                style: TextStyle(
+                    fontSize: 14,
+                    color: colors.white,
+                    fontFamily: "Montserra")),
           ),
+        ),],
+      ),
+      body: Container(
+        width: MediaQuery.of(context)
+            .size
+            .width, // Set width to the screen width
+        height: MediaQuery.of(context)
+            .size
+            .height, // Set height to the screen height
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [colors.primary_color, colors.secondary_color],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
           child: Column(
             children: [
               const SizedBox(
@@ -141,7 +167,7 @@ class _walletState extends State<wallet> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Obx(
-                            () => Text(
+                              () => Text(
                                 walletCon.name.toString(),
                                 style: const TextStyle(
                                     fontSize: 14,
@@ -198,7 +224,7 @@ class _walletState extends State<wallet> {
                           width: 2, // Set the border width
                         ),
                         borderRadius:
-                        BorderRadius.circular(8), // Set border radius
+                            BorderRadius.circular(8), // Set border radius
                       ),
                       child: Padding(
                         padding: const EdgeInsets.only(
@@ -246,8 +272,7 @@ class _walletState extends State<wallet> {
                                       right: 20.0,
                                       bottom: 3.0),
                                   child: Row(
-                                    mainAxisAlignment:
-                                    MainAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Image.asset(
                                         'assets/images/money.png',
@@ -256,13 +281,15 @@ class _walletState extends State<wallet> {
                                       ),
                                       const SizedBox(
                                           width:
-                                          5), // Adding some spacing between image and text
-                                      // Text(
-                                      //   "₹ $basic_wallet",
-                                      //   style: const TextStyle(
-                                      //       fontSize: 18,
-                                      //       color: Colors.white),
-                                      // ),
+                                              5), // Adding some spacing between image and text
+                                      Obx(
+                                        () => Text(
+                                          "₹ ${walletCon.ordersEarnings}",
+                                          style: const TextStyle(
+                                              fontSize: 18,
+                                              color: Colors.white),
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -270,7 +297,7 @@ class _walletState extends State<wallet> {
                             ),
                             MaterialButton(
                               onPressed: () {
-                                // addTomainbalance('basic_wallet');
+                                walletCon.addToMainBalance('orders_earnings');
                               },
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
@@ -279,7 +306,7 @@ class _walletState extends State<wallet> {
                                     'assets/images/main_balance_btn.png',
                                     height: 50,
                                     width:
-                                    120, // Replace with the actual image path
+                                        120, // Replace with the actual image path
                                   ),
                                 ],
                               ),
@@ -298,7 +325,7 @@ class _walletState extends State<wallet> {
                           width: 2, // Set the border width
                         ),
                         borderRadius:
-                        BorderRadius.circular(8), // Set border radius
+                            BorderRadius.circular(8), // Set border radius
                       ),
                       child: Padding(
                         padding: const EdgeInsets.only(
@@ -377,8 +404,7 @@ class _walletState extends State<wallet> {
                                       right: 20.0,
                                       bottom: 3.0),
                                   child: Row(
-                                    mainAxisAlignment:
-                                    MainAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Image.asset(
                                         'assets/images/money.png',
@@ -387,13 +413,15 @@ class _walletState extends State<wallet> {
                                       ),
                                       const SizedBox(
                                           width:
-                                          5), // Adding some spacing between image and text
-                                      // Text(
-                                      //   "₹ $premium_wallet",
-                                      //   style: const TextStyle(
-                                      //       fontSize: 18,
-                                      //       color: Colors.white),
-                                      // ),
+                                              5), // Adding some spacing between image and text
+                                      Obx(
+                                        () => Text(
+                                          "₹ ${walletCon.hiringEarnings}",
+                                          style: const TextStyle(
+                                              fontSize: 18,
+                                              color: Colors.white),
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -401,7 +429,7 @@ class _walletState extends State<wallet> {
                             ),
                             MaterialButton(
                               onPressed: () {
-                                // addTomainbalance('premium_wallet');
+                                walletCon.addToMainBalance('hiring_earnings');
                               },
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
@@ -410,7 +438,7 @@ class _walletState extends State<wallet> {
                                     'assets/images/main_balance_btn.png',
                                     height: 50,
                                     width:
-                                    120, // Replace with the actual image path
+                                        120, // Replace with the actual image path
                                   ),
                                 ],
                               ),
@@ -471,55 +499,71 @@ class _walletState extends State<wallet> {
                   ),
                 ),
               ),
+              // const SizedBox(
+              //   height: 20,
+              // ),
+              // Padding(
+              //   padding: const EdgeInsets.symmetric(horizontal: 20),
+              //   child: Row(
+              //     mainAxisAlignment: MainAxisAlignment.end,
+              //     children: <Widget>[
+              //       MaterialButton(
+              //         color: colors.primary,
+              //         onPressed: () {
+              //           // Navigate to the BankDetailsScreen when the button is clicked
+              //           Navigator.push(
+              //             context,
+              //             MaterialPageRoute(
+              //               builder: (context) => BankDetailsScreen(),
+              //             ),
+              //           );
+              //         },
+              //         shape: RoundedRectangleBorder(
+              //           borderRadius: BorderRadius.circular(6),
+              //         ),
+              //         child: const Text('Update Bank Detail',
+              //             style: TextStyle(
+              //                 fontSize: 14,
+              //                 color: colors.white,
+              //                 fontFamily: "Montserra")),
+              //       ),
+              //       // const SizedBox(height: 5),
+              //       // MaterialButton(
+              //       //   color: colors.primary,
+              //       //   onPressed: () {
+              //       //     // Navigate to the BankDetailsScreen when the button is clicked
+              //       //     Navigator.push(
+              //       //       context,
+              //       //       MaterialPageRoute(
+              //       //         builder: (context) => UpdateProfileScreen(),
+              //       //       ),
+              //       //     );
+              //       //   },
+              //       //   shape: RoundedRectangleBorder(
+              //       //     borderRadius: BorderRadius.circular(6),
+              //       //   ),
+              //       //   child: const Text('Update Profile',
+              //       //       style: TextStyle(
+              //       //           fontSize: 14,
+              //       //           color: colors.white,
+              //       //           fontFamily: "Montserra")),
+              //       // ),
+              //     ],
+              //   ),
+              // ),
               const SizedBox(
                 height: 20,
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  MaterialButton(
-                    color: colors.primary,
-                    onPressed: () {
-                      // Navigate to the BankDetailsScreen when the button is clicked
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => BankDetailsScreen(),
-                        ),
-                      );
-                    },
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: const Text('Update Bank Detail',
-                        style: TextStyle(
-                            fontSize: 14,
-                            color: colors.white,
-                            fontFamily: "Montserra")),
-                  ),
-                  const SizedBox(height: 5),
-                  // MaterialButton(
-                  //   color: colors.primary,
-                  //   onPressed: () {
-                  //     // Navigate to the BankDetailsScreen when the button is clicked
-                  //     Navigator.push(
-                  //       context,
-                  //       MaterialPageRoute(
-                  //         builder: (context) => UpdateProfileScreen(),
-                  //       ),
-                  //     );
-                  //   },
-                  //   shape: RoundedRectangleBorder(
-                  //     borderRadius: BorderRadius.circular(6),
-                  //   ),
-                  //   child: const Text('Update Profile',
-                  //       style: TextStyle(
-                  //           fontSize: 14,
-                  //           color: colors.white,
-                  //           fontFamily: "Montserra")),
-                  // ),
-                ],
-              ),
+              Container(
+                width: size.width,
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.asset('assets/images/WhatsApp Image 2023-12-02 at 7.46.52 PM.jpeg'),
+              ),),
               // const SizedBox(
               //   height: 15,
               // ),
@@ -703,9 +747,11 @@ class _walletState extends State<wallet> {
                   // showAlertDialog(context);
                   double withdrawalAmt =
                       double.tryParse(_withdrawalAmtController.text) ?? 0.0;
-                  double minimumAmt = double.tryParse(walletCon.minimum.toString()) ?? 0.0;
+                  double minimumAmt =
+                      double.tryParse(walletCon.minimum.toString()) ?? 0.0;
                   if (withdrawalAmt < minimumAmt) {
-                    utils.showToast("please enter minimum ${walletCon.minimum.toString()}");
+                    utils.showToast(
+                        "please enter minimum ${walletCon.minimum.toString()}");
                   } else {
                     walletCon.doWithdrawal(_withdrawalAmtController.text);
                   }
