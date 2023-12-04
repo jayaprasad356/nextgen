@@ -19,7 +19,7 @@ class LoginData {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
+    final Map<String, dynamic> data = new Map<String, dynamic>();
     data['success'] = success;
     data['registered'] = registered;
     data['message'] = message;
@@ -58,7 +58,6 @@ class Data {
   String? branch;
   String? ifsc;
   String? watchOrders;
-  String? ordersCost;
   String? registeredDate;
   String? totalOrders;
   String? todayOrders;
@@ -90,6 +89,8 @@ class Data {
   String? level;
   String? abcdUser;
   String? interested;
+  String? ordersEarnings;
+  String? hiringEarings;
 
   Data(
       {this.id,
@@ -119,7 +120,6 @@ class Data {
         this.branch,
         this.ifsc,
         this.watchOrders,
-        this.ordersCost,
         this.registeredDate,
         this.totalOrders,
         this.todayOrders,
@@ -150,7 +150,9 @@ class Data {
         this.averageOrders,
         this.level,
         this.abcdUser,
-        this.interested});
+        this.interested,
+        this.ordersEarnings,
+        this.hiringEarings});
 
   Data.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -180,7 +182,6 @@ class Data {
     branch = json['branch'];
     ifsc = json['ifsc'];
     watchOrders = json['watch_orders'];
-    ordersCost = json['orders_cost'];
     registeredDate = json['registered_date'];
     totalOrders = json['total_orders'];
     todayOrders = json['today_orders'];
@@ -212,10 +213,12 @@ class Data {
     level = json['level'];
     abcdUser = json['abcd_user'];
     interested = json['interested'];
+    ordersEarnings = json['orders_earnings'];
+    hiringEarings = json['hiring_earings'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
+    final Map<String, dynamic> data = new Map<String, dynamic>();
     data['id'] = id;
     data['mobile'] = mobile;
     data['name'] = name;
@@ -243,7 +246,6 @@ class Data {
     data['branch'] = branch;
     data['ifsc'] = ifsc;
     data['watch_orders'] = watchOrders;
-    data['orders_cost'] = ordersCost;
     data['registered_date'] = registeredDate;
     data['total_orders'] = totalOrders;
     data['today_orders'] = todayOrders;
@@ -275,6 +277,8 @@ class Data {
     data['level'] = level;
     data['abcd_user'] = abcdUser;
     data['interested'] = interested;
+    data['orders_earnings'] = ordersEarnings;
+    data['hiring_earings'] = hiringEarings;
     return data;
   }
 }

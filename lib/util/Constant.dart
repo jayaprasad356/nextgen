@@ -4,9 +4,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 const FlutterSecureStorage storeLocal = FlutterSecureStorage();
 
 class Constant {
-  static const String MainBaseUrl = "https://nextgen.graymatterworks.com/";
+  // static const String MainBaseUrl = "https://nextgen.graymatterworks.com/";
   static const String NEXTGET_WEB_LINK = "https://next-gen-a052d.web.app";
-  // static const String MainBaseUrl = "https://nextgen.abcdapp.in/";
+  static const String MainBaseUrl = "https://nextgen.abcdapp.in/";
   //static const String MainBaseUrl = "https://demo.colorjobs.site/";
   static const String BaseUrl = "${MainBaseUrl}api/";
   static const String LOGIN_URL = "${BaseUrl}login.php";
@@ -41,6 +41,7 @@ class Constant {
   static const String SETTINGS_URL_ALL = "api/settings.php";
 
   static const String ORDERAVAILABLE = "order_available";
+  static const String VACANCIES = "vacancies";
   static const String LOGED_IN_STATUS = "loged_in";
   static const String TODAY_ORDERS_CON = "today_orders_con";
   static const String WORK_DAYS = "worked_days";

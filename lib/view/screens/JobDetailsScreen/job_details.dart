@@ -37,14 +37,17 @@ class JobDetailScreen extends StatefulWidget {
 
 class JobDetailScreenState extends State<JobDetailScreen> {
   List<String> jobDetailImage = [
-    'assets/images/job_detail_1.png',
-    'assets/images/job_detail_2.png',
-    'assets/images/job_detail_3.png',
-    'assets/images/job_detail_4.png',
-    'assets/images/job_detail_5.png',
-    'assets/images/job_detail_6.png',
-    'assets/images/job_detail_7.png',
-    'assets/images/job_detail_8.png',
+    'assets/images/NextGen Job Details - 1.jpg',
+    'assets/images/NextGen Job Details - 2.jpg',
+    'assets/images/NextGen Job Details - 3.jpg',
+    'assets/images/NextGen Job Details - 4.jpg',
+    'assets/images/NextGen Job Details - 5.jpg',
+    'assets/images/NextGen Job Details - 6.jpg',
+    'assets/images/NextGen Job Details - 7.jpg',
+    'assets/images/NextGen Job Details - 8.jpg',
+    'assets/images/NextGen Job Details - 9.jpg',
+    'assets/images/NextGen Job Details - 10.jpg',
+    'assets/images/NextGen Job Details - 11.jpg',
   ];
 
   @override

@@ -73,7 +73,7 @@ class _MainScreenState extends State<MainScreen> {
   String old_plan = "";
   String plan = "";
   String text = 'Click here Send ScreenShoot';
-  String link = 'http://t.me/Colorchallengeapp1';
+  // String link = 'http://t.me/Colorchallengeapp1';
   final googleSignIn = GoogleSignIn();
   late String contact_us = "";
   late String _fcmToken;
@@ -320,15 +320,16 @@ class _MainScreenState extends State<MainScreen> {
                       )
                     : const Text(""),
           _downloadVisible
+          // ? Container()
               ? Padding(
                 padding: const EdgeInsets.only(right: 20),
                 child: InkWell(
                 onTap: () {
-                  // String uri = ''; //place download link
-                  // launchUrl(
-                  //   Uri.parse(uri),
-                  //   mode: LaunchMode.inAppWebView,
-                  // );
+                  String uri = 'https://drive.google.com/file/d/1IEFyCyKmAckRR7N043uZaCbTlTt54QoN/view?usp=drivesdk'; //place download link
+                  launchUrl(
+                    Uri.parse(uri),
+                    mode: LaunchMode.inAppWebView,
+                  );
                 },
                 child: Container(
                   decoration: BoxDecoration(
@@ -729,6 +730,7 @@ class _MainScreenState extends State<MainScreen> {
     clearSharedPreferences();
     SystemNavigator.pop();
     FirebaseAuth.instance.signOut();
+    await storeLocal.deleteAll();
     Get.to(const LoginScreen());
   }
 }

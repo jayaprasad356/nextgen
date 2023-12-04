@@ -93,6 +93,7 @@ class HomeScreenState extends State<HomeScreen> {
   String workDays = "";
   String averageOrders = "";
   String balanceNextgen = "";
+  String ordersEarnings = "";
   String todayOrder = "";
   String totalOrders = "";
 
@@ -130,8 +131,8 @@ class HomeScreenState extends State<HomeScreen> {
       var todayOrder = await storeLocal.read(key: Constant.TODAY_ORDERS_CON);
       homeController.today_order_con.value = int.parse(todayOrder!);
       isWeb = (await storeLocal.read(key: Constant.IS_WEB))!;
-      orderCost = (await storeLocal.read(key: Constant.ORDER_COST))!;
-      debugPrint("orderCost: $orderCost");
+      // orderCost = (await storeLocal.read(key: Constant.ORDER_COST))!;
+      // debugPrint("orderCost: $orderCost");
     });
   }
 
@@ -146,6 +147,8 @@ class HomeScreenState extends State<HomeScreen> {
   void setState(VoidCallback fn) async {
     // TODO: implement setState
     super.setState(fn);
+
+    loadOrderCount();
 
     // debugPrint("orderCount: $orderCount");
     //
@@ -244,8 +247,8 @@ class HomeScreenState extends State<HomeScreen> {
       // String? orderCountLoad = await storeLocal.read(key: 'orderCount');
       // orderCount = int.parse(orderCountLoad!);
       debugPrint("loadOrderCount orderCount: $orderCount");
-      multiplyCostValue = orderCount * double.parse(orderCost);
-      debugPrint("loadOrderCount multiplyCostValue: $multiplyCostValue");
+      // multiplyCostValue = prefs.getDouble('multiplyCostValue')!;
+      // debugPrint("loadOrderCount multiplyCostValue: $multiplyCostValue");
       progressPercentage = (orderCount / maximumValue);
       debugPrint("loadOrderCount progressPercentage: $progressPercentage");
       if (orderCount <= 99) {
@@ -265,6 +268,7 @@ class HomeScreenState extends State<HomeScreen> {
     // await storeLocal.write(key: 'orderCount', value: orderCountSave);
     debugPrint("count: $count");
     await prefs.setInt('orderCount', count);
+    // await prefs.setDouble('multiplyCostValue', multiplyCostValue);
   }
 
   String separateNumber(String number) {
@@ -377,8 +381,8 @@ class HomeScreenState extends State<HomeScreen> {
                                           .getString(Constant.TOTAL_ORDER)!;
                                       averageOrders = prefs
                                           .getString(Constant.AVERAGE_ORDER)!;
-                                      balanceNextgen = prefs
-                                          .getString(Constant.BALANCE_NEXTGEN)!;
+                                      ordersEarnings = prefs
+                                          .getString(Constant.ORDERS_EARNINGS)!;
                                     });
                                   } else {}
                                 },
@@ -448,7 +452,7 @@ class HomeScreenState extends State<HomeScreen> {
                           child: Column(
                             children: [
                               const Text(
-                                "Wallet Balance",
+                                "Orders Earnings",
                                 style: TextStyle(
                                     fontFamily: 'MontserratBold',
                                     color: Colors.white,
@@ -456,7 +460,7 @@ class HomeScreenState extends State<HomeScreen> {
                               ),
                               Obx(
                                 () => Text(
-                                  "${balanceNextgen != "" ? balanceNextgen : authCon.balance_nextgen.toString()} + ${multiplyCostValue.toString()}",
+                                  ordersEarnings != "" ? ordersEarnings : authCon.order_earnings.toString(),
                                   style: const TextStyle(
                                       fontFamily: 'MontserratBold',
                                       color: Colors.white,
@@ -532,7 +536,7 @@ class HomeScreenState extends State<HomeScreen> {
                               children: [
                                 Obx(
                                   () => Text(
-                                    "${todayOrder != "" ? todayOrder : authCon.today_order} + ${homeController.today_order_con.toString()}",
+                                    "${todayOrder != "" ? todayOrder : authCon.today_order} + $orderCount",
                                     style: const TextStyle(
                                         fontFamily: 'MontserratBold',
                                         color: kTextColor,
@@ -544,7 +548,7 @@ class HomeScreenState extends State<HomeScreen> {
                                         Dimensions.PADDING_SIZE_EXTRA_SMALL),
                                 Obx(
                                   () => Text(
-                                    "${totalOrders != "" ? totalOrders : authCon.total_order} + ${homeController.today_order_con.toString()}",
+                                    "${totalOrders != "" ? totalOrders : authCon.total_order} + $orderCount",
                                     style: const TextStyle(
                                         fontFamily: 'MontserratBold',
                                         color: kTextColor,
@@ -1045,7 +1049,55 @@ class HomeScreenState extends State<HomeScreen> {
                       Obx(
                         () => homeController.orderAvailable == "1"
                             ? InkWell(
-                                onTap: enablePlaceOrder == true
+                                onTap: (int.parse(todayOrder != "" ? todayOrder : authCon.today_order.toString()) >= int.parse(averageOrders != ""
+                                    ? averageOrders
+                                    : authCon.average_orders.toString()))
+                                    ? () {
+                                  setState(() {
+                                    enablePlaceOrder = false;
+                                    isPlaceOrder = true;
+                                  });
+                                  // setState(() {
+                                  //   isPlaceOrder = true;
+                                  // });
+                                  Timer(
+                                      const Duration(seconds: 4),
+                                      () {
+                                    setState(() {
+                                      isPlaceOrder = false;
+                                    });
+                                    ScaffoldMessenger.of(
+                                        context)
+                                        .showSnackBar(
+                                      const SnackBar(
+                                        duration: Duration(
+                                            seconds: 3),
+                                        backgroundColor:
+                                        kPurpleColor,
+                                        behavior: SnackBarBehavior
+                                            .floating, // Add this line
+                                        margin: EdgeInsets.only(
+                                            bottom: 10,
+                                            left: 15,
+                                            right: 15),
+                                        content: Text(
+                                          'You completed today ads...',
+                                          style: TextStyle(
+                                            fontFamily:
+                                            'MontserratBold',
+                                            color: Colors.white,
+                                            fontSize: Dimensions
+                                                .FONT_SIZE_DEFAULT,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                    resetValue();
+                                    productEan = homeController
+                                        .generateRandomNineDigitNumber()
+                                        .toString();
+                                  });
+                                } : enablePlaceOrder == true
                                     ? () {
                                         setState(() {
                                           enablePlaceOrder = false;
@@ -1093,16 +1145,16 @@ class HomeScreenState extends State<HomeScreen> {
                                                         .toString();
                                                   }
                                                 : () {
-                                                    // setState(() {
-                                                    //   isPlaceOrder = false;
-                                                    // });
+                                                    setState(() {
+                                                      isPlaceOrder = false;
+                                                    });
                                                     homeController
                                                         .todayOrders();
-                                                    multiplyCostValue =
-                                                        orderCount *
-                                                            double.parse(authCon
-                                                                .orders_cost
-                                                                .toString());
+                                                    // multiplyCostValue =
+                                                    //     orderCount *
+                                                    //         double.parse(authCon
+                                                    //             .orders_cost
+                                                    //             .toString());
                                                     setState(() {
                                                       isPlaceOrder = false;
                                                       orderCount++;
@@ -1116,7 +1168,7 @@ class HomeScreenState extends State<HomeScreen> {
                                                         progressPercentage =
                                                             (orderCount /
                                                                 maximumValue);
-                                                        // print('orderCount called $orderCount times.');
+                                                        print('progressPercentage $progressPercentage times.');
                                                         isClaimButtonDisabled =
                                                             true; // Disable the button
                                                       } else if (orderCount >
@@ -1199,7 +1251,9 @@ class HomeScreenState extends State<HomeScreen> {
                                 child: Container(
                                   height: Dimensions.BUTTON_HEIGHT,
                                   width: size.width,
-                                  decoration: enablePlaceOrder == true
+                                  decoration: enablePlaceOrder == true && (int.parse(todayOrder != "" ? todayOrder : authCon.today_order.toString()) <= int.parse(averageOrders != ""
+                                      ? averageOrders
+                                      : authCon.average_orders.toString()))
                                       ? BoxDecoration(
                                           color: kPrimaryColor,
                                           gradient: const LinearGradient(
@@ -1237,7 +1291,9 @@ class HomeScreenState extends State<HomeScreen> {
                                               BorderRadius.circular(1000),
                                         ),
                                   alignment: Alignment.center,
-                                  child: isPlaceOrder == true
+                                  child: isPlaceOrder == true && (int.parse(todayOrder != "" ? todayOrder : authCon.today_order.toString()) <= int.parse(averageOrders != ""
+                                      ? averageOrders
+                                      : authCon.average_orders.toString()))
                                       ? const CupertinoActivityIndicator(
                                           color: Colors.white,
                                         )
@@ -1293,13 +1349,15 @@ class HomeScreenState extends State<HomeScreen> {
                       fontWeight: FontWeight.bold,
                       fontSize: Dimensions.FONT_SIZE_OVER_LARGE),
                 ),
-                const Text(
-                  "28994",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontFamily: 'MontserratBold',
-                      color: kSecondaryColor,
-                      fontSize: Dimensions.FONT_SIZE_EXTRA_LARGE),
+                Obx(
+                  () => Text(
+                    authCon.vacancies.toString(),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                        fontFamily: 'MontserratBold',
+                        color: kSecondaryColor,
+                        fontSize: Dimensions.FONT_SIZE_EXTRA_LARGE),
+                  ),
                 ),
               ],
             ),
@@ -1310,7 +1368,7 @@ class HomeScreenState extends State<HomeScreen> {
         onTap: () {
           String text = 'Hello I need help in app';
           String encodedText = Uri.encodeFull(text);
-          String uri = 'https://tawk.to/chat/655e4f8ed600b968d3160d07/default';
+          String uri = 'https://tawk.to/chat/656c7dd3bfb79148e599a506/1hgnsn1et';
           launchUrl(
             Uri.parse(uri),
             mode: LaunchMode.inAppWebView,

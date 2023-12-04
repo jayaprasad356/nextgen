@@ -40,7 +40,7 @@ class HomeController extends GetxController implements GetxService {
   RxString totalOrder = ''.obs;
   RxString todayOrder = ''.obs;
   RxString averageOrders = ''.obs;
-  RxString balanceNextgen = ''.obs;
+  RxString orderEarnings = ''.obs;
   int timer = 1;
   RxBool isLoading = false.obs;
   // String balance = "";
@@ -223,21 +223,21 @@ class HomeController extends GetxController implements GetxService {
         todayOrder.value = syncDataNextgen.data![0].todayOrders!;
         totalOrder.value = syncDataNextgen.data![0].totalOrders!;
         averageOrders.value = syncDataNextgen.data![0].averageOrders!;
-        balanceNextgen.value = syncDataNextgen.data![0].averageOrders!;
+        orderEarnings.value = syncDataNextgen.data![0].averageOrders!;
 
         prefs.remove(Constant.ORDERAVAILABLE);
         prefs.remove(Constant.WORK_DAYS);
         prefs.remove(Constant.TODAY_ORDER);
         prefs.remove(Constant.TOTAL_ORDER);
         prefs.remove(Constant.AVERAGE_ORDER);
-        prefs.remove(Constant.BALANCE_NEXTGEN);
+        prefs.remove(Constant.ORDERS_EARNINGS);
 
         prefs.setString(Constant.ORDERAVAILABLE, syncOrderAvailable);
         prefs.setString(Constant.WORK_DAYS, workDays.value);
         prefs.setString(Constant.TOTAL_ORDER, totalOrder.value);
         prefs.setString(Constant.TODAY_ORDER, todayOrder.value);
         prefs.setString(Constant.AVERAGE_ORDER, averageOrders.value);
-        prefs.setString(Constant.BALANCE_NEXTGEN, balanceNextgen.value);
+        prefs.setString(Constant.ORDERS_EARNINGS, orderEarnings.value);
       }
       //
       // prefs.setString(Constant.MOBILE, user.mobile);

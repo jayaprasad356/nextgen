@@ -171,6 +171,26 @@ Future<void> main() async {
   runApp(const MyApp());
 }
 
+class NyMyApp extends StatefulWidget {
+  const NyMyApp({super.key});
+
+  @override
+  State<NyMyApp> createState() => _NyMyAppState();
+}
+
+class _NyMyAppState extends State<NyMyApp> {
+  @override
+  Widget build(BuildContext context) {
+    return GetMaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: Text("hello"),
+        ),
+      ),
+    );
+  }
+}
+
 class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
 
@@ -206,7 +226,7 @@ class _MyAppState extends State<MyApp> {
       });
     });
 
-    getAppVersion();
+    // getAppVersion();
 
     FirebaseMessaging.instance.getToken().then(
           (token) {
@@ -293,6 +313,7 @@ class _MyAppState extends State<MyApp> {
     try {
       PackageInfo packageInfo = await PackageInfo.fromPlatform();
       appVersion = packageInfo.version;
+      debugPrint("appVersion: $appVersion");
       var url = Constant.APPUPDATE_URL;
       Map<String, dynamic> bodyObject = {
         Constant.APP_VERSION: appVersion,
@@ -337,12 +358,12 @@ class _MyAppState extends State<MyApp> {
             theme: ThemeData(
               primarySwatch: Colors.blue,
             ),
-            routes: {
-              '/otpVerification': (context) => const OtpVerification(
-                mobileNumber: '',
-                otp: '',
-              ),
-            },
+            // routes: {
+            //   '/otpVerification': (context) => const OtpVerification(
+            //     mobileNumber: '',
+            //     otp: '',
+            //   ),
+            // },
             initialBinding: BindingsBuilder(() {
               Get.put(
                 AuthCon(
@@ -417,11 +438,11 @@ class _MyAppState extends State<MyApp> {
               );
             }),
             // home: const MainScreen(),
-            // home: LoginScreen(),
-            home: screens(prefs, update, link),
+            // home: const LoginScreen(),
+            home: screens(prefs),
             // home: NewProfileScreen(mobileNumber: "7010565083"),
             // home: isOpenLap() != 'true'
-            //     ? screens(prefs, update, link)
+            //     ? screens(prefs)
             //     : const Scaffold(
             //   backgroundColor: Colors.white,
             //   body: Center(
@@ -430,31 +451,42 @@ class _MyAppState extends State<MyApp> {
             // ),
           );
         } else {
-          return const CircularProgressIndicator();
+          return const Scaffold(body: CircularProgressIndicator());
         }
       },
     );
   }
 }
 
-Widget screens(SharedPreferences prefs, bool update, String link) {
+Widget screens(SharedPreferences prefs) {
   final String? isLoggedIn = prefs.getString(Constant.LOGED_IN_STATUS);
   debugPrint("isLoggedIn: $isLoggedIn");
   if (isLoggedIn != null && isLoggedIn == "true") {
     // showNotification();
-    if (update) {
-      return const MainScreen();
-    } else {
-      return UpdateDialog(link: link);
-    }
+    return const MainScreen();
   } else {
-    if (update) {
-      return const LoginScreen();
-    } else {
-      return UpdateDialog(link: link);
-    }
+    return const LoginScreen();
   }
 }
+//
+// Widget screens(SharedPreferences prefs, bool update, String link) {
+//   final String? isLoggedIn = prefs.getString(Constant.LOGED_IN_STATUS);
+//   debugPrint("isLoggedIn: $isLoggedIn");
+//   if (isLoggedIn != null && isLoggedIn == "true") {
+//     // showNotification();
+//     if (update) {
+//       return const MainScreen();
+//     } else {
+//       return UpdateDialog(link: link);
+//     }
+//   } else {
+//     if (update) {
+//       return const LoginScreen();
+//     } else {
+//       return UpdateDialog(link: link);
+//     }
+//   }
+// }
 
 // void showNotification() {
 //   flutterLocalNotificationsPlugin.show(

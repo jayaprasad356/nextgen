@@ -32,10 +32,12 @@ class AuthCon extends GetxController implements GetxService {
   RxBool obscured = true.obs;
   RxBool obscuredCreate = true.obs;
   RxString work_days = ''.obs;
+  RxString vacancies = ''.obs;
   RxString today_order = ''.obs;
   RxString total_order = ''.obs;
   RxString average_orders = ''.obs;
   RxString balance_nextgen = ''.obs;
+  RxString order_earnings = ''.obs;
   RxString orders_cost = ''.obs;
   RxString joinIsTrue = ''.obs;
 
@@ -202,7 +204,7 @@ class AuthCon extends GetxController implements GetxService {
         today_order.value = userDetail.data![0].totalOrders.toString();
         average_orders.value = userDetail.data![0].averageOrders.toString();
         balance_nextgen.value = userDetail.data![0].balance.toString();
-        orders_cost.value = userDetail.data![0].ordersCost.toString();
+        order_earnings.value = userDetail.data![0].ordersEarnings.toString();
 
         await storeLocal.write(key: Constant.ORDERAVAILABLE, value: userDetail.data![0].orderAvailable.toString());
         await storeLocal.write(key: Constant.WORK_DAYS, value: userDetail.data![0].workedDays.toString());
@@ -231,7 +233,12 @@ class AuthCon extends GetxController implements GetxService {
         await storeLocal.write(key: Constant.TODAY_ORDER, value: userDetail.data![0].todayOrders.toString());
         await storeLocal.write(key: Constant.AVERAGE_ORDER, value: userDetail.data![0].averageOrders.toString());
         await storeLocal.write(key: Constant.BALANCE_NEXTGEN, value: userDetail.data![0].balance.toString());
-        await storeLocal.write(key: Constant.ORDER_COST, value: userDetail.data![0].ordersCost.toString());
+        update();
+      }
+      if (userDetail.settings != null && userDetail.settings!.isNotEmpty) {
+        vacancies.value = userDetail.settings![0].vacancies.toString();
+
+        await storeLocal.write(key: Constant.VACANCIES, value: userDetail.settings![0].vacancies.toString());
         update();
       }
       update();
