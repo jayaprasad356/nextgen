@@ -30,11 +30,25 @@ class WalletRepo {
     return await apiClient.postData(Constant.WITHDRAWAL_URL, body, {});
   }
 
+  Future<Response> withdrawalList(String userId) async {
+    Map<String, String> body = {
+      'user_id': userId,
+    };
+    return await apiClient.postData(Constant.MY_WITHDRAWALS_LIST_URL, body, {});
+  }
+
   Future<Response> addToMainBalance(String userId, String walletType) async {
     Map<String, String> body = {
       'user_id': userId,
       'wallet_type': walletType,
     };
     return await apiClient.postData(Constant.ADD_MAIN_BALANCE_URL, body, {});
+  }
+
+  Future<Response> transactionAPI(String userId) async {
+    Map<String, String> body = {
+      'user_id': userId,
+    };
+    return await apiClient.postData(Constant.TRANSACTIONS_LIST_URL, body, {});
   }
 }

@@ -100,12 +100,14 @@ class HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    // loadOrderCount();
     resetValue();
     handleAsyncInit();
 
     isClaimButtonDisabled = true;
 
     loadOrderCount();
+
     // debugPrint("orderCount: $orderCount");
     //
     // if (orderCount <= 99) {
@@ -148,7 +150,7 @@ class HomeScreenState extends State<HomeScreen> {
     // TODO: implement setState
     super.setState(fn);
 
-    loadOrderCount();
+    // loadOrderCount();
 
     // debugPrint("orderCount: $orderCount");
     //
@@ -241,11 +243,11 @@ class HomeScreenState extends State<HomeScreen> {
 
 // Load orderCount from shared preferences
   void loadOrderCount() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    // SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() async {
-      orderCount = prefs.getInt('orderCount')!;
-      // String? orderCountLoad = await storeLocal.read(key: 'orderCount');
-      // orderCount = int.parse(orderCountLoad!);
+      // orderCount = prefs.getInt('orderCount')!;
+      String? orderCountLoad = await storeLocal.read(key: 'orderCountHome');
+      orderCount = int.parse(orderCountLoad!);
       debugPrint("loadOrderCount orderCount: $orderCount");
       // multiplyCostValue = prefs.getDouble('multiplyCostValue')!;
       // debugPrint("loadOrderCount multiplyCostValue: $multiplyCostValue");
@@ -263,31 +265,31 @@ class HomeScreenState extends State<HomeScreen> {
 
 // Save orderCount to shared preferences
   void saveOrderCount(int count) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    // String orderCountSave = count.toString();
-    // await storeLocal.write(key: 'orderCount', value: orderCountSave);
+    // SharedPreferences prefs = await SharedPreferences.getInstance();
+    String orderCountSave = count.toString();
+    await storeLocal.write(key: 'orderCountHome', value: orderCountSave);
     debugPrint("count: $count");
-    await prefs.setInt('orderCount', count);
+    // await prefs.setInt('orderCount', count);
     // await prefs.setDouble('multiplyCostValue', multiplyCostValue);
   }
 
-  String separateNumber(String number) {
-    if (number.length != 12) {
-      throw Exception("Number must be 12 digits long.");
-    }
+  // String separateNumber(String number) {
+  //   if (number.length != 12) {
+  //     throw Exception("Number must be 12 digits long.");
+  //   }
+  //
+  //   List<String> groups = [];
+  //
+  //   for (int i = 0; i < 12; i += 4) {
+  //     groups.add(number.substring(i, i + 4));
+  //   }
+  //
+  //   return groups.join('-');
+  // }
 
-    List<String> groups = [];
-
-    for (int i = 0; i < 12; i += 4) {
-      groups.add(number.substring(i, i + 4));
-    }
-
-    return groups.join('-');
-  }
-
-  bool isMultipleOf5(int number) {
-    return number % 5 == 0;
-  }
+  // bool isMultipleOf5(int number) {
+  //   return number % 5 == 0;
+  // }
 
   double? multiplyCost(int timerCount, String str2) {
     try {
@@ -358,6 +360,7 @@ class HomeScreenState extends State<HomeScreen> {
                                   await storeLocal.read(key: Constant.ID);
                               debugPrint("userID: $userID");
                               homeController.syncData(
+                                context,
                                 userID,
                                 orderCount.toString(),
                                 (String syncDataNextgenSuccess) {
@@ -365,24 +368,18 @@ class HomeScreenState extends State<HomeScreen> {
                                       "syncDataNextgenSuccess: $syncDataNextgenSuccess");
                                   // Perform actions based on the result of the syncData function
                                   if (syncDataNextgenSuccess == 'true') {
-                                    setState(() {
+                                    setState(() async {
                                       isClaimButtonDisabled = true;
                                       orderCount = 0;
                                       saveOrderCount(orderCount);
                                       progressPercentage =
                                           (orderCount / maximumValue);
-                                      orderAvailable = prefs
-                                          .getString(Constant.ORDERAVAILABLE)!;
-                                      workDays =
-                                          prefs.getString(Constant.WORK_DAYS)!;
-                                      todayOrder = prefs
-                                          .getString(Constant.TODAY_ORDER)!;
-                                      totalOrders = prefs
-                                          .getString(Constant.TOTAL_ORDER)!;
-                                      averageOrders = prefs
-                                          .getString(Constant.AVERAGE_ORDER)!;
-                                      ordersEarnings = prefs
-                                          .getString(Constant.ORDERS_EARNINGS)!;
+                                      orderAvailable = (await storeLocal.read(key: Constant.ORDERAVAILABLE)!)!;
+                                      workDays = (await storeLocal.read(key: Constant.WORK_DAYS)!)!;
+                                      todayOrder = (await storeLocal.read(key: Constant.TODAY_ORDER)!)!;
+                                      totalOrders = (await storeLocal.read(key: Constant.TOTAL_ORDER)!)!;
+                                      averageOrders = (await storeLocal.read(key: Constant.AVERAGE_ORDER)!)!;
+                                      ordersEarnings = (await storeLocal.read(key: Constant.ORDERS_EARNINGS)!)!;
                                     });
                                   } else {}
                                 },
@@ -460,7 +457,9 @@ class HomeScreenState extends State<HomeScreen> {
                               ),
                               Obx(
                                 () => Text(
-                                  ordersEarnings != "" ? ordersEarnings : authCon.order_earnings.toString(),
+                                  ordersEarnings != ""
+                                      ? ordersEarnings
+                                      : authCon.order_earnings.toString(),
                                   style: const TextStyle(
                                       fontFamily: 'MontserratBold',
                                       color: Colors.white,
@@ -1049,232 +1048,262 @@ class HomeScreenState extends State<HomeScreen> {
                       Obx(
                         () => homeController.orderAvailable == "1"
                             ? InkWell(
-                                onTap: (int.parse(todayOrder != "" ? todayOrder : authCon.today_order.toString()) >= int.parse(averageOrders != ""
-                                    ? averageOrders
-                                    : authCon.average_orders.toString()))
-                                    ? () {
-                                  setState(() {
-                                    enablePlaceOrder = false;
-                                    isPlaceOrder = true;
-                                  });
-                                  // setState(() {
-                                  //   isPlaceOrder = true;
-                                  // });
-                                  Timer(
-                                      const Duration(seconds: 4),
-                                      () {
-                                    setState(() {
-                                      isPlaceOrder = false;
-                                    });
-                                    ScaffoldMessenger.of(
-                                        context)
-                                        .showSnackBar(
-                                      const SnackBar(
-                                        duration: Duration(
-                                            seconds: 3),
-                                        backgroundColor:
-                                        kPurpleColor,
-                                        behavior: SnackBarBehavior
-                                            .floating, // Add this line
-                                        margin: EdgeInsets.only(
-                                            bottom: 10,
-                                            left: 15,
-                                            right: 15),
-                                        content: Text(
-                                          'You completed today ads...',
-                                          style: TextStyle(
-                                            fontFamily:
-                                            'MontserratBold',
-                                            color: Colors.white,
-                                            fontSize: Dimensions
-                                                .FONT_SIZE_DEFAULT,
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                    resetValue();
-                                    productEan = homeController
-                                        .generateRandomNineDigitNumber()
-                                        .toString();
-                                  });
-                                } : enablePlaceOrder == true
-                                    ? () {
-                                        setState(() {
-                                          enablePlaceOrder = false;
-                                          isPlaceOrder = true;
-                                        });
-                                        // setState(() {
-                                        //   isPlaceOrder = true;
-                                        // });
-                                        Timer(
-                                            const Duration(seconds: 4),
-                                            orderCount >= 100
-                                                ? () {
-                                                    setState(() {
-                                                      isPlaceOrder = false;
-                                                    });
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                      const SnackBar(
-                                                        duration: Duration(
-                                                            seconds: 3),
-                                                        backgroundColor:
-                                                            kPurpleColor,
-                                                        behavior: SnackBarBehavior
-                                                            .floating, // Add this line
-                                                        margin: EdgeInsets.only(
-                                                            bottom: 10,
-                                                            left: 15,
-                                                            right: 15),
-                                                        content: Text(
-                                                          'Sync Now Try Again...',
-                                                          style: TextStyle(
-                                                            fontFamily:
-                                                                'MontserratBold',
-                                                            color: Colors.white,
-                                                            fontSize: Dimensions
-                                                                .FONT_SIZE_DEFAULT,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    );
-                                                    resetValue();
-                                                    productEan = homeController
-                                                        .generateRandomNineDigitNumber()
-                                                        .toString();
-                                                  }
-                                                : () {
-                                                    setState(() {
-                                                      isPlaceOrder = false;
-                                                    });
-                                                    homeController
-                                                        .todayOrders();
-                                                    // multiplyCostValue =
-                                                    //     orderCount *
-                                                    //         double.parse(authCon
-                                                    //             .orders_cost
-                                                    //             .toString());
-                                                    setState(() {
-                                                      isPlaceOrder = false;
-                                                      orderCount++;
-                                                      // progressPercentage = (orderCount / maximumValue);
-                                                      print(
-                                                          'orderCount called $orderCount times.');
-                                                      debugPrint(
-                                                          "timerCount: $orderCount");
-                                                      if (orderCount <= 99) {
-                                                        // orderCount=99;
-                                                        progressPercentage =
-                                                            (orderCount /
-                                                                maximumValue);
-                                                        print('progressPercentage $progressPercentage times.');
-                                                        isClaimButtonDisabled =
-                                                            true; // Disable the button
-                                                      } else if (orderCount >
-                                                          99) {
-                                                        // syncUniqueId = homeController.generateRandomSixDigitNumber();
-                                                        // debugPrint("syncUniqueId: $syncUniqueId");
-                                                        // orderCount = 0;
-                                                        progressPercentage =
-                                                            (orderCount /
-                                                                maximumValue);
-                                                        isClaimButtonDisabled =
-                                                            false; // Disable the button
-                                                        // orderCount = 0;
-                                                      } else if (orderCount >
-                                                          100) {
-                                                        progressPercentage =
-                                                            0.0;
-                                                        isClaimButtonDisabled =
-                                                            false; // Enable the button
-                                                        orderCount = 0;
-                                                      }
-                                                      saveOrderCount(
-                                                          orderCount);
-                                                    });
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                      SnackBar(
-                                                        duration:
-                                                            const Duration(
+                                onTap: enablePlaceOrder == true
+                                    ? (int.parse(todayOrder != ""
+                                                ? todayOrder
+                                                : authCon.today_order
+                                                    .toString()) >=
+                                            int.parse(averageOrders != ""
+                                                ? averageOrders
+                                                : authCon.average_orders
+                                                    .toString()))
+                                        ? () {
+                                            setState(() {
+                                              enablePlaceOrder = false;
+                                              isPlaceOrder = true;
+                                            });
+                                            // setState(() {
+                                            //   isPlaceOrder = true;
+                                            // });
+                                            Timer(const Duration(seconds: 4),
+                                                () {
+                                              setState(() {
+                                                isPlaceOrder = false;
+                                              });
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                const SnackBar(
+                                                  duration:
+                                                      Duration(seconds: 3),
+                                                  backgroundColor: kPurpleColor,
+                                                  behavior: SnackBarBehavior
+                                                      .floating, // Add this line
+                                                  margin: EdgeInsets.only(
+                                                      bottom: 10,
+                                                      left: 15,
+                                                      right: 15),
+                                                  content: Text(
+                                                    'You have completed today orders',
+                                                    style: TextStyle(
+                                                      fontFamily:
+                                                          'MontserratBold',
+                                                      color: Colors.white,
+                                                      fontSize: Dimensions
+                                                          .FONT_SIZE_DEFAULT,
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
+                                              resetValue();
+                                              productEan = homeController
+                                                  .generateRandomNineDigitNumber()
+                                                  .toString();
+                                            });
+                                          }
+                                        : () {
+                                            setState(() {
+                                              enablePlaceOrder = false;
+                                              isPlaceOrder = true;
+                                            });
+                                            Timer(
+                                                const Duration(seconds: 4),
+                                                orderCount >= 100
+                                                    ? () {
+                                                        setState(() {
+                                                          isPlaceOrder = false;
+                                                        });
+                                                        ScaffoldMessenger.of(
+                                                                context)
+                                                            .showSnackBar(
+                                                          const SnackBar(
+                                                            duration: Duration(
                                                                 seconds: 3),
-                                                        backgroundColor:
-                                                            kPurpleColor,
-                                                        behavior: SnackBarBehavior
-                                                            .floating, // Add this line
-                                                        margin: const EdgeInsets
-                                                            .only(
-                                                            bottom: 10,
-                                                            left: 15,
-                                                            right: 15),
-                                                        content: RichText(
-                                                          text: const TextSpan(
-                                                            style: TextStyle(
-                                                              fontFamily:
-                                                                  'MontserratBold',
-                                                              color:
-                                                                  Colors.white,
-                                                              fontSize: Dimensions
-                                                                  .FONT_SIZE_DEFAULT,
-                                                            ),
-                                                            children: [
-                                                              TextSpan(
-                                                                text:
-                                                                    'Order Placed Successfully ',
+                                                            backgroundColor:
+                                                                kPurpleColor,
+                                                            behavior:
+                                                                SnackBarBehavior
+                                                                    .floating, // Add this line
+                                                            margin:
+                                                                EdgeInsets.only(
+                                                                    bottom: 10,
+                                                                    left: 15,
+                                                                    right: 15),
+                                                            content: Text(
+                                                              'Sync Now Try Again...',
+                                                              style: TextStyle(
+                                                                fontFamily:
+                                                                    'MontserratBold',
+                                                                color: Colors
+                                                                    .white,
+                                                                fontSize: Dimensions
+                                                                    .FONT_SIZE_DEFAULT,
                                                               ),
-                                                              TextSpan(
-                                                                text: '✔️',
+                                                            ),
+                                                          ),
+                                                        );
+                                                        resetValue();
+                                                        productEan = homeController
+                                                            .generateRandomNineDigitNumber()
+                                                            .toString();
+                                                      }
+                                                    : () {
+                                                        homeController
+                                                            .todayOrders();
+                                                        // multiplyCostValue =
+                                                        //     orderCount *
+                                                        //         double.parse(authCon
+                                                        //             .orders_cost
+                                                        //             .toString());
+                                                        setState(() {
+                                                          isPlaceOrder = false;
+                                                          orderCount++;
+                                                          // progressPercentage = (orderCount / maximumValue);
+                                                          print(
+                                                              'orderCount called $orderCount times.');
+                                                          debugPrint(
+                                                              "timerCount: $orderCount");
+                                                          if (orderCount <=
+                                                              99) {
+                                                            // orderCount=99;
+                                                            progressPercentage =
+                                                                (orderCount /
+                                                                    maximumValue);
+                                                            print(
+                                                                'progressPercentage $progressPercentage times.');
+                                                            isClaimButtonDisabled =
+                                                                true; // Disable the button
+                                                          } else if (orderCount >
+                                                              99) {
+                                                            // syncUniqueId = homeController.generateRandomSixDigitNumber();
+                                                            // debugPrint("syncUniqueId: $syncUniqueId");
+                                                            // orderCount = 0;
+                                                            progressPercentage =
+                                                                (orderCount /
+                                                                    maximumValue);
+                                                            isClaimButtonDisabled =
+                                                                false; // Disable the button
+                                                            // orderCount = 0;
+                                                          } else if (orderCount >
+                                                              100) {
+                                                            progressPercentage =
+                                                                0.0;
+                                                            isClaimButtonDisabled =
+                                                                false; // Enable the button
+                                                            orderCount = 0;
+                                                          }
+                                                          saveOrderCount(
+                                                              orderCount);
+                                                        });
+                                                        ScaffoldMessenger.of(
+                                                                context)
+                                                            .showSnackBar(
+                                                          SnackBar(
+                                                            duration:
+                                                                const Duration(
+                                                                    seconds: 3),
+                                                            backgroundColor:
+                                                                kPurpleColor,
+                                                            behavior:
+                                                                SnackBarBehavior
+                                                                    .floating, // Add this line
+                                                            margin:
+                                                                const EdgeInsets
+                                                                    .only(
+                                                                    bottom: 10,
+                                                                    left: 15,
+                                                                    right: 15),
+                                                            content: RichText(
+                                                              text:
+                                                                  const TextSpan(
                                                                 style:
                                                                     TextStyle(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
+                                                                  fontFamily:
+                                                                      'MontserratBold',
                                                                   color: Colors
-                                                                      .green,
-                                                                  fontSize: 20,
+                                                                      .white,
+                                                                  fontSize:
+                                                                      Dimensions
+                                                                          .FONT_SIZE_DEFAULT,
                                                                 ),
+                                                                children: [
+                                                                  TextSpan(
+                                                                    text:
+                                                                        'Order Placed Successfully ',
+                                                                  ),
+                                                                  TextSpan(
+                                                                    text: '✔️',
+                                                                    style:
+                                                                        TextStyle(
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                      color: Colors
+                                                                          .green,
+                                                                      fontSize:
+                                                                          20,
+                                                                    ),
+                                                                  ),
+                                                                ],
                                                               ),
-                                                            ],
+                                                            ),
                                                           ),
-                                                        ),
-                                                      ),
-                                                    );
-                                                    resetValue();
-                                                    productEan = homeController
-                                                        .generateRandomNineDigitNumber()
-                                                        .toString();
-                                                  });
-                                      }
+                                                        );
+                                                        resetValue();
+                                                        productEan = homeController
+                                                            .generateRandomNineDigitNumber()
+                                                            .toString();
+                                                      });
+                                          }
                                     : () {},
                                 child: Container(
                                   height: Dimensions.BUTTON_HEIGHT,
                                   width: size.width,
-                                  decoration: enablePlaceOrder == true && (int.parse(todayOrder != "" ? todayOrder : authCon.today_order.toString()) <= int.parse(averageOrders != ""
-                                      ? averageOrders
-                                      : authCon.average_orders.toString()))
+                                  // decoration: enablePlaceOrder == true
+                                  decoration:  enablePlaceOrder == true
+                                          ? (int.parse(todayOrder != ""
+                                      ? todayOrder
+                                      : authCon.today_order
+                                      .toString()) <=
+                                      int.parse(averageOrders != ""
+                                          ? averageOrders
+                                          : authCon.average_orders
+                                          .toString()))
                                       ? BoxDecoration(
-                                          color: kPrimaryColor,
-                                          gradient: const LinearGradient(
-                                            colors: [
-                                              Colors.deepOrange,
-                                              Colors.pink
-                                            ],
-                                          ),
-                                          border: Border(
-                                            bottom: BorderSide(
-                                              color: Colors.pink.shade900,
-                                              width: 4.0,
-                                            ),
-                                            right: BorderSide(
-                                              color: Colors.pink.shade900,
-                                              width: 1.0,
-                                            ),
-                                          ),
-                                          borderRadius:
-                                              BorderRadius.circular(1000),
-                                        )
+                                              color: kPrimaryColor,
+                                              gradient: const LinearGradient(
+                                                colors: [
+                                                  Colors.deepOrange,
+                                                  Colors.pink
+                                                ],
+                                              ),
+                                              border: Border(
+                                                bottom: BorderSide(
+                                                  color: Colors.pink.shade900,
+                                                  width: 4.0,
+                                                ),
+                                                right: BorderSide(
+                                                  color: Colors.pink.shade900,
+                                                  width: 1.0,
+                                                ),
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(1000),
+                                            )
+                                          : BoxDecoration(
+                                              color: Colors.grey,
+                                              border: Border(
+                                                bottom: BorderSide(
+                                                  color: Colors.grey.shade900,
+                                                  width: 4.0,
+                                                ),
+                                                right: BorderSide(
+                                                  color: Colors.grey.shade900,
+                                                  width: 1.0,
+                                                ),
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(1000),
+                                            )
                                       : BoxDecoration(
                                           color: Colors.grey,
                                           border: Border(
@@ -1291,12 +1320,26 @@ class HomeScreenState extends State<HomeScreen> {
                                               BorderRadius.circular(1000),
                                         ),
                                   alignment: Alignment.center,
-                                  child: isPlaceOrder == true && (int.parse(todayOrder != "" ? todayOrder : authCon.today_order.toString()) <= int.parse(averageOrders != ""
-                                      ? averageOrders
-                                      : authCon.average_orders.toString()))
-                                      ? const CupertinoActivityIndicator(
-                                          color: Colors.white,
-                                        )
+                                  child: (int.parse(todayOrder != ""
+                                              ? todayOrder
+                                              : authCon.today_order
+                                                  .toString()) <=
+                                          int.parse(averageOrders != ""
+                                              ? averageOrders
+                                              : authCon.average_orders
+                                                  .toString()))
+                                      ? isPlaceOrder == true
+                                          ? const CupertinoActivityIndicator(
+                                              color: Colors.white,
+                                            )
+                                          : const Text(
+                                              "Place Order",
+                                              style: TextStyle(
+                                                  fontFamily: 'MontserratBold',
+                                                  color: Colors.white,
+                                                  fontSize: Dimensions
+                                                      .FONT_SIZE_DEFAULT),
+                                            )
                                       : const Text(
                                           "Place Order",
                                           style: TextStyle(
@@ -1368,7 +1411,8 @@ class HomeScreenState extends State<HomeScreen> {
         onTap: () {
           String text = 'Hello I need help in app';
           String encodedText = Uri.encodeFull(text);
-          String uri = 'https://tawk.to/chat/656c7dd3bfb79148e599a506/1hgnsn1et';
+          String uri =
+              'https://tawk.to/chat/656c7dd3bfb79148e599a506/1hgnsn1et';
           launchUrl(
             Uri.parse(uri),
             mode: LaunchMode.inAppWebView,
@@ -1387,112 +1431,55 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Future<void> watchAds() async {
-    prefs = await SharedPreferences.getInstance();
+  // Future<void> watchAds() async {
+  //   prefs = await SharedPreferences.getInstance();
+  //
+  //   var response = await dataCall(Constant.ADS_URL);
+  //
+  //   String jsonDataString = response.toString();
+  //   final jsonData = jsonDecode(jsonDataString);
+  //
+  //   if (jsonData['success']) {
+  //     // Utils().showToast(jsonData['message']);
+  //     final dataList = jsonData['data'] as List;
+  //     final datass = dataList.first;
+  //     prefs.setString(Constant.ADS_LINK, datass[Constant.ADS_LINK]);
+  //     prefs.setString(Constant.ADS_IMAGE, datass[Constant.ADS_IMAGE]);
+  //     setState(() {
+  //       ads_image = prefs.getString(Constant.ADS_IMAGE)!;
+  //       ads_link = prefs.getString(Constant.ADS_LINK)!;
+  //     });
+  //     starttime = 0;
+  //     timerStarted = true;
+  //     // startTimer();
+  //     //userDeatils();
+  //   } else {
+  //     Utils().showToast(jsonData['message']);
+  //   }
+  // }
 
-    var response = await dataCall(Constant.ADS_URL);
-
-    String jsonDataString = response.toString();
-    final jsonData = jsonDecode(jsonDataString);
-
-    if (jsonData['success']) {
-      // Utils().showToast(jsonData['message']);
-      final dataList = jsonData['data'] as List;
-      final datass = dataList.first;
-      prefs.setString(Constant.ADS_LINK, datass[Constant.ADS_LINK]);
-      prefs.setString(Constant.ADS_IMAGE, datass[Constant.ADS_IMAGE]);
-      setState(() {
-        ads_image = prefs.getString(Constant.ADS_IMAGE)!;
-        ads_link = prefs.getString(Constant.ADS_LINK)!;
-      });
-      starttime = 0;
-      timerStarted = true;
-      // startTimer();
-      //userDeatils();
-    } else {
-      Utils().showToast(jsonData['message']);
-    }
-  }
-
-  showAlertDialog(
-    BuildContext context,
-    // String generatedOtp,
-  ) {
-    Size size = MediaQuery.of(context).size;
-
-    AlertDialog alert = AlertDialog(
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(16))),
-      contentPadding: const EdgeInsets.all(20),
-      content: Container(
-        height: size.height * 0.1,
-        decoration: const BoxDecoration(),
-        alignment: Alignment.center,
-        child: SlideAction(
-          trackBuilder: (context, state) {
-            return Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                color: Colors.white,
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 8,
-                  ),
-                ],
-              ),
-              child: Center(
-                child: Text(
-                  state.isPerformingAction ? "Loading..." : "Go To ADS",
-                  style: const TextStyle(
-                      color: colors.black,
-                      fontSize: 14,
-                      fontFamily: "Montserrat",
-                      fontWeight: FontWeight.bold),
-                ),
-              ),
-            );
-          },
-          thumbBuilder: (context, state) {
-            return Container(
-              margin: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: Colors.orange,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Center(
-                child: state.isPerformingAction
-                    ? const CupertinoActivityIndicator(
-                        color: Colors.white,
-                      )
-                    : const Icon(
-                        Icons.chevron_right,
-                        color: Colors.white,
-                      ),
-              ),
-            );
-          },
-          action: () async {
-            await Future.delayed(
-              const Duration(seconds: 2),
-              () {
-                debugPrint("action completed");
-                watchAds();
-                Navigator.of(context).pop();
-              },
-            );
-          },
-        ),
-      ),
-    );
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return alert;
-      },
-    );
-  }
+  // syncAlertDialog(
+  //   BuildContext context,
+  //   // String generatedOtp,
+  // ) {
+  //   Size size = MediaQuery.of(context).size;
+  //
+  //   AlertDialog alert = const AlertDialog(
+  //     shape: RoundedRectangleBorder(
+  //         borderRadius: BorderRadius.all(Radius.circular(16))),
+  //     contentPadding: EdgeInsets.all(20),
+  //     content: CupertinoActivityIndicator(
+  //       color: Colors.pink,
+  //     ),
+  //   );
+  //
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return alert;
+  //     },
+  //   );
+  // }
 
 // showAlertDialog(
 //   BuildContext context,
@@ -1565,89 +1552,89 @@ class HomeScreenState extends State<HomeScreen> {
 // }
 }
 
-class OtpInputField extends StatefulWidget {
-  final String generatedOtp;
-  final Function onPress;
-  const OtpInputField(
-      {super.key, required this.generatedOtp, required this.onPress});
-
-  @override
-  _OtpInputFieldState createState() => _OtpInputFieldState();
-}
-
-class _OtpInputFieldState extends State<OtpInputField> {
-  TextEditingController otpController1 = TextEditingController();
-  TextEditingController otpController2 = TextEditingController();
-  TextEditingController otpController3 = TextEditingController();
-  TextEditingController otpController4 = TextEditingController();
-
-  @override
-  void dispose() {
-    otpController1.dispose();
-    otpController2.dispose();
-    otpController3.dispose();
-    otpController4.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            buildOtpTextField(otpController1),
-            buildOtpTextField(otpController2),
-            buildOtpTextField(otpController3),
-            buildOtpTextField(otpController4),
-          ],
-        ),
-        const SizedBox(height: 20.0),
-        ElevatedButton(
-          onPressed: () {
-            String enteredOtp =
-                "${otpController1.text}${otpController2.text}${otpController3.text}${otpController4.text}";
-            widget.onPress(enteredOtp);
-            //
-            // if (enteredOtp == widget.generatedOtp) {
-            //   print('OTP Matched');
-            // } else {
-            //   print('OTP Mismatch');
-            // }
-            // print('Entered OTP: ${otpController1.text}${otpController2.text}${otpController3.text}${otpController4.text}');
-          },
-          child: const Text('Submit'),
-        ),
-      ],
-    );
-  }
-
-  Widget buildOtpTextField(TextEditingController controller) {
-    return Container(
-      width: 50.0,
-      height: 50.0,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.blue, width: 2.0),
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-      margin: const EdgeInsets.symmetric(horizontal: 3),
-      child: TextField(
-        controller: controller,
-        maxLength: 1,
-        keyboardType: TextInputType.number,
-        textAlign: TextAlign.center,
-        style: const TextStyle(fontSize: 24.0),
-        decoration: const InputDecoration(
-          counterText: '',
-          enabledBorder: InputBorder.none,
-          focusedBorder: InputBorder.none,
-        ),
-        onChanged: (value) {
-          FocusScope.of(context).nextFocus();
-        },
-      ),
-    );
-  }
-}
+// class OtpInputField extends StatefulWidget {
+//   final String generatedOtp;
+//   final Function onPress;
+//   const OtpInputField(
+//       {super.key, required this.generatedOtp, required this.onPress});
+//
+//   @override
+//   _OtpInputFieldState createState() => _OtpInputFieldState();
+// }
+//
+// class _OtpInputFieldState extends State<OtpInputField> {
+//   TextEditingController otpController1 = TextEditingController();
+//   TextEditingController otpController2 = TextEditingController();
+//   TextEditingController otpController3 = TextEditingController();
+//   TextEditingController otpController4 = TextEditingController();
+//
+//   @override
+//   void dispose() {
+//     otpController1.dispose();
+//     otpController2.dispose();
+//     otpController3.dispose();
+//     otpController4.dispose();
+//     super.dispose();
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Column(
+//       children: [
+//         Row(
+//           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+//           children: [
+//             buildOtpTextField(otpController1),
+//             buildOtpTextField(otpController2),
+//             buildOtpTextField(otpController3),
+//             buildOtpTextField(otpController4),
+//           ],
+//         ),
+//         const SizedBox(height: 20.0),
+//         ElevatedButton(
+//           onPressed: () {
+//             String enteredOtp =
+//                 "${otpController1.text}${otpController2.text}${otpController3.text}${otpController4.text}";
+//             widget.onPress(enteredOtp);
+//             //
+//             // if (enteredOtp == widget.generatedOtp) {
+//             //   print('OTP Matched');
+//             // } else {
+//             //   print('OTP Mismatch');
+//             // }
+//             // print('Entered OTP: ${otpController1.text}${otpController2.text}${otpController3.text}${otpController4.text}');
+//           },
+//           child: const Text('Submit'),
+//         ),
+//       ],
+//     );
+//   }
+//
+//   Widget buildOtpTextField(TextEditingController controller) {
+//     return Container(
+//       width: 50.0,
+//       height: 50.0,
+//       alignment: Alignment.center,
+//       decoration: BoxDecoration(
+//         border: Border.all(color: Colors.blue, width: 2.0),
+//         borderRadius: BorderRadius.circular(10.0),
+//       ),
+//       margin: const EdgeInsets.symmetric(horizontal: 3),
+//       child: TextField(
+//         controller: controller,
+//         maxLength: 1,
+//         keyboardType: TextInputType.number,
+//         textAlign: TextAlign.center,
+//         style: const TextStyle(fontSize: 24.0),
+//         decoration: const InputDecoration(
+//           counterText: '',
+//           enabledBorder: InputBorder.none,
+//           focusedBorder: InputBorder.none,
+//         ),
+//         onChanged: (value) {
+//           FocusScope.of(context).nextFocus();
+//         },
+//       ),
+//     );
+//   }
+// }

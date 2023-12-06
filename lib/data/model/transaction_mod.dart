@@ -1,11 +1,11 @@
-class NotificationMod {
+class TransactionMod {
   bool? success;
   String? message;
   List<Data>? data;
 
-  NotificationMod({this.success, this.message, this.data});
+  TransactionMod({this.success, this.message, this.data});
 
-  NotificationMod.fromJson(Map<String, dynamic> json) {
+  TransactionMod.fromJson(Map<String, dynamic> json) {
     success = json['success'];
     message = json['message'];
     if (json['data'] != null) {
@@ -29,27 +29,27 @@ class NotificationMod {
 
 class Data {
   String? id;
-  String? title;
-  String? description;
-  String? link;
+  String? amount;
+  String? orders;
+  String? type;
   String? datetime;
 
-  Data({this.id, this.title, this.description, this.link, this.datetime});
+  Data({this.id, this.amount, this.orders, this.type, this.datetime});
 
   Data.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-    title = json['title'];
-    description = json['description'];
-    link = json['link'];
+    amount = json['amount'];
+    orders = json['orders'];
+    type = json['type'];
     datetime = json['datetime'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
-    data['title'] = title;
-    data['description'] = description;
-    data['link'] = link;
+    data['amount'] = amount;
+    data['orders'] = orders;
+    data['type'] = type;
     data['datetime'] = datetime;
     return data;
   }

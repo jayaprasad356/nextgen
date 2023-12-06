@@ -81,7 +81,7 @@ class _NotificationsState extends State<Notifications> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              notificationController.notificationData[index][1],
+                              notificationController.notificationData[index].title,
                               style: const TextStyle(
                                 color: colors.white,
                                 fontFamily: 'Montserrat',
@@ -92,7 +92,7 @@ class _NotificationsState extends State<Notifications> {
                             const SizedBox(height: 5),
                             // Adding some spacing between the two Text widgets
                             Text(
-                              notificationController.notificationData[index][2],
+                              notificationController.notificationData[index].description,
                               style: const TextStyle(
                                 color: colors.white,
                                 fontFamily: 'Montserrat',
@@ -100,14 +100,15 @@ class _NotificationsState extends State<Notifications> {
                                     10, // You can adjust the font size as needed
                               ),
                             ),
-                            if (notificationController
-                                .notificationData[index][3].isNotEmpty)
-                              MaterialButton(
+                            const SizedBox(height: 5),
+                            (notificationController
+                                .notificationData[index].link.isNotEmpty)
+                              ? MaterialButton(
                                 height: 25,
                                 color: colors.primary,
                                 onPressed: () {
                                   String uri = notificationController
-                                      .notificationData[index][3];
+                                      .notificationData[index].link;
                                   launchUrl(
                                     Uri.parse(uri),
                                     mode: LaunchMode.externalApplication,
@@ -121,9 +122,12 @@ class _NotificationsState extends State<Notifications> {
                                         fontSize: 10,
                                         color: colors.white,
                                         fontFamily: "Montserra")),
-                              ),
+                              ) : const SizedBox(),
+                            SizedBox(height: (notificationController
+                                .notificationData[index].link.isNotEmpty)
+                                ? 5 : 0),
                             Text(
-                              notificationController.notificationData[index][4],
+                              notificationController.notificationData[index].datetime,
                               style: const TextStyle(
                                 color: colors.white,
                                 fontFamily: 'Montserrat',

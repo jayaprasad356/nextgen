@@ -15,6 +15,7 @@ import 'package:nextgen/data/repository/auth_repo.dart';
 import 'package:nextgen/data/repository/full_time_repo.dart';
 import 'package:nextgen/data/repository/home_repo.dart';
 import 'package:nextgen/data/repository/notification_repo.dart';
+import 'package:nextgen/data/repository/profile_repo.dart';
 import 'package:nextgen/data/repository/shorts_video_repo.dart';
 import 'package:nextgen/data/repository/upi_repo.dart';
 import 'package:nextgen/data/repository/wallet_repo.dart';
@@ -40,6 +41,7 @@ import 'controller/utils.dart';
 import 'package:package_info/package_info.dart';
 import 'package:get/get.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'view/screens/home_page/home_screen.dart';
 import 'view/screens/profile_screen/new_profile_screen.dart';
 import 'view/screens/updateApp/updateApp.dart';
 // import 'dart:html' as html;
@@ -110,7 +112,15 @@ Future<void> main() async {
   );
 
   Get.put(
-    ProfileCon(),
+    ProfileCon(
+      profileRepo: ProfileRepo(
+          storageLocal: storeLocal,
+          apiClient: ApiClient(
+            appBaseUrl: Constant.MainBaseUrl,
+            storageLocal: storeLocal,
+          )
+      ),
+    ),
   );
 
   Get.put(
@@ -124,7 +134,7 @@ Future<void> main() async {
       ),
     ),
   );
-
+  //
   Get.put(
     NotificationController(
       notificationRepo: NotificationRepo(
@@ -156,16 +166,16 @@ Future<void> main() async {
     ),
   );
 
-  Get.put(
-    PCC(
-      shortsVideoRepo: ShortsVideoRepo(
-          apiClient: ApiClient(
-            appBaseUrl: Constant.MainBaseUrl,
-            storageLocal: storeLocal,
-          ),
-          storageLocal: storeLocal),
-    ),
-  );
+  // Get.put(
+  //   PCC(
+  //     shortsVideoRepo: ShortsVideoRepo(
+  //         apiClient: ApiClient(
+  //           appBaseUrl: Constant.MainBaseUrl,
+  //           storageLocal: storeLocal,
+  //         ),
+  //         storageLocal: storeLocal),
+  //   ),
+  // );
 
   // runApp(MyVideoApp());
   runApp(const MyApp());
@@ -376,7 +386,15 @@ class _MyAppState extends State<MyApp> {
                 ),
               );
               Get.put(
-                ProfileCon(),
+                ProfileCon(
+                  profileRepo: ProfileRepo(
+                      storageLocal: storeLocal,
+                      apiClient: ApiClient(
+                        appBaseUrl: Constant.MainBaseUrl,
+                        storageLocal: storeLocal,
+                      )
+                  ),
+                ),
               );
               Get.put(
                 WalletCon(
@@ -399,45 +417,36 @@ class _MyAppState extends State<MyApp> {
                       storageLocal: storeLocal),
                 ),
               );
-              Get.put(
-                PCC(
-                  shortsVideoRepo: ShortsVideoRepo(
-                      apiClient: ApiClient(
-                        appBaseUrl: Constant.MainBaseUrl,
-                        storageLocal: storeLocal,
-                      ),
-                      storageLocal: storeLocal),
-                ),
-              );
-              Get.put(
-                HomeController(
-                  homeRepo: HomeRepo(
-                      apiClient: ApiClient(
-                          appBaseUrl: Constant.MainBaseUrl,
-                          storageLocal: storeLocal),
-                      storageLocal: storeLocal),
-                ),
-              );
-              Get.put(
-                FullTimePageCont(
-                  fullTimeRepo: FullTimeRepo(
-                      apiClient: ApiClient(
-                          appBaseUrl: Constant.MainBaseUrl,
-                          storageLocal: storeLocal),
-                      storageLocal: storeLocal),
-                ),
-              );
-              Get.put(
-                UPIController(
-                  upiRepo: UPIRepo(
-                      apiClient: ApiClient(
-                          appBaseUrl: Constant.MainBaseUrl,
-                          storageLocal: storeLocal),
-                      storageLocal: storeLocal),
-                ),
-              );
+              // Get.put(
+              //   HomeController(
+              //     homeRepo: HomeRepo(
+              //         apiClient: ApiClient(
+              //             appBaseUrl: Constant.MainBaseUrl,
+              //             storageLocal: storeLocal),
+              //         storageLocal: storeLocal),
+              //   ),
+              // );
+              // Get.put(
+              //   FullTimePageCont(
+              //     fullTimeRepo: FullTimeRepo(
+              //         apiClient: ApiClient(
+              //             appBaseUrl: Constant.MainBaseUrl,
+              //             storageLocal: storeLocal),
+              //         storageLocal: storeLocal),
+              //   ),
+              // );
+              // Get.put(
+              //   UPIController(
+              //     upiRepo: UPIRepo(
+              //         apiClient: ApiClient(
+              //             appBaseUrl: Constant.MainBaseUrl,
+              //             storageLocal: storeLocal),
+              //         storageLocal: storeLocal),
+              //   ),
+              // );
             }),
             // home: const MainScreen(),
+            // home: const HomeScreen(),
             // home: const LoginScreen(),
             home: screens(prefs),
             // home: NewProfileScreen(mobileNumber: "7010565083"),

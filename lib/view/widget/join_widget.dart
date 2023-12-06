@@ -74,7 +74,7 @@ class JoinForm extends StatefulWidget {
 }
 
 class _JoinFormState extends State<JoinForm> {
-  final AuthCon authCon = Get.find<AuthCon>();
+  // final AuthCon authCon = Get.find<AuthCon>();
   final TextEditingController commentController = TextEditingController();
 
   String name = "";
@@ -333,19 +333,19 @@ class _JoinFormState extends State<JoinForm> {
                 onTap: joinIsTrue == '' || joinIsTrue == 'false'
                     ? isFiledComment == false
                         ? () async {
-                            authCon.joinAPI(context, isSelected.toString(),
-                                commentController.text,
-                                (String joinDataSuccess) {
-                              debugPrint("joinDataSuccess: $joinDataSuccess");
-                              // Perform actions based on the result of the syncData function
-                              if (joinDataSuccess == 'true') {
-                                setState(() {
-                                  joinIsTrue =
-                                      prefs.getString(Constant.JOIN_IS_TRUE)!;
-                                  debugPrint("joinIsTrue:$joinIsTrue");
-                                });
-                              }
-                            });
+                            // authCon.joinAPI(context, isSelected.toString(),
+                            //     commentController.text,
+                            //     (String joinDataSuccess) {
+                            //   debugPrint("joinDataSuccess: $joinDataSuccess");
+                            //   // Perform actions based on the result of the syncData function
+                            //   if (joinDataSuccess == 'true') {
+                            //     setState(() {
+                            //       joinIsTrue =
+                            //           prefs.getString(Constant.JOIN_IS_TRUE)!;
+                            //       debugPrint("joinIsTrue:$joinIsTrue");
+                            //     });
+                            //   }
+                            // });
                             // setState(() {
                             //   joinIsTrue = prefs.getString(Constant.JOIN_IS_TRUE)!;
                             //   debugPrint("joinIsTrue:$joinIsTrue");

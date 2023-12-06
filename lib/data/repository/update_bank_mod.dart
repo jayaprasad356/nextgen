@@ -41,7 +41,7 @@ class Data {
   String? referCode;
   String? withdrawalStatus;
   String? status;
-  Null? joinedDate;
+  String? joinedDate;
   Null? fcmId;
   String? lastUpdated;
   String? minWithdrawal;
@@ -55,7 +55,6 @@ class Data {
   String? branch;
   String? ifsc;
   String? watchOrders;
-  String? ordersCost;
   String? registeredDate;
   String? totalOrders;
   String? todayOrders;
@@ -82,9 +81,11 @@ class Data {
   String? location;
   String? password;
   String? orderAvailable;
-  Null? storeId;
+  String? storeId;
   String? averageOrders;
   String? level;
+  String? hiringEarings;
+  String? ordersEarnings;
   String? abcdUser;
   String? interested;
 
@@ -116,7 +117,6 @@ class Data {
         this.branch,
         this.ifsc,
         this.watchOrders,
-        this.ordersCost,
         this.registeredDate,
         this.totalOrders,
         this.todayOrders,
@@ -146,6 +146,8 @@ class Data {
         this.storeId,
         this.averageOrders,
         this.level,
+        this.hiringEarings,
+        this.ordersEarnings,
         this.abcdUser,
         this.interested});
 
@@ -177,7 +179,6 @@ class Data {
     branch = json['branch'];
     ifsc = json['ifsc'];
     watchOrders = json['watch_orders'];
-    ordersCost = json['orders_cost'];
     registeredDate = json['registered_date'];
     totalOrders = json['total_orders'];
     todayOrders = json['today_orders'];
@@ -207,6 +208,8 @@ class Data {
     storeId = json['store_id'];
     averageOrders = json['average_orders'];
     level = json['level'];
+    hiringEarings = json['hiring_earings'];
+    ordersEarnings = json['orders_earnings'];
     abcdUser = json['abcd_user'];
     interested = json['interested'];
   }
@@ -240,7 +243,6 @@ class Data {
     data['branch'] = branch;
     data['ifsc'] = ifsc;
     data['watch_orders'] = watchOrders;
-    data['orders_cost'] = ordersCost;
     data['registered_date'] = registeredDate;
     data['total_orders'] = totalOrders;
     data['today_orders'] = todayOrders;
@@ -270,6 +272,8 @@ class Data {
     data['store_id'] = storeId;
     data['average_orders'] = averageOrders;
     data['level'] = level;
+    data['hiring_earings'] = hiringEarings;
+    data['orders_earnings'] = ordersEarnings;
     data['abcd_user'] = abcdUser;
     data['interested'] = interested;
     return data;

@@ -1,17 +1,17 @@
-class NotificationMod {
+class WithdrawalListMod {
   bool? success;
   String? message;
   List<Data>? data;
 
-  NotificationMod({this.success, this.message, this.data});
+  WithdrawalListMod({this.success, this.message, this.data});
 
-  NotificationMod.fromJson(Map<String, dynamic> json) {
+  WithdrawalListMod.fromJson(Map<String, dynamic> json) {
     success = json['success'];
     message = json['message'];
     if (json['data'] != null) {
       data = <Data>[];
       json['data'].forEach((v) {
-        data!.add(new Data.fromJson(v));
+        data!.add(Data.fromJson(v));
       });
     }
   }
@@ -29,27 +29,24 @@ class NotificationMod {
 
 class Data {
   String? id;
-  String? title;
-  String? description;
-  String? link;
+  String? amount;
+  String? status;
   String? datetime;
 
-  Data({this.id, this.title, this.description, this.link, this.datetime});
+  Data({this.id, this.amount, this.status, this.datetime});
 
   Data.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-    title = json['title'];
-    description = json['description'];
-    link = json['link'];
+    amount = json['amount'];
+    status = json['status'];
     datetime = json['datetime'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
-    data['title'] = title;
-    data['description'] = description;
-    data['link'] = link;
+    data['amount'] = amount;
+    data['status'] = status;
     data['datetime'] = datetime;
     return data;
   }

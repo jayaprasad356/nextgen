@@ -84,7 +84,8 @@ class HomeController extends GetxController implements GetxService {
     today_order_con++; // Increment the today_order
     await storeLocal.containsKey(key: Constant.TODAY_ORDERS_CON);
     await storeLocal.write(
-        key: Constant.TODAY_ORDERS_CON, value: today_order_con.value.toString());
+        key: Constant.TODAY_ORDERS_CON,
+        value: today_order_con.value.toString());
     update();
   }
 
@@ -102,40 +103,40 @@ class HomeController extends GetxController implements GetxService {
   void checkAvailability(context, String productEan) async {
     isCheck.value = true;
     Timer(const Duration(seconds: 3), () async {
-    debugPrint("productEan: $productEan");
-    debugPrint("productEanCnt: $productEanCnt");
-    if (productEanCnt == productEan) {
-      orderAvailable.value =
-          (await storeLocal.read(key: Constant.ORDERAVAILABLE))!;
       debugPrint("productEan: $productEan");
-      update();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            orderAvailable == "1" ? "Available" : "Not Available",
-            style: const TextStyle(
-                fontFamily: 'MontserratBold',
-                color: Colors.white,
-                fontSize: Dimensions.FONT_SIZE_DEFAULT),
+      debugPrint("productEanCnt: $productEanCnt");
+      if (productEanCnt == productEan) {
+        orderAvailable.value =
+            (await storeLocal.read(key: Constant.ORDERAVAILABLE))!;
+        debugPrint("productEan: $productEan");
+        update();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              orderAvailable == "1" ? "Available" : "Not Available",
+              style: const TextStyle(
+                  fontFamily: 'MontserratBold',
+                  color: Colors.white,
+                  fontSize: Dimensions.FONT_SIZE_DEFAULT),
+            ),
+            duration: const Duration(seconds: 2),
+            backgroundColor: kPurpleColor,
+            behavior: SnackBarBehavior.floating, // Add this line
+            margin: const EdgeInsets.only(bottom: 10, left: 15, right: 15),
           ),
-          duration: const Duration(seconds: 2),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+              "Check your correct product EAN number and then paste it here."),
+          duration: Duration(seconds: 2),
           backgroundColor: kPurpleColor,
           behavior: SnackBarBehavior.floating, // Add this line
-          margin: const EdgeInsets.only(bottom: 10, left: 15, right: 15),
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text(
-            "Check your correct product EAN number and then paste it here."),
-        duration: Duration(seconds: 2),
-        backgroundColor: kPurpleColor,
-        behavior: SnackBarBehavior.floating, // Add this line
-        margin: EdgeInsets.only(bottom: 10, left: 15, right: 15),
-      ));
-    }
-    isCheck.value = false;
-    update();
+          margin: EdgeInsets.only(bottom: 10, left: 15, right: 15),
+        ));
+      }
+      isCheck.value = false;
+      update();
     });
   }
 
@@ -151,7 +152,7 @@ class HomeController extends GetxController implements GetxService {
     ));
   }
 
-  void pasteText(context,String productEan) async {
+  void pasteText(context, String productEan) async {
     isCoped.value = true;
     Timer(const Duration(seconds: 3), () async {
       copiedText.value = productEan;
@@ -200,12 +201,17 @@ class HomeController extends GetxController implements GetxService {
   }
 
   Future<void> syncData(
+    context,
     userId,
     orders,
-      SyncDataNextgenCallback callback, // Add the callback parameter
+    SyncDataNextgenCallback callback, // Add the callback parameter
   ) async {
     prefs = await SharedPreferences.getInstance();
     try {
+      showLoadingIndicator(context);
+
+      await Future.delayed(const Duration(seconds: 5));
+
       final value = await homeRepo.syncData(userId, orders);
       var responseData = value.body;
       SyncDataNextgen syncDataNextgen = SyncDataNextgen.fromJson(responseData);
@@ -223,21 +229,28 @@ class HomeController extends GetxController implements GetxService {
         todayOrder.value = syncDataNextgen.data![0].todayOrders!;
         totalOrder.value = syncDataNextgen.data![0].totalOrders!;
         averageOrders.value = syncDataNextgen.data![0].averageOrders!;
-        orderEarnings.value = syncDataNextgen.data![0].averageOrders!;
+        orderEarnings.value = syncDataNextgen.data![0].ordersEarnings!;
+        debugPrint(
+            "===> syncDataNextgen data: $syncOrderAvailable\n${workDays.value}\n${todayOrder.value}\n${totalOrder.value}\n${averageOrders.value}\n${orderEarnings.value}");
 
-        prefs.remove(Constant.ORDERAVAILABLE);
-        prefs.remove(Constant.WORK_DAYS);
-        prefs.remove(Constant.TODAY_ORDER);
-        prefs.remove(Constant.TOTAL_ORDER);
-        prefs.remove(Constant.AVERAGE_ORDER);
-        prefs.remove(Constant.ORDERS_EARNINGS);
+        await storeLocal.delete(key: Constant.ORDERAVAILABLE);
+        await storeLocal.delete(key: Constant.WORK_DAYS);
+        await storeLocal.delete(key: Constant.TODAY_ORDER);
+        await storeLocal.delete(key: Constant.TOTAL_ORDER);
+        await storeLocal.delete(key: Constant.AVERAGE_ORDER);
+        await storeLocal.delete(key: Constant.ORDERS_EARNINGS);
 
-        prefs.setString(Constant.ORDERAVAILABLE, syncOrderAvailable);
-        prefs.setString(Constant.WORK_DAYS, workDays.value);
-        prefs.setString(Constant.TOTAL_ORDER, totalOrder.value);
-        prefs.setString(Constant.TODAY_ORDER, todayOrder.value);
-        prefs.setString(Constant.AVERAGE_ORDER, averageOrders.value);
-        prefs.setString(Constant.ORDERS_EARNINGS, orderEarnings.value);
+        await storeLocal.write(
+            key: Constant.ORDERAVAILABLE, value: syncOrderAvailable);
+        await storeLocal.write(key: Constant.WORK_DAYS, value: workDays.value);
+        await storeLocal.write(
+            key: Constant.TOTAL_ORDER, value: totalOrder.value);
+        await storeLocal.write(
+            key: Constant.TODAY_ORDER, value: todayOrder.value);
+        await storeLocal.write(
+            key: Constant.AVERAGE_ORDER, value: averageOrders.value);
+        await storeLocal.write(
+            key: Constant.ORDERS_EARNINGS, value: orderEarnings.value);
       }
       //
       // prefs.setString(Constant.MOBILE, user.mobile);
@@ -252,11 +265,36 @@ class HomeController extends GetxController implements GetxService {
 
       // Execute the callback after the function is completed
       callback(syncDataNextgen.success.toString());
+
+      hideLoadingIndicator(context);
     } catch (e) {
       debugPrint("syncDataNextgen errors: $e");
       // Handle errors
       callback('syncDataNextgen error');
     }
+  }
+
+  void showLoadingIndicator(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 8),
+              Text('Loading...'),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void hideLoadingIndicator(BuildContext context) {
+    Navigator.of(context).pop();
   }
 }
 

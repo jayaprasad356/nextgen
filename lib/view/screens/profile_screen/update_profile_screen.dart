@@ -322,7 +322,7 @@ class _ProfileFormState extends State<ProfileForm> {
                   const SizedBox(height: 24),
                   MaterialButton(
                     onPressed: () {
-                      updateProfile();
+                      // updateProfile();
                     },
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -358,52 +358,52 @@ class _ProfileFormState extends State<ProfileForm> {
     );
   }
 
-  Future<void> updateProfile() async {
-    prefs = await SharedPreferences.getInstance();
-    var url = Constant.UPDATE_PROFILE_URL;
-    Map<String, dynamic> bodyObject = {
-      Constant.USER_ID: prefs.getString(Constant.ID),
-      Constant.NAME: _nameController.text,
-      // Constant.AGE: _ageController.text,
-      Constant.SUPPORT_LAN: language,
-      Constant.GENDER: gender,
-      Constant.CITY: _cityController.text,
-      Constant.DEAF: deafDumb,
-      Constant.EMAIL: _emailController.text,
-    };
-
-    String jsonString = await apiCall(url, bodyObject);
-    final Map<String, dynamic> responseJson = jsonDecode(jsonString);
-    if (responseJson['success']) {
-      Utils().showToast(responseJson['message']);
-      final dataList = responseJson['data'] as List;
-      final Users user = Users.fromJsonNew(dataList.first);
-
-      prefs.setString(Constant.LOGED_IN, "true");
-      prefs.setString(Constant.ID, user.id);
-      prefs.setString(Constant.MOBILE, user.mobile);
-      prefs.setString(Constant.EARN, user.earn);
-      prefs.setString(Constant.CITY, user.city);
-      prefs.setString(Constant.AGE, user.age);
-      prefs.setString(Constant.GENDER, user.gender);
-      prefs.setString(Constant.SUPPORT_LAN, user.support_lan);
-      prefs.setString(Constant.BALANCE, user.balance);
-      prefs.setString(Constant.REFERRED_BY, user.referredBy);
-      prefs.setString(Constant.REFER_CODE, user.referCode);
-      prefs.setString(Constant.WITHDRAWAL_STATUS, user.withdrawalStatus);
-      prefs.setString(Constant.STATUS, user.status);
-      prefs.setString(Constant.JOINED_DATE, user.joinedDate);
-      prefs.setString(Constant.LAST_UPDATED, user.lastUpdated);
-      prefs.setString(Constant.DEAF, user.deaf);
-      prefs.setString(Constant.EMAIL, user.email);
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const MainScreen(),
-        ),
-      );
-    } else {
-      Utils().showToast(responseJson['message']);
-    }
-  }
+  // Future<void> updateProfile() async {
+  //   prefs = await SharedPreferences.getInstance();
+  //   var url = Constant.UPDATE_PROFILE_URL;
+  //   Map<String, dynamic> bodyObject = {
+  //     Constant.USER_ID: prefs.getString(Constant.ID),
+  //     Constant.NAME: _nameController.text,
+  //     // Constant.AGE: _ageController.text,
+  //     Constant.SUPPORT_LAN: language,
+  //     Constant.GENDER: gender,
+  //     Constant.CITY: _cityController.text,
+  //     Constant.DEAF: deafDumb,
+  //     Constant.EMAIL: _emailController.text,
+  //   };
+  //
+  //   String jsonString = await apiCall(url, bodyObject);
+  //   final Map<String, dynamic> responseJson = jsonDecode(jsonString);
+  //   if (responseJson['success']) {
+  //     Utils().showToast(responseJson['message']);
+  //     final dataList = responseJson['data'] as List;
+  //     final Users user = Users.fromJsonNew(dataList.first);
+  //
+  //     prefs.setString(Constant.LOGED_IN, "true");
+  //     prefs.setString(Constant.ID, user.id);
+  //     prefs.setString(Constant.MOBILE, user.mobile);
+  //     prefs.setString(Constant.EARN, user.earn);
+  //     prefs.setString(Constant.CITY, user.city);
+  //     prefs.setString(Constant.AGE, user.age);
+  //     prefs.setString(Constant.GENDER, user.gender);
+  //     prefs.setString(Constant.SUPPORT_LAN, user.support_lan);
+  //     prefs.setString(Constant.BALANCE, user.balance);
+  //     prefs.setString(Constant.REFERRED_BY, user.referredBy);
+  //     prefs.setString(Constant.REFER_CODE, user.referCode);
+  //     prefs.setString(Constant.WITHDRAWAL_STATUS, user.withdrawalStatus);
+  //     prefs.setString(Constant.STATUS, user.status);
+  //     prefs.setString(Constant.JOINED_DATE, user.joinedDate);
+  //     prefs.setString(Constant.LAST_UPDATED, user.lastUpdated);
+  //     prefs.setString(Constant.DEAF, user.deaf);
+  //     prefs.setString(Constant.EMAIL, user.email);
+  //     Navigator.pushReplacement(
+  //       context,
+  //       MaterialPageRoute(
+  //         builder: (context) => const MainScreen(),
+  //       ),
+  //     );
+  //   } else {
+  //     Utils().showToast(responseJson['message']);
+  //   }
+  // }
 }

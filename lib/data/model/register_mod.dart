@@ -12,13 +12,13 @@ class RegisterData {
     if (json['data'] != null) {
       data = <Data>[];
       json['data'].forEach((v) {
-        data!.add(Data.fromJson(v));
+        data!.add(new Data.fromJson(v));
       });
     }
     if (json['settings'] != null) {
       settings = <Settings>[];
       json['settings'].forEach((v) {
-        settings!.add(Settings.fromJson(v));
+        settings!.add(new Settings.fromJson(v));
       });
     }
   }
@@ -65,14 +65,9 @@ class Data {
   Null? branch;
   Null? ifsc;
   String? watchOrders;
-  String? ordersCost;
   String? registeredDate;
-  String? basicWallet;
-  String? premiumWallet;
   String? totalOrders;
   String? todayOrders;
-  String? targetRefers;
-  String? currentRefers;
   String? supportId;
   String? leadId;
   String? branchId;
@@ -84,7 +79,7 @@ class Data {
   String? ordersTime;
   String? oldPlan;
   String? oldPb;
-  String? rewardAds;
+  String? rewardOrders;
   String? blocked;
   String? referBonusSent;
   String? refer;
@@ -96,6 +91,13 @@ class Data {
   String? location;
   String? password;
   String? orderAvailable;
+  Null? storeId;
+  String? averageOrders;
+  String? level;
+  String? hiringEarings;
+  String? ordersEarnings;
+  String? abcdUser;
+  String? interested;
 
   Data(
       {this.id,
@@ -125,14 +127,9 @@ class Data {
         this.branch,
         this.ifsc,
         this.watchOrders,
-        this.ordersCost,
         this.registeredDate,
-        this.basicWallet,
-        this.premiumWallet,
         this.totalOrders,
         this.todayOrders,
-        this.targetRefers,
-        this.currentRefers,
         this.supportId,
         this.leadId,
         this.branchId,
@@ -144,7 +141,7 @@ class Data {
         this.ordersTime,
         this.oldPlan,
         this.oldPb,
-        this.rewardAds,
+        this.rewardOrders,
         this.blocked,
         this.referBonusSent,
         this.refer,
@@ -155,7 +152,14 @@ class Data {
         this.dob,
         this.location,
         this.password,
-        this.orderAvailable});
+        this.orderAvailable,
+        this.storeId,
+        this.averageOrders,
+        this.level,
+        this.hiringEarings,
+        this.ordersEarnings,
+        this.abcdUser,
+        this.interested});
 
   Data.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -185,14 +189,9 @@ class Data {
     branch = json['branch'];
     ifsc = json['ifsc'];
     watchOrders = json['watch_orders'];
-    ordersCost = json['orders_cost'];
     registeredDate = json['registered_date'];
-    basicWallet = json['basic_wallet'];
-    premiumWallet = json['premium_wallet'];
     totalOrders = json['total_orders'];
     todayOrders = json['today_orders'];
-    targetRefers = json['target_refers'];
-    currentRefers = json['current_refers'];
     supportId = json['support_id'];
     leadId = json['lead_id'];
     branchId = json['branch_id'];
@@ -204,7 +203,7 @@ class Data {
     ordersTime = json['orders_time'];
     oldPlan = json['old_plan'];
     oldPb = json['old_pb'];
-    rewardAds = json['reward_ads'];
+    rewardOrders = json['reward_orders'];
     blocked = json['blocked'];
     referBonusSent = json['refer_bonus_sent'];
     refer = json['refer'];
@@ -216,6 +215,13 @@ class Data {
     location = json['location'];
     password = json['password'];
     orderAvailable = json['order_available'];
+    storeId = json['store_id'];
+    averageOrders = json['average_orders'];
+    level = json['level'];
+    hiringEarings = json['hiring_earings'];
+    ordersEarnings = json['orders_earnings'];
+    abcdUser = json['abcd_user'];
+    interested = json['interested'];
   }
 
   Map<String, dynamic> toJson() {
@@ -247,14 +253,9 @@ class Data {
     data['branch'] = branch;
     data['ifsc'] = ifsc;
     data['watch_orders'] = watchOrders;
-    data['orders_cost'] = ordersCost;
     data['registered_date'] = registeredDate;
-    data['basic_wallet'] = basicWallet;
-    data['premium_wallet'] = premiumWallet;
     data['total_orders'] = totalOrders;
     data['today_orders'] = todayOrders;
-    data['target_refers'] = targetRefers;
-    data['current_refers'] = currentRefers;
     data['support_id'] = supportId;
     data['lead_id'] = leadId;
     data['branch_id'] = branchId;
@@ -266,7 +267,7 @@ class Data {
     data['orders_time'] = ordersTime;
     data['old_plan'] = oldPlan;
     data['old_pb'] = oldPb;
-    data['reward_ads'] = rewardAds;
+    data['reward_orders'] = rewardOrders;
     data['blocked'] = blocked;
     data['refer_bonus_sent'] = referBonusSent;
     data['refer'] = refer;
@@ -278,6 +279,13 @@ class Data {
     data['location'] = location;
     data['password'] = password;
     data['order_available'] = orderAvailable;
+    data['store_id'] = storeId;
+    data['average_orders'] = averageOrders;
+    data['level'] = level;
+    data['hiring_earings'] = hiringEarings;
+    data['orders_earnings'] = ordersEarnings;
+    data['abcd_user'] = abcdUser;
+    data['interested'] = interested;
     return data;
   }
 }
@@ -301,6 +309,7 @@ class Settings {
   String? referCoins;
   String? registerCoins;
   String? watchOrdersStatus;
+  String? vacancies;
 
   Settings(
       {this.id,
@@ -320,7 +329,8 @@ class Settings {
         this.postVideoDetails,
         this.referCoins,
         this.registerCoins,
-        this.watchOrdersStatus});
+        this.watchOrdersStatus,
+        this.vacancies});
 
   Settings.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -341,6 +351,7 @@ class Settings {
     referCoins = json['refer_coins'];
     registerCoins = json['register_coins'];
     watchOrdersStatus = json['watch_orders_status'];
+    vacancies = json['vacancies'];
   }
 
   Map<String, dynamic> toJson() {
@@ -363,6 +374,7 @@ class Settings {
     data['refer_coins'] = referCoins;
     data['register_coins'] = registerCoins;
     data['watch_orders_status'] = watchOrdersStatus;
+    data['vacancies'] = vacancies;
     return data;
   }
 }

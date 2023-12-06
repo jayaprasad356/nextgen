@@ -19,7 +19,7 @@ class LoginData {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['success'] = success;
     data['registered'] = registered;
     data['message'] = message;
@@ -44,7 +44,7 @@ class Data {
   String? referCode;
   String? withdrawalStatus;
   String? status;
-  Null? joinedDate;
+  String? joinedDate;
   Null? fcmId;
   String? lastUpdated;
   String? minWithdrawal;
@@ -84,13 +84,13 @@ class Data {
   String? location;
   String? password;
   String? orderAvailable;
-  Null? storeId;
+  String? storeId;
   String? averageOrders;
   String? level;
+  String? hiringEarings;
+  String? ordersEarnings;
   String? abcdUser;
   String? interested;
-  String? ordersEarnings;
-  String? hiringEarings;
 
   Data(
       {this.id,
@@ -149,10 +149,10 @@ class Data {
         this.storeId,
         this.averageOrders,
         this.level,
-        this.abcdUser,
-        this.interested,
+        this.hiringEarings,
         this.ordersEarnings,
-        this.hiringEarings});
+        this.abcdUser,
+        this.interested});
 
   Data.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -211,14 +211,14 @@ class Data {
     storeId = json['store_id'];
     averageOrders = json['average_orders'];
     level = json['level'];
+    hiringEarings = json['hiring_earings'];
+    ordersEarnings = json['orders_earnings'];
     abcdUser = json['abcd_user'];
     interested = json['interested'];
-    ordersEarnings = json['orders_earnings'];
-    hiringEarings = json['hiring_earings'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
     data['mobile'] = mobile;
     data['name'] = name;
@@ -275,10 +275,10 @@ class Data {
     data['store_id'] = storeId;
     data['average_orders'] = averageOrders;
     data['level'] = level;
+    data['hiring_earings'] = hiringEarings;
+    data['orders_earnings'] = ordersEarnings;
     data['abcd_user'] = abcdUser;
     data['interested'] = interested;
-    data['orders_earnings'] = ordersEarnings;
-    data['hiring_earings'] = hiringEarings;
     return data;
   }
 }

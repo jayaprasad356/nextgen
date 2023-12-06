@@ -52,7 +52,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   final AuthCon authCon = Get.find<AuthCon>();
   final HomeController homeController = Get.find<HomeController>();
-  final PCC c = Get.find<PCC>();
+  // final PCC c = Get.find<PCC>();
   final TextEditingController _payAmountController = TextEditingController();
   final TextEditingController _addCoinController = TextEditingController();
 
@@ -383,12 +383,12 @@ class _MainScreenState extends State<MainScreen> {
                 _addPost
                     ? GestureDetector(
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const PostUpload(),
-                            ),
-                          );
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //     builder: (context) => const PostUpload(),
+                          //   ),
+                          // );
                         },
                         child: const Padding(
                           padding: EdgeInsets.all(12.0),
@@ -661,6 +661,7 @@ class _MainScreenState extends State<MainScreen> {
   Widget getPage(int index) {
     switch (index) {
       case 0:
+        // return const JobDetailScreen(); //HomePage(updateAmount: updateAmount);
         return const HomeScreen(); //HomePage(updateAmount: updateAmount);
       case 1:
         return const JobDetailScreen();

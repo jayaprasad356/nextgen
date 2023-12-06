@@ -1,8 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:nextgen/data/repository/profile_repo.dart';
 import 'package:nextgen/util/Constant.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileCon extends GetxController {
+  final ProfileRepo profileRepo;
+  ProfileCon({required this.profileRepo}){
+    SharedPreferences.getInstance().then((value) {
+      prefs = value;
+    });
+  }
+
+  late SharedPreferences prefs;
   RxString name = "".obs;
   RxString mobile_number = "".obs;
   RxString email = "".obs;

@@ -23,7 +23,7 @@ class MyProfile extends StatefulWidget {
 }
 
 class _MyProfileState extends State<MyProfile> {
-  final HomeController homeController = Get.find<HomeController>();
+  // final HomeController homeController = Get.find<HomeController>();
   final ProfileCon profileCon = Get.find<ProfileCon>();
 
   @override

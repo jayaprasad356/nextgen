@@ -9,6 +9,7 @@ import 'package:nextgen/data/repository/full_time_repo.dart';
 import 'package:nextgen/data/repository/home_repo.dart';
 import 'package:nextgen/data/repository/notification_repo.dart';
 import 'package:nextgen/data/repository/work_repo.dart';
+import 'package:nextgen/model/notification_data.dart';
 import 'package:nextgen/model/sync_data_list.dart';
 import 'package:nextgen/util/Constant.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +22,7 @@ class NotificationController extends GetxController implements GetxService {
   final NotificationRepo notificationRepo;
   NotificationController({required this.notificationRepo});
   late SharedPreferences prefs;
-  late RxList notificationData = [].obs;
+  RxList<NotificationData> notificationData = <NotificationData>[].obs;
 
   Future<void> notificationAPI() async {
     try {
@@ -31,20 +32,30 @@ class NotificationController extends GetxController implements GetxService {
       debugPrint("===> notificationMod: $notificationMod");
       debugPrint("===> notificationMod message: ${notificationMod.message}");
 
-      for (var notification in notificationMod.data!) {
-        // Extracting values from each notification
-        String id = notification.id ?? '';
-        String title = notification.title ?? '';
-        String description = notification.description ?? '';
-        String link = notification.link ?? '';
-        String datetime = notification.datetime ?? '';
+      notificationData.clear();
 
-        notificationData.clear();
+      if (notificationMod.data != null && notificationMod.data!.isNotEmpty) {
+        // Use a loop if there can be multiple transactions
+        for (var notification in notificationMod.data!) {
+          var notificationId = notification.id!;
+          var notificationTitle = notification.title!;
+          var notificationDescription = notification.description!;
+          var notificationLink = notification.link!;
+          var notificationDatetime = notification.datetime!;
 
-        // Creating a list of strings for each notification and adding it to notificationData
-        List<String> notificationInfo = [id, title, description, link, datetime];
-        notificationData.add(notificationInfo);
-      }
+          // Create a NotificationData object and add it to the list
+          NotificationData data = NotificationData(
+            notificationId,
+            notificationTitle,
+            notificationDescription,
+            notificationLink,
+            notificationDatetime,
+          );
+
+          notificationData.add(data);
+        }
+
+        update();}
     } catch (e) {
       debugPrint("notificationMod errors: $e");
     }

@@ -10,8 +10,12 @@ import 'package:nextgen/data/repository/full_time_repo.dart';
 import 'package:get/get.dart';
 import 'package:nextgen/util/Constant.dart';
 import 'package:nextgen/util/color_const.dart';
+import 'package:nextgen/view/screens/JobDetailsScreen/job_details.dart';
+import 'package:nextgen/view/screens/home_page/home_screen.dart';
 import 'package:nextgen/view/screens/login/login_screen.dart';
 import 'package:nextgen/view/screens/login/mainScreen.dart';
+import 'package:nextgen/view/screens/notification_screen/notification_screen.dart';
+import 'package:nextgen/view/screens/profile_screen/my_profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 typedef JoinDataCallback = void Function(String joinDataSuccess);
@@ -79,6 +83,7 @@ class AuthCon extends GetxController implements GetxService {
       Get.snackbar('Sign In', loginData.message.toString(),colorText: kPrimaryColor,backgroundColor: kWhiteColor,duration: const Duration(seconds: 3),);
       if(loginData.registered.toString() == 'true'){
         Get.to(const MainScreen());
+        // Get.to(const MyProfile());
         prefs.setString(Constant.LOGED_IN_STATUS, "true");
       }
       final String? isLoggedIn = prefs.getString(Constant.LOGED_IN_STATUS);
@@ -201,7 +206,7 @@ class AuthCon extends GetxController implements GetxService {
       if (userDetail.data != null && userDetail.data!.isNotEmpty) {
         work_days.value = userDetail.data![0].workedDays.toString();
         total_order.value = userDetail.data![0].totalOrders.toString();
-        today_order.value = userDetail.data![0].totalOrders.toString();
+        today_order.value = userDetail.data![0].todayOrders.toString();
         average_orders.value = userDetail.data![0].averageOrders.toString();
         balance_nextgen.value = userDetail.data![0].balance.toString();
         order_earnings.value = userDetail.data![0].ordersEarnings.toString();
