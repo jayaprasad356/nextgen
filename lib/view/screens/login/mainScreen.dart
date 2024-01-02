@@ -270,38 +270,42 @@ class _MainScreenState extends State<MainScreen> {
             : (null),
         actions: _actionsVisible
             ? [
-                InkWell(
-                  onTap: () {
-                    html.window.location.reload();
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: kPurpleColor,
-                      borderRadius: BorderRadius.circular(1000),
-                      border: Border(
-                        bottom: BorderSide(
-                          color: Colors.purple.shade800,
-                          width: 4.0,
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    InkWell(
+                      onTap: () async {
+                        authCon.showLoadingIndicator(context);
+                        await Future.delayed(const Duration(seconds: 5));
+                        html.window.location.reload();
+                        authCon.hideLoadingIndicator(context);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: kPurpleColor,
+                          borderRadius: BorderRadius.circular(1000),
+                          border: Border(
+                            bottom: BorderSide(
+                              color: Colors.purple.shade800,
+                              width: 4.0,
+                            ),
+                            right: BorderSide(
+                              color: Colors.purple.shade800,
+                              width: 2.0,
+                            ),
+                          ),
                         ),
-                        right: BorderSide(
-                          color: Colors.purple.shade800,
-                          width: 2.0,
-                        ),
-                      ),
+                        padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
+                        child: const Icon(Icons.refresh,size: 20,color: Colors.white,),
+                      )
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 10,horizontal: 20),
-                    child: const Row(
-                      children: [
-                        Icon(Icons.refresh,size: 20,color: Colors.white,),
-                        SizedBox(width: 5,),
-                        Text('Refresh',
-                          style: TextStyle(
-                              fontFamily: 'MontserratBold',
-                              color: kWhiteColor,
-                              fontSize: Dimensions.FONT_SIZE_SMALL),),
-                      ],
-                    ),
-                  )
+                    const Text('Refresh',
+                      style: TextStyle(
+                          fontFamily: 'MontserratLight',
+                          color: kWhiteColor,
+                          fontSize: Dimensions.FONT_SIZE_EXTRA_SMALL),),
+                  ],
                 ),const SizedBox(width: 30,),
               ]
             : [
