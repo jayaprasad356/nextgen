@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:html' as html;
 
 import 'package:nextgen/Helper/apiCall.dart';
 import 'package:nextgen/controller/auth_con.dart';
@@ -59,7 +60,7 @@ class _MainScreenState extends State<MainScreen> {
   int _selctedIndex = 0;
   String title = "Nextgen";
   String upi_id = "";
-  bool _actionsVisible = false;
+  bool _actionsVisible = true;
   bool _logoutVisible = false;
   bool _leftArrowVisible = false;
   bool _notificationVisible = false;
@@ -203,7 +204,7 @@ class _MainScreenState extends State<MainScreen> {
       _selctedIndex = index;
       if (index == 1) {
         title = "Job Detail";
-        // _actionsVisible = false;
+        _actionsVisible = false;
         _downloadVisible = false;
         _logoutVisible = false;
         _leftArrowVisible = false;
@@ -211,7 +212,7 @@ class _MainScreenState extends State<MainScreen> {
         _addPost = false;
       } else if (index == 2) {
         title = "Notifications";
-        // _actionsVisible = false;
+        _actionsVisible = false;
         _downloadVisible = true;
         _logoutVisible = false;
         _leftArrowVisible = false;
@@ -219,7 +220,7 @@ class _MainScreenState extends State<MainScreen> {
         _addPost = false;
       } else if (index == 3) {
         title = "Profile";
-        // _actionsVisible = false;
+        _actionsVisible = false;
         _downloadVisible = false;
         _logoutVisible = true;
         _leftArrowVisible = false;
@@ -227,8 +228,7 @@ class _MainScreenState extends State<MainScreen> {
         _addPost = false;
       } else {
         title = "Nextgen";
-        // _actionsVisible = joinIsTrue == '' || joinIsTrue == 'false'
-        //     ? true : false;
+        _actionsVisible = true;
         _downloadVisible = false;
         _logoutVisible = false;
         _leftArrowVisible = false;
@@ -272,7 +272,7 @@ class _MainScreenState extends State<MainScreen> {
             ? [
                 InkWell(
                   onTap: () {
-                    Get.to(JoinScreen());
+                    html.window.location.reload();
                   },
                   child: Container(
                     decoration: BoxDecoration(
@@ -290,11 +290,17 @@ class _MainScreenState extends State<MainScreen> {
                       ),
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 10,horizontal: 20),
-                    child: const Text('join',
-                      style: TextStyle(
-                          fontFamily: 'MontserratBold',
-                          color: kWhiteColor,
-                          fontSize: Dimensions.FONT_SIZE_SMALL),),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.refresh,size: 20,color: Colors.white,),
+                        SizedBox(width: 5,),
+                        Text('Refresh',
+                          style: TextStyle(
+                              fontFamily: 'MontserratBold',
+                              color: kWhiteColor,
+                              fontSize: Dimensions.FONT_SIZE_SMALL),),
+                      ],
+                    ),
                   )
                 ),const SizedBox(width: 30,),
               ]

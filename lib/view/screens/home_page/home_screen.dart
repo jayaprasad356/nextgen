@@ -149,7 +149,7 @@ class HomeScreenState extends State<HomeScreen> {
     });
 
     const int maxExecutions = 2;
-    timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
+    timer = Timer.periodic(const Duration(seconds: 2), (Timer timer) {
       setState(() async {
         qtySold = homeController
             .generateQtySoldNumber(int.parse(authCon.minQty.value),
@@ -168,6 +168,13 @@ class HomeScreenState extends State<HomeScreen> {
           saveOrderCount(orderCount, totalQtySold, progressPercentage);
         }
         await storeLocal.write(key: 'syncDataNextgenSuccess', value: 'false');
+        if (orderCount <= 99) {
+          isClaimButtonDisabled = true; // Disable the button
+        } else if (orderCount > 99) {
+          isClaimButtonDisabled = false; // Disable the button
+        } else if (orderCount > 100) {
+          isClaimButtonDisabled = false; // Enable the button
+        }
       });
       executionCount++;
       if (executionCount >= maxExecutions) {
@@ -642,7 +649,7 @@ class HomeScreenState extends State<HomeScreen> {
                                     height:
                                         Dimensions.PADDING_SIZE_EXTRA_SMALL),
                                 Text(
-                                  "Department Store",
+                                  "Department Store.",
                                   style: TextStyle(
                                       fontFamily: 'MontserratBold',
                                       color: kPurpleColor,
