@@ -84,8 +84,8 @@ class _NotificationsState extends State<Notifications> {
                               notificationController.notificationData[index].title,
                               style: const TextStyle(
                                 color: colors.white,
-                                fontFamily: 'Montserrat',
-                                fontSize: 12,
+                                fontFamily: 'MontserratBold',
+                                fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -95,16 +95,16 @@ class _NotificationsState extends State<Notifications> {
                               notificationController.notificationData[index].description,
                               style: const TextStyle(
                                 color: colors.white,
-                                fontFamily: 'Montserrat',
+                                fontFamily: 'MontserratLight',
                                 fontSize:
-                                    10, // You can adjust the font size as needed
+                                    14, // You can adjust the font size as needed
                               ),
                             ),
                             const SizedBox(height: 5),
                             (notificationController
                                 .notificationData[index].link.isNotEmpty)
                               ? MaterialButton(
-                                height: 25,
+                                height: 30,
                                 color: colors.primary,
                                 onPressed: () {
                                   String uri = notificationController
@@ -119,9 +119,9 @@ class _NotificationsState extends State<Notifications> {
                                 ),
                                 child: const Text('Open',
                                     style: TextStyle(
-                                        fontSize: 10,
+                                        fontSize: 14,
                                         color: colors.white,
-                                        fontFamily: "Montserra")),
+                                        fontFamily: "MontserratLight")),
                               ) : const SizedBox(),
                             SizedBox(height: (notificationController
                                 .notificationData[index].link.isNotEmpty)
@@ -130,9 +130,9 @@ class _NotificationsState extends State<Notifications> {
                               notificationController.notificationData[index].datetime,
                               style: const TextStyle(
                                 color: colors.white,
-                                fontFamily: 'Montserrat',
+                                fontFamily: 'MontserratLight',
                                 fontSize:
-                                    10, // You can adjust the font size as needed
+                                    14, // You can adjust the font size as needed
                               ),
                             ),
                           ],

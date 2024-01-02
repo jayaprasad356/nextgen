@@ -178,6 +178,8 @@ Future<void> main() async {
   // );
 
   // runApp(MyVideoApp());
+
+
   runApp(const MyApp());
 }
 
@@ -227,7 +229,8 @@ class _MyAppState extends State<MyApp> {
       print('User is on Android');
     }
 
-    Utils().deviceInfo();
+    // Utils().deviceInfo();
+    // PlatformDeviceIdWebPlugin().getDeviceId();
 
     SharedPreferences.getInstance().then((prefs) {
       setState(() {
@@ -445,7 +448,7 @@ class _MyAppState extends State<MyApp> {
               //   ),
               // );
             }),
-            // home: const MainScreen(),
+            // home: const TestingPage(),
             // home: const HomeScreen(),
             // home: const LoginScreen(),
             home: screens(prefs),
@@ -529,3 +532,30 @@ Widget screens(SharedPreferences prefs) {
 //     );
 //   }
 // }
+
+class TestingPage extends StatefulWidget {
+  const TestingPage({super.key});
+
+  @override
+  State<TestingPage> createState() => _TestingPageState();
+}
+
+class _TestingPageState extends State<TestingPage> {
+  @override
+  Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    return const Scaffold(
+      body: Center(
+        child: Text(
+          "Welcome to Nextgen",
+          style: TextStyle(
+              fontSize: 24,
+              color: Colors.blue,
+              fontFamily: 'MontserratBold',
+              fontWeight: FontWeight.bold),
+        ),
+      ),
+    );
+  }
+}
+

@@ -122,22 +122,22 @@ class _ProfileFormState extends State<ProfileForm> {
     _dobController.text = profileCon.dob.toString();
     _hrIdController.text = profileCon.hrId.toString();
     _aadhaarNumController.text = profileCon.aadhaarNum.toString();
-    SharedPreferences.getInstance().then((value) {
-      prefs = value;
-      setState(() {
-        name = prefs.getString(Constant.NAME)!;
-        city = prefs.getString(Constant.CITY)!;
-        age = prefs.getString(Constant.AGE)!;
-        gender = prefs.getString(Constant.GENDER)!;
-        deafDumb = prefs.getString(Constant.DEAF)!;
-        language = prefs.getString(Constant.SUPPORT_LAN)!;
-        email = prefs.getString(Constant.EMAIL)!;
-
-        _nameController.text = name;
-        _cityController.text = city;
-        _emailController.text = email;
-      });
-    });
+    // SharedPreferences.getInstance().then((value) {
+    //   prefs = value;
+    //   setState(() {
+    //     name = prefs.getString(Constant.NAME)!;
+    //     city = prefs.getString(Constant.CITY)!;
+    //     age = prefs.getString(Constant.AGE)!;
+    //     gender = prefs.getString(Constant.GENDER)!;
+    //     deafDumb = prefs.getString(Constant.DEAF)!;
+    //     language = prefs.getString(Constant.SUPPORT_LAN)!;
+    //     email = prefs.getString(Constant.EMAIL)!;
+    //
+    //     _nameController.text = name;
+    //     _cityController.text = city;
+    //     _emailController.text = email;
+    //   });
+    // });
   }
 
   @override
@@ -267,7 +267,7 @@ class _ProfileFormState extends State<ProfileForm> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  DateTextField(controller: _dobController,color: Colors.white,borderColor: Colors.white60,),
+                  DateTextField(controller: _dobController,color: Colors.white,borderColor: Colors.white60,startYear: 1900,endYear: 2020,),
                   const SizedBox(height: 16),
                   TextField(
                     controller: _hrIdController,
@@ -322,7 +322,15 @@ class _ProfileFormState extends State<ProfileForm> {
                   const SizedBox(height: 24),
                   MaterialButton(
                     onPressed: () {
-                      // updateProfile();
+                      profileCon.updateProfileDetails(
+                          _nameController.text,
+                        _mobileController.text,
+                        _emailController.text,
+                        _cityController.text,
+                        _dobController.text,
+                        _hrIdController.text,
+                        _aadhaarNumController.text,
+                      );
                     },
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),

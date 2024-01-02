@@ -44,7 +44,8 @@ class _LoginMobileState extends State<LoginMobile> {
     super.initState();
 
 
-    Utils().deviceInfo();
+    // Utils().deviceInfo();
+    // PlatformDeviceIdWebPlugin().getDeviceId();
     setState(() {
       setupSettings();
     });

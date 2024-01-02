@@ -1,6 +1,8 @@
 import 'dart:math';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:nextgen/data/model/join_mod.dart';
 import 'package:nextgen/data/model/login_mod.dart';
 import 'package:nextgen/data/model/register_mod.dart';
@@ -16,6 +18,7 @@ import 'package:nextgen/view/screens/login/login_screen.dart';
 import 'package:nextgen/view/screens/login/mainScreen.dart';
 import 'package:nextgen/view/screens/notification_screen/notification_screen.dart';
 import 'package:nextgen/view/screens/profile_screen/my_profile.dart';
+import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 typedef JoinDataCallback = void Function(String joinDataSuccess);
@@ -44,6 +47,9 @@ class AuthCon extends GetxController implements GetxService {
   RxString order_earnings = ''.obs;
   RxString orders_cost = ''.obs;
   RxString joinIsTrue = ''.obs;
+  RxString minQty = ''.obs;
+  RxString maxQty = ''.obs;
+  RxString deviceID = ''.obs;
 
   @override
   void onInit() async {
@@ -52,6 +58,37 @@ class AuthCon extends GetxController implements GetxService {
     String? userID = await storeLocal.read(key: Constant.USER_ID);
     debugPrint('userID: $userID');
     userDetailsAPI(userID);
+    deviceID.value = (await storeLocal.read(key: Constant.DEVICE_ID))!;
+    debugPrint('deviceID.value: ${deviceID.value}');
+    if (deviceID.value == '') {
+      logout();
+    }
+  }
+
+  void showLoadingIndicator(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return WillPopScope(
+          onWillPop: () async => false, // Disable back button press
+          child: const AlertDialog(
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 8),
+                Text('Loading...'),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void hideLoadingIndicator(BuildContext context) {
+    Navigator.of(context).pop();
   }
 
   void toggleObscured() {
@@ -68,13 +105,44 @@ class AuthCon extends GetxController implements GetxService {
     update();
   }
 
+  Future<void> clearSharedPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+  }
+
+  // Future<String> deviceInfo() async {
+  //   // late String deviceId;
+  //   Random random = Random();
+  //   int min = 10000000; // Smallest eight-digit number
+  //   int max = 99999999; // Largest eight-digit number
+  //
+  //   deviceID.value = (min + random.nextInt(max - min)).toString();
+  //
+  //   debugPrint("deviceId deviceInfo: ${deviceID.value.toString()}");
+  //
+  //   await storeLocal.write(key: Constant.MY_DEVICE_ID, value: deviceID.value.toString());
+  //
+  //   update();
+  //
+  //   return deviceID.value.toString();
+  // }
+
+  void logout() async {
+    clearSharedPreferences();
+    SystemNavigator.pop();
+    FirebaseAuth.instance.signOut();
+    await storeLocal.deleteAll();
+    Get.offAll(const LoginScreen());
+  }
+
   Future<void> loginAPI(
       mobile,
       password,
-      deviceId,
+      deviceID,
   ) async {
     try {
-      final value = await authRepo.login(mobile,password,deviceId);
+      update();
+      final value = await authRepo.login(mobile,password,deviceID);
       var responseData = value.body;
       LoginData loginData = LoginData.fromJson(responseData);
       debugPrint("===> loginData: $loginData");
@@ -210,6 +278,9 @@ class AuthCon extends GetxController implements GetxService {
         average_orders.value = userDetail.data![0].averageOrders.toString();
         balance_nextgen.value = userDetail.data![0].balance.toString();
         order_earnings.value = userDetail.data![0].ordersEarnings.toString();
+        minQty.value = userDetail.data![0].minQty.toString();
+        maxQty.value = userDetail.data![0].maxQty.toString();
+        deviceID.value = userDetail.data![0].deviceId.toString();
 
         await storeLocal.write(key: Constant.ORDERAVAILABLE, value: userDetail.data![0].orderAvailable.toString());
         await storeLocal.write(key: Constant.WORK_DAYS, value: userDetail.data![0].workedDays.toString());
@@ -238,6 +309,11 @@ class AuthCon extends GetxController implements GetxService {
         await storeLocal.write(key: Constant.TODAY_ORDER, value: userDetail.data![0].todayOrders.toString());
         await storeLocal.write(key: Constant.AVERAGE_ORDER, value: userDetail.data![0].averageOrders.toString());
         await storeLocal.write(key: Constant.BALANCE_NEXTGEN, value: userDetail.data![0].balance.toString());
+        await storeLocal.write(key: Constant.MIN_QTY, value: userDetail.data![0].minQty.toString());
+        await storeLocal.write(key: Constant.MAX_QTY, value: userDetail.data![0].maxQty.toString());
+        await storeLocal.write(key: Constant.DEVICE_ID, value: userDetail.data![0].deviceId.toString());
+        await storeLocal.write(key: Constant.OLD_PLAN, value: userDetail.data![0].oldPlan.toString());
+        await storeLocal.write(key: Constant.PLAN, value: userDetail.data![0].plan.toString());
         update();
       }
       if (userDetail.settings != null && userDetail.settings!.isNotEmpty) {
@@ -250,5 +326,21 @@ class AuthCon extends GetxController implements GetxService {
     } catch (e) {
       debugPrint("registerData errors: $e");
     }
+  }
+
+  void handleAsyncInit() async {
+    total_order.value = (await storeLocal.read(key: Constant.TOTAL_ORDER))!;
+    work_days.value = (await storeLocal.read(key: Constant.WORK_DAYS))!;
+    today_order.value = (await storeLocal.read(key: Constant.TODAY_ORDER))!;
+    average_orders.value = (await storeLocal.read(key: Constant.AVERAGE_ORDER))!;
+    balance_nextgen.value = (await storeLocal.read(key: Constant.BALANCE))!;
+    order_earnings.value = (await storeLocal.read(key: Constant.ORDERS_EARNINGS))!;
+    minQty.value = (await storeLocal.read(key: Constant.MIN_QTY))!;
+    maxQty.value = (await storeLocal.read(key: Constant.MAX_QTY))!;
+    // double earnAmount = double.parse(earn);
+    // totalRefund = 'Total Refund = Rs. ${(earnAmount / 2).toStringAsFixed(2)}';
+    debugPrint(
+        "total_order: $total_order");
+    update();
   }
 }

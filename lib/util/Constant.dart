@@ -14,6 +14,8 @@ class Constant {
   static const String USER_DETAIL_URL = "${BaseUrl}user_details.php";
   static const String REGISTER_URL = "${BaseUrl}register.php";
   static const String UPDATE_PROFILE_URL = "${BaseUrl}update_profile.php";
+  static const String APPLY_LEAVE = "${BaseUrl}applyleave.php";
+  static const String APPLY_LEAVE_LIST = "${BaseUrl}myleaves_list.php";
   static const String WITHDRAWAL_URL = "${BaseUrl}withdrawals.php";
   static const String CHECK_MOBILE = "${BaseUrl}check_mobile.php";
   static const String MY_WITHDRAWALS_LIST_URL =
@@ -98,6 +100,8 @@ class Constant {
   static const String COINS = "coins";
   static const String BALANCE = "balance";
   static const String BALANCE_NEXTGEN = "balance_nextgen";
+  static const String MIN_QTY = "min_qty";
+  static const String MAX_QTY = "max_qty";
   static const String ORDER_COST = "orders_cost";
   static const String REFERRED_BY = "referred_by";
   static const String REFER_CODE = "refer_code";

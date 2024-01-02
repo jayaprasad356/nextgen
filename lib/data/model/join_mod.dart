@@ -11,13 +11,13 @@ class JoinData {
     if (json['data'] != null) {
       data = <Data>[];
       json['data'].forEach((v) {
-        data!.add(new Data.fromJson(v));
+        data!.add(Data.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = Map<String, dynamic>();
     data['success'] = success;
     data['message'] = message;
     if (this.data != null) {
@@ -42,7 +42,7 @@ class Data {
   String? withdrawalStatus;
   String? status;
   String? joinedDate;
-  Null? fcmId;
+  String? fcmId;
   String? lastUpdated;
   String? minWithdrawal;
   String? registerBonusSent;
@@ -215,7 +215,7 @@ class Data {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = Map<String, dynamic>();
     data['id'] = id;
     data['mobile'] = mobile;
     data['name'] = name;

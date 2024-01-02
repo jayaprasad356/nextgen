@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
@@ -34,6 +35,44 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   late SharedPreferences prefs;
+  late Timer _timer;
+  late String deviceID;
+
+  @override
+  void initState() {
+    super.initState();
+    // authCon.deviceInfo();
+    deviceInfo();
+    _timer = Timer.periodic(const Duration(seconds: 2), (Timer timer) {
+      refreshPage();
+    });
+  }
+
+  Future<String> deviceInfo() async {
+    // late String deviceId;
+    Random random = Random();
+    int min = 10000000; // Smallest eight-digit number
+    int max = 99999999; // Largest eight-digit number
+
+    deviceID = (min + random.nextInt(max - min)).toString();
+
+    debugPrint("deviceId deviceInfo: $deviceID");
+
+    await storeLocal.write(key: Constant.MY_DEVICE_ID, value: deviceID);
+
+    return deviceID;
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  void refreshPage() {
+    setState(() async {
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -167,10 +206,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: Dimensions.PADDING_SIZE_LARGE),
                     InkWell(
                       onTap: () async {
-                        var device_id =
-                            await storeLocal.read(key: Constant.MY_DEVICE_ID);
                         authCon.loginAPI(phoneNumController.text,
-                            passwordController.text, device_id);
+                            passwordController.text, deviceID);
                       },
                       child: Container(
                         height: Dimensions.BUTTON_HEIGHT,

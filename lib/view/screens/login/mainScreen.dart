@@ -57,9 +57,9 @@ class _MainScreenState extends State<MainScreen> {
   final TextEditingController _addCoinController = TextEditingController();
 
   int _selctedIndex = 0;
-  String title = "Nextgen Orders Fulfilment";
+  String title = "Nextgen";
   String upi_id = "";
-  bool _actionsVisible = true;
+  bool _actionsVisible = false;
   bool _logoutVisible = false;
   bool _leftArrowVisible = false;
   bool _notificationVisible = false;
@@ -203,7 +203,7 @@ class _MainScreenState extends State<MainScreen> {
       _selctedIndex = index;
       if (index == 1) {
         title = "Job Detail";
-        _actionsVisible = false;
+        // _actionsVisible = false;
         _downloadVisible = false;
         _logoutVisible = false;
         _leftArrowVisible = false;
@@ -211,7 +211,7 @@ class _MainScreenState extends State<MainScreen> {
         _addPost = false;
       } else if (index == 2) {
         title = "Notifications";
-        _actionsVisible = false;
+        // _actionsVisible = false;
         _downloadVisible = true;
         _logoutVisible = false;
         _leftArrowVisible = false;
@@ -219,16 +219,16 @@ class _MainScreenState extends State<MainScreen> {
         _addPost = false;
       } else if (index == 3) {
         title = "Profile";
-        _actionsVisible = false;
+        // _actionsVisible = false;
         _downloadVisible = false;
         _logoutVisible = true;
         _leftArrowVisible = false;
         _notificationVisible = false;
         _addPost = false;
       } else {
-        title = "Nextgen Orders Fulfilment";
-        _actionsVisible = joinIsTrue == '' || joinIsTrue == 'false'
-            ? true : false;
+        title = "Nextgen";
+        // _actionsVisible = joinIsTrue == '' || joinIsTrue == 'false'
+        //     ? true : false;
         _downloadVisible = false;
         _logoutVisible = false;
         _leftArrowVisible = false;

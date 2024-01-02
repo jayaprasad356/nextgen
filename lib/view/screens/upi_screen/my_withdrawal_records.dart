@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:get/get.dart';
+import 'package:nextgen/controller/auth_con.dart';
 import 'package:nextgen/controller/wallet_con.dart';
 import 'package:nextgen/model/withdrawal_data.dart';
 import 'package:flutter/material.dart';

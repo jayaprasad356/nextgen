@@ -1,3 +1,4 @@
+import 'package:nextgen/controller/profile_con.dart';
 import 'package:nextgen/controller/upi_controller.dart';
 import 'package:nextgen/util/Color.dart';
 import 'package:flutter/material.dart';
@@ -13,11 +14,26 @@ class ApplyLeave extends StatefulWidget {
 }
 
 class _ApplyLeaveState extends State<ApplyLeave> {
+  final ProfileCon profileCon = Get.find<ProfileCon>();
   // final UPIController upiController = Get.find<UPIController>();
   final TextEditingController dateController = TextEditingController();
   final TextEditingController reasonController = TextEditingController();
 
   // late List leaveHistory = [];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    profileCon.applyLeaveList();
+  }
+
+  @override
+  void setState(VoidCallback fn) {
+    // TODO: implement setState
+    super.setState(fn);
+    // profileCon.applyLeaveList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +88,7 @@ class _ApplyLeaveState extends State<ApplyLeave> {
               const SizedBox(
                 height: 20,
               ),
-              DateTextField(controller: dateController,color: kTextDarkColor,borderColor: kPrimaryColor,),
+              DateTextField(controller: dateController,color: kWhiteColor,borderColor: kPrimaryColor,startYear: 2000,endYear: 2050,),
               const SizedBox(
                 height: 16,
               ),
@@ -107,11 +123,11 @@ class _ApplyLeaveState extends State<ApplyLeave> {
               ),
               MaterialButton(
                 onPressed: () async {
-                  // upiController.addLeaveHistoryEntry(
-                  //     dateController.text, reasonController.text);
-                  // setState(() {
-                  //   upiController.loadLeaveHistory();
-                  // });
+                  debugPrint("dateController: ${dateController.text}\nreasonController.text: ${reasonController.text}");
+                  profileCon.applyLeave(dateController.text, reasonController.text);
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (context) => ApplyLeave()),
+                  );
                 },
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -155,9 +171,9 @@ class _ApplyLeaveState extends State<ApplyLeave> {
                 height: 10,
               ),
               Expanded(
-                child: ListView.builder(
+                child: Obx( () => ListView.builder(
                   scrollDirection: Axis.vertical,
-                  itemCount: 1,
+                  itemCount: profileCon.applyLeaveListData.length,
                   physics: const BouncingScrollPhysics(),
                   itemBuilder: (BuildContext context, int index) {
                     return Container(
@@ -167,34 +183,34 @@ class _ApplyLeaveState extends State<ApplyLeave> {
                       ),
                       margin: const EdgeInsets.only(bottom: 10),
                       padding: const EdgeInsets.all(10),
-                      child: const Column(
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '12.12.2023',
-                            style: TextStyle(
+                            profileCon.applyLeaveListData[index].date,
+                            style: const TextStyle(
                                 color: colors.white,
                                 fontSize: 16,
                                 fontFamily: "Montserrat",
                                 fontWeight: FontWeight.bold),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 5,
                           ),
                           Text(
-                            'approval',
+                            profileCon.applyLeaveListData[index].status == '1' ? 'Approval' : 'Not Approval',
                             style: TextStyle(
-                                color: Colors.green,
+                                color: profileCon.applyLeaveListData[index].status == '1' ? Colors.green : Colors.redAccent,
                                 fontSize: 18,
                                 fontFamily: "Montserrat",
                                 fontWeight: FontWeight.bold),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 5,
                           ),
                           Text(
-                            'fever',
-                            style: TextStyle(
+                            profileCon.applyLeaveListData[index].reason,
+                            style: const TextStyle(
                                 color: colors.white,
                                 fontSize: 14,
                                 fontFamily: "Montserrat",
@@ -204,7 +220,7 @@ class _ApplyLeaveState extends State<ApplyLeave> {
                       ),
                     );
                   },
-                ),
+                ),),
               ),
               // FutureBuilder(
               //   future: null,

@@ -1,11 +1,11 @@
 import 'dart:convert';
 
 import 'package:google_fonts/google_fonts.dart';
+import 'package:nextgen/controller/auth_con.dart';
 import 'package:nextgen/controller/wallet_con.dart';
 import 'package:nextgen/model/user.dart';
 import 'package:nextgen/controller/utils.dart';
 import 'package:nextgen/view/screens/profile_screen/update_profile_screen.dart';
-import 'package:nextgen/view/screens/upi_screen/apply%20leave.dart';
 import 'package:nextgen/view/screens/upi_screen/my_withdrawal_records.dart';
 import 'package:nextgen/view/screens/upi_screen/verify_ads.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +28,7 @@ class wallet extends StatefulWidget {
 
 class _walletState extends State<wallet> {
   final WalletCon walletCon = Get.find<WalletCon>();
+  final AuthCon authCon = Get.find<AuthCon>();
   final TextEditingController _withdrawalAmtController =
       TextEditingController();
   TextEditingController _upiIdController = TextEditingController();
@@ -64,6 +65,13 @@ class _walletState extends State<wallet> {
     //         'Total Refund = Rs. ${(earnAmount / 2).toStringAsFixed(2)}';
     //   });
     // });
+  }
+
+  @override
+  void setState(VoidCallback fn) {
+    // TODO: implement setState
+    super.setState(fn);
+    walletCon.handleAsyncInit();
   }
 
   @override
@@ -499,34 +507,34 @@ class _walletState extends State<wallet> {
                   ),
                 ),
               ),
-              // const SizedBox(
-              //   height: 20,
-              // ),
+              const SizedBox(
+                height: 20,
+              ),
               // Padding(
               //   padding: const EdgeInsets.symmetric(horizontal: 20),
               //   child: Row(
               //     mainAxisAlignment: MainAxisAlignment.end,
               //     children: <Widget>[
-              //       MaterialButton(
-              //         color: colors.primary,
-              //         onPressed: () {
-              //           // Navigate to the BankDetailsScreen when the button is clicked
-              //           Navigator.push(
-              //             context,
-              //             MaterialPageRoute(
-              //               builder: (context) => BankDetailsScreen(),
-              //             ),
-              //           );
-              //         },
-              //         shape: RoundedRectangleBorder(
-              //           borderRadius: BorderRadius.circular(6),
-              //         ),
-              //         child: const Text('Update Bank Detail',
-              //             style: TextStyle(
-              //                 fontSize: 14,
-              //                 color: colors.white,
-              //                 fontFamily: "Montserra")),
-              //       ),
+              //       // MaterialButton(
+              //       //   color: colors.primary,
+              //       //   onPressed: () {
+              //       //     // Navigate to the BankDetailsScreen when the button is clicked
+              //       //     Navigator.push(
+              //       //       context,
+              //       //       MaterialPageRoute(
+              //       //         builder: (context) => BankDetailsScreen(),
+              //       //       ),
+              //       //     );
+              //       //   },
+              //       //   shape: RoundedRectangleBorder(
+              //       //     borderRadius: BorderRadius.circular(6),
+              //       //   ),
+              //       //   child: const Text('Update Bank Detail',
+              //       //       style: TextStyle(
+              //       //           fontSize: 14,
+              //       //           color: colors.white,
+              //       //           fontFamily: "Montserra")),
+              //       // ),
               //       // const SizedBox(height: 5),
               //       // MaterialButton(
               //       //   color: colors.primary,
@@ -745,6 +753,8 @@ class _walletState extends State<wallet> {
               MaterialButton(
                 onPressed: () async {
                   // showAlertDialog(context);
+                  authCon.showLoadingIndicator(context);
+                  await Future.delayed(const Duration(seconds: 5));
                   double withdrawalAmt =
                       double.tryParse(_withdrawalAmtController.text) ?? 0.0;
                   double minimumAmt =
@@ -753,8 +763,12 @@ class _walletState extends State<wallet> {
                     utils.showToast(
                         "please enter minimum ${walletCon.minimum.toString()}");
                   } else {
-                    walletCon.doWithdrawal(_withdrawalAmtController.text);
+                    walletCon.doWithdrawal(context, _withdrawalAmtController.text);
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (context) => wallet()),
+                    );
                   }
+                  authCon.hideLoadingIndicator(context);
                 },
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),

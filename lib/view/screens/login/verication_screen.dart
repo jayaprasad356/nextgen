@@ -44,7 +44,8 @@ class _VerificationScreenState extends State<VerificationScreen> {
   void initState() {
     super.initState();
 
-    Utils().deviceInfo();
+    // Utils().deviceInfo();
+    // PlatformDeviceIdWebPlugin().getDeviceId();
     setState(() {
       setupSettings();
     });

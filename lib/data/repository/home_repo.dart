@@ -24,11 +24,13 @@ class HomeRepo {
   //   );
   // }
 
-  Future<Response> syncData(String userId, String orders) async {
+  Future<Response> syncData(String userId, String orders, String totalQtySold) async {
     Map<String, String> body = {
       'user_id': userId,
       'orders': orders,
+      'total_qty_sold' : totalQtySold,
     };
+    // return await apiClient.postData('https://nextgen.graymatterworks.com/api/wallet.php', body, {});
     return await apiClient.postData(Constant.WALLET, body, {});
   }
 }

@@ -24,7 +24,7 @@ class HomeController extends GetxController implements GetxService {
   late SharedPreferences prefs;
   String syncTodayOrders = "";
   String syncTotalOrders = "";
-  String syncOrderAvailable = "";
+  RxString syncOrderAvailable = "".obs;
   String balance = "";
   String ads_cost = "";
   String ads_time = "";
@@ -43,6 +43,9 @@ class HomeController extends GetxController implements GetxService {
   RxString orderEarnings = ''.obs;
   int timer = 1;
   RxBool isLoading = false.obs;
+  RxBool enablePlaceOrder = false.obs;
+  // late int minQty;
+  // late int maxQty;
   // String balance = "";
   // RxString ads_cost = "0.00".obs;
 
@@ -62,8 +65,9 @@ class HomeController extends GetxController implements GetxService {
   }
 
   // void handleAsyncInit() async {
-  //   work_day.value = (await storeLocal.read(key: Constant.WORK_DAYS))!;
-  //   print("work_day: $work_day");
+  //   minQty = int.parse((await storeLocal.read(key: Constant.MIN_QTY))!);
+  //   maxQty = int.parse((await storeLocal.read(key: Constant.MAX_QTY))!);
+  //   print("handleAsyncInit minQty: ${minQty},maxQty: ${maxQty}");
   // }
 
   Future<String?> getUserId() async {
@@ -180,14 +184,15 @@ class HomeController extends GetxController implements GetxService {
     return 100000 + random.nextInt(900000);
   }
 
-  int generateQtySoldNumber() {
+  int generateQtySoldNumber(int minQty,int maxQty) {
     // Define the range for the nine-digit number
-    const int lowerBound = 30;
-    const int upperBound = 60;
+    // const int lowerBound = 30;
+    // const int upperBound = 60;
+    debugPrint("minQty.value: $minQty,maxQty.value: $maxQty");
 
     // Generate a random number within the specified range
     Random random = Random();
-    return lowerBound + random.nextInt(upperBound - lowerBound + 1);
+    return minQty + random.nextInt(maxQty - minQty + 1);
   }
 
   int generateRandomNineDigitNumber() {
@@ -201,18 +206,15 @@ class HomeController extends GetxController implements GetxService {
   }
 
   Future<void> syncData(
-    context,
     userId,
     orders,
+  totalQtySold,
     SyncDataNextgenCallback callback, // Add the callback parameter
   ) async {
     prefs = await SharedPreferences.getInstance();
     try {
-      showLoadingIndicator(context);
 
-      await Future.delayed(const Duration(seconds: 5));
-
-      final value = await homeRepo.syncData(userId, orders);
+      final value = await homeRepo.syncData(userId, orders,totalQtySold);
       var responseData = value.body;
       SyncDataNextgen syncDataNextgen = SyncDataNextgen.fromJson(responseData);
       debugPrint("===> syncDataNextgen: $syncDataNextgen");
@@ -224,7 +226,7 @@ class HomeController extends GetxController implements GetxService {
       if (syncDataNextgen.data != null && syncDataNextgen.data!.isNotEmpty) {
         // syncTotalOrders = syncDataNextgen.data![0].totalOrders!;
         // syncTodayOrders = syncDataNextgen.data![0].totalOrders!;
-        syncOrderAvailable = syncDataNextgen.data![0].orderAvailable!;
+        syncOrderAvailable.value = syncDataNextgen.data![0].orderAvailable!;
         workDays.value = syncDataNextgen.data![0].workedDays!;
         todayOrder.value = syncDataNextgen.data![0].todayOrders!;
         totalOrder.value = syncDataNextgen.data![0].totalOrders!;
@@ -239,9 +241,10 @@ class HomeController extends GetxController implements GetxService {
         await storeLocal.delete(key: Constant.TOTAL_ORDER);
         await storeLocal.delete(key: Constant.AVERAGE_ORDER);
         await storeLocal.delete(key: Constant.ORDERS_EARNINGS);
+        update();
 
         await storeLocal.write(
-            key: Constant.ORDERAVAILABLE, value: syncOrderAvailable);
+            key: Constant.ORDERAVAILABLE, value: syncOrderAvailable.value);
         await storeLocal.write(key: Constant.WORK_DAYS, value: workDays.value);
         await storeLocal.write(
             key: Constant.TOTAL_ORDER, value: totalOrder.value);
@@ -251,6 +254,7 @@ class HomeController extends GetxController implements GetxService {
             key: Constant.AVERAGE_ORDER, value: averageOrders.value);
         await storeLocal.write(
             key: Constant.ORDERS_EARNINGS, value: orderEarnings.value);
+        update();
       }
       //
       // prefs.setString(Constant.MOBILE, user.mobile);
@@ -265,8 +269,6 @@ class HomeController extends GetxController implements GetxService {
 
       // Execute the callback after the function is completed
       callback(syncDataNextgen.success.toString());
-
-      hideLoadingIndicator(context);
     } catch (e) {
       debugPrint("syncDataNextgen errors: $e");
       // Handle errors

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:nextgen/util/Constant.dart';
 import 'package:device_info/device_info.dart';
 import 'package:flutter/foundation.dart';
@@ -8,10 +10,12 @@ import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'dart:html' as html show window;
+import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:uuid/uuid.dart';
-
+import 'package:platform_device_id_platform_interface/platform_device_id_platform_interface.dart';
 final googleSignIn = GoogleSignIn();
 
 class Utils extends GetxController {
@@ -30,29 +34,62 @@ class Utils extends GetxController {
     );
   }
 
-  Future<String> deviceInfo() async {
-    late String deviceId;
+  // Future<String> deviceInfo() async {
+  //   late String deviceId;
+  //   Random random = Random();
+  //   int min = 10000000; // Smallest eight-digit number
+  //   int max = 99999999; // Largest eight-digit number
+  //
+  //   deviceId = (min + random.nextInt(max - min)).toString();
+  //
+  //   debugPrint("deviceId deviceInfodeviceInfo: $deviceId");
+  //
+  //   await storeLocal.write(key: Constant.MY_DEVICE_ID, value: deviceId);
+  //
+  //   update();
+  //
+  //   return deviceId;
+  // }
 
-    if (kIsWeb) {
-      final userData = {
-        'userAgent': 'Web user agent data',
-        'language': 'Web language data',
-        'platform': 'Web platform data',
-      };
-      final encodedData = json.encode(userData);
-      final uniqueId = _generateMD5Hash(encodedData);
-      deviceId = uniqueId;
-      // deviceId = generateWebUniqueId();
-    } else {
-      AndroidDeviceInfo androidInfo = await deviceInfoPlugin.androidInfo;
-      deviceId = androidInfo.androidId;
-    }
+  // Future<String> deviceInfo() async {
+  //   late String deviceId;
+  //
+  //
+  //   deviceId = (await PlatformDeviceIdPlatform.instance.getDeviceId())!;
+  //     // deviceId = androidInfo.androidId;
+  //
+  //   debugPrint("deviceId: $deviceId");
+  //
+  //   final prefs = await SharedPreferences.getInstance();
+  //   prefs.setString(Constant.MY_DEVICE_ID, deviceId);
+  //
+  //   return deviceId;
+  // }
 
-    // final prefs = await SharedPreferences.getInstance();
-    // prefs.setString(Constant.MY_DEVICE_ID, deviceId);
-    await storeLocal.write(key: Constant.MY_DEVICE_ID, value: deviceId);
-    return deviceId;
-  }
+  // Future<String> deviceInfo() async {
+  //   late String deviceId;
+  //
+  //   if (kIsWeb) {
+  //     final userData = {
+  //       'userAgent': 'Web user agent data',
+  //       'language': 'Web language data',
+  //       'platform': 'Web platform data',
+  //     };
+  //     final encodedData = json.encode(userData);
+  //     final uniqueId = _generateMD5Hash(encodedData);
+  //     deviceId = uniqueId;
+  //     // deviceId = generateWebUniqueId();
+  //   } else {
+  //     AndroidDeviceInfo androidInfo = await deviceInfoPlugin.androidInfo;
+  //     deviceId = androidInfo.androidId;
+  //   }
+  // debugPrint("deviceId: $deviceId");
+  //
+  //   // final prefs = await SharedPreferences.getInstance();
+  //   // prefs.setString(Constant.MY_DEVICE_ID, deviceId);
+  //   await storeLocal.write(key: Constant.MY_DEVICE_ID, value: deviceId);
+  //   return deviceId;
+  // }
 
   String generateWebUniqueId() {
     final uuid = Uuid();
@@ -80,3 +117,20 @@ class Utils extends GetxController {
     SystemNavigator.pop();
   }
 }
+
+// class PlatformDeviceIdWebPlugin extends PlatformDeviceIdPlatform {
+//   late SharedPreferences prefs;
+//   static void registerWith(Registrar registrar) {
+//     PlatformDeviceIdPlatform.instance = PlatformDeviceIdWebPlugin();
+//   }
+//
+//   /// Returns a [String?] containing the ua of the web.
+//   @override
+//   Future<String?> getDeviceId() async {
+//     String? version = html.window.navigator.userAgent;
+//     debugPrint("version: $version");
+//     final prefs = await SharedPreferences.getInstance();
+//     await storeLocal.write(key: Constant.MY_DEVICE_ID, value: version);
+//     return version;
+//   }
+// }

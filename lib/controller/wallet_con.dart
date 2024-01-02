@@ -113,18 +113,98 @@ class WalletCon extends GetxController {
   }
 
   Future<void> doWithdrawal(
+      context,
       amount,
       ) async {
     try {
+      showLoadingIndicator(context);
+
+      await Future.delayed(const Duration(seconds: 5));
       final value = await walletRepo.doWithdrawal(userId.value.toString(), amount);
       var responseData = value.body;
       WithdrawalMod withdrawalMod = WithdrawalMod.fromJson(responseData);
       debugPrint("===> withdrawalMod: $withdrawalMod");
       debugPrint("===> withdrawalMod message: ${withdrawalMod.message}");
       debugPrint("===> withdrawalMod message: ${withdrawalMod.success}");
+
+      if (withdrawalMod.data != null && withdrawalMod.data!.withdrawals!.isNotEmpty && withdrawalMod.data!.withdrawals!.isNotEmpty) {
+
+        await storeLocal.delete(key: Constant.ORDERAVAILABLE);
+        await storeLocal.delete(key: Constant.WORK_DAYS);
+        await storeLocal.delete(key: Constant.NAME);
+        await storeLocal.delete(key: Constant.MOBILE);
+        await storeLocal.delete(key: Constant.EMAIL);
+        await storeLocal.delete(key: Constant.CITY);
+        await storeLocal.delete(key: Constant.DOB);
+        await storeLocal.delete(key: Constant.HR_ID);
+        await storeLocal.delete(key: Constant.ID);
+        await storeLocal.delete(key: Constant.AADHAAR_NUM);
+        await storeLocal.delete(key: Constant.REFER_BONUS);
+        await storeLocal.delete(key: Constant.REFER_CODE);
+        await storeLocal.delete(key: Constant.EARN);
+        await storeLocal.delete(key: Constant.BALANCE);
+        await storeLocal.delete(key: Constant.MIN_WITHDRAWAL);
+        await storeLocal.delete(key: Constant.HOLDER_NAME);
+        await storeLocal.delete(key: Constant.ACCOUNT_NUM);
+        await storeLocal.delete(key: Constant.IFSC);
+        await storeLocal.delete(key: Constant.BANK);
+        await storeLocal.delete(key: Constant.BRANCH);
+        await storeLocal.delete(key: Constant.HIRING_EARNINGS);
+        await storeLocal.delete(key: Constant.ORDERS_EARNINGS);
+        await storeLocal.delete(key: Constant.TOTAL_ORDER);
+        await storeLocal.delete(key: Constant.TODAY_ORDER);
+        await storeLocal.delete(key: Constant.AVERAGE_ORDER);
+        await storeLocal.delete(key: Constant.BALANCE_NEXTGEN);
+
+        await storeLocal.write(key: Constant.ORDERAVAILABLE, value: withdrawalMod.data!.userDetails![0].orderAvailable.toString());
+        await storeLocal.write(key: Constant.WORK_DAYS, value: withdrawalMod.data!.userDetails![0].workedDays.toString());
+        await storeLocal.write(key: Constant.NAME, value: withdrawalMod.data!.userDetails![0].name.toString());
+        await storeLocal.write(key: Constant.MOBILE, value: withdrawalMod.data!.userDetails![0].mobile.toString());
+        await storeLocal.write(key: Constant.EMAIL, value: withdrawalMod.data!.userDetails![0].email.toString());
+        await storeLocal.write(key: Constant.CITY, value: withdrawalMod.data!.userDetails![0].location.toString());
+        await storeLocal.write(key: Constant.DOB, value: withdrawalMod.data!.userDetails![0].dob.toString());
+        await storeLocal.write(key: Constant.HR_ID, value: withdrawalMod.data!.userDetails![0].hrId.toString());
+        await storeLocal.write(key: Constant.ID, value: withdrawalMod.data!.userDetails![0].id.toString());
+        await storeLocal.write(key: Constant.AADHAAR_NUM, value: withdrawalMod.data!.userDetails![0].aadhaarNum.toString());
+        await storeLocal.write(key: Constant.REFER_BONUS, value: withdrawalMod.data!.userDetails![0].referBonusSent.toString());
+        await storeLocal.write(key: Constant.REFER_CODE, value: withdrawalMod.data!.userDetails![0].referCode.toString());
+        await storeLocal.write(key: Constant.EARN, value: withdrawalMod.data!.userDetails![0].earn.toString());
+        await storeLocal.write(key: Constant.BALANCE, value: withdrawalMod.data!.userDetails![0].balance.toString());
+        await storeLocal.write(key: Constant.MIN_WITHDRAWAL, value: withdrawalMod.data!.userDetails![0].minWithdrawal.toString());
+        await storeLocal.write(key: Constant.HOLDER_NAME, value: withdrawalMod.data!.userDetails![0].holderName.toString());
+        await storeLocal.write(key: Constant.ACCOUNT_NUM, value: withdrawalMod.data!.userDetails![0].accountNum.toString());
+        await storeLocal.write(key: Constant.IFSC, value: withdrawalMod.data!.userDetails![0].ifsc.toString());
+        await storeLocal.write(key: Constant.BANK, value: withdrawalMod.data!.userDetails![0].bank.toString());
+        await storeLocal.write(key: Constant.BRANCH, value: withdrawalMod.data!.userDetails![0].branch.toString());
+        await storeLocal.write(key: Constant.HIRING_EARNINGS, value: withdrawalMod.data!.userDetails![0].hiringEarings.toString());
+        await storeLocal.write(key: Constant.ORDERS_EARNINGS, value: withdrawalMod.data!.userDetails![0].ordersEarnings.toString());
+        await storeLocal.write(key: Constant.TOTAL_ORDER, value: withdrawalMod.data!.userDetails![0].totalOrders.toString());
+        await storeLocal.write(key: Constant.TODAY_ORDER, value: withdrawalMod.data!.userDetails![0].todayOrders.toString());
+        await storeLocal.write(key: Constant.AVERAGE_ORDER, value: withdrawalMod.data!.userDetails![0].averageOrders.toString());
+        await storeLocal.write(key: Constant.BALANCE_NEXTGEN, value: withdrawalMod.data!.userDetails![0].balance.toString());
+        update();
+
+        balance.value = (await storeLocal.read(key: Constant.BALANCE))!;
+        minimum.value = (await storeLocal.read(key: Constant.MIN_WITHDRAWAL))!;
+        mobile.value = (await storeLocal.read(key: Constant.MOBILE))!;
+        earn.value = (await storeLocal.read(key: Constant.EARN))!;
+        name.value = (await storeLocal.read(key: Constant.NAME))!;
+        upi.value = (await storeLocal.read(key: Constant.UPI))!;
+        userId.value = (await storeLocal.read(key: Constant.USER_ID))!;
+        holderName.value = (await storeLocal.read(key: Constant.HOLDER_NAME))!;
+        accountNum.value = (await storeLocal.read(key: Constant.ACCOUNT_NUM))!;
+        ifscCode.value = (await storeLocal.read(key: Constant.IFSC))!;
+        bankName.value = (await storeLocal.read(key: Constant.BANK))!;
+        branch.value = (await storeLocal.read(key: Constant.BRANCH))!;
+        ordersEarnings.value = (await storeLocal.read(key: Constant.ORDERS_EARNINGS))!;
+        hiringEarnings.value = (await storeLocal.read(key: Constant.HIRING_EARNINGS))!;
+        update();
+      }
+
       Get.snackbar('Withdrawal', withdrawalMod.message.toString(),colorText: kPrimaryColor,backgroundColor: kWhiteColor,duration: const Duration(seconds: 3),);
 
       update();
+      hideLoadingIndicator(context);
     } catch (e) {
       debugPrint("withdrawalMod errors: $e");
     }
@@ -176,6 +256,83 @@ class WalletCon extends GetxController {
       debugPrint("===> addedToBalance: $addedToBalance");
       debugPrint("===> addedToBalance message: ${addedToBalance.message}");
       debugPrint("===> addedToBalance message: ${addedToBalance.success}");
+
+      if (addedToBalance.data != null && addedToBalance.data!.isNotEmpty) {
+
+        await storeLocal.delete(key: Constant.ORDERAVAILABLE);
+        await storeLocal.delete(key: Constant.WORK_DAYS);
+        await storeLocal.delete(key: Constant.NAME);
+        await storeLocal.delete(key: Constant.MOBILE);
+        await storeLocal.delete(key: Constant.EMAIL);
+        await storeLocal.delete(key: Constant.CITY);
+        await storeLocal.delete(key: Constant.DOB);
+        await storeLocal.delete(key: Constant.HR_ID);
+        await storeLocal.delete(key: Constant.ID);
+        await storeLocal.delete(key: Constant.AADHAAR_NUM);
+        await storeLocal.delete(key: Constant.REFER_BONUS);
+        await storeLocal.delete(key: Constant.REFER_CODE);
+        await storeLocal.delete(key: Constant.EARN);
+        await storeLocal.delete(key: Constant.BALANCE);
+        await storeLocal.delete(key: Constant.MIN_WITHDRAWAL);
+        await storeLocal.delete(key: Constant.UPI);
+        await storeLocal.delete(key: Constant.HOLDER_NAME);
+        await storeLocal.delete(key: Constant.ACCOUNT_NUM);
+        await storeLocal.delete(key: Constant.IFSC);
+        await storeLocal.delete(key: Constant.BANK);
+        await storeLocal.delete(key: Constant.BRANCH);
+        await storeLocal.delete(key: Constant.HIRING_EARNINGS);
+        await storeLocal.delete(key: Constant.ORDERS_EARNINGS);
+        await storeLocal.delete(key: Constant.TOTAL_ORDER);
+        await storeLocal.delete(key: Constant.TODAY_ORDER);
+        await storeLocal.delete(key: Constant.AVERAGE_ORDER);
+        await storeLocal.delete(key: Constant.BALANCE_NEXTGEN);
+
+        await storeLocal.write(key: Constant.ORDERAVAILABLE, value: addedToBalance.data![0].orderAvailable.toString());
+        await storeLocal.write(key: Constant.WORK_DAYS, value: addedToBalance.data![0].workedDays.toString());
+        await storeLocal.write(key: Constant.NAME, value: addedToBalance.data![0].name.toString());
+        await storeLocal.write(key: Constant.MOBILE, value: addedToBalance.data![0].mobile.toString());
+        await storeLocal.write(key: Constant.EMAIL, value: addedToBalance.data![0].email.toString());
+        await storeLocal.write(key: Constant.CITY, value: addedToBalance.data![0].location.toString());
+        await storeLocal.write(key: Constant.DOB, value: addedToBalance.data![0].dob.toString());
+        await storeLocal.write(key: Constant.HR_ID, value: addedToBalance.data![0].hrId.toString());
+        await storeLocal.write(key: Constant.ID, value: addedToBalance.data![0].id.toString());
+        await storeLocal.write(key: Constant.AADHAAR_NUM, value: addedToBalance.data![0].aadhaarNum.toString());
+        await storeLocal.write(key: Constant.REFER_BONUS, value: addedToBalance.data![0].referBonusSent.toString());
+        await storeLocal.write(key: Constant.REFER_CODE, value: addedToBalance.data![0].referCode.toString());
+        await storeLocal.write(key: Constant.EARN, value: addedToBalance.data![0].earn.toString());
+        await storeLocal.write(key: Constant.BALANCE, value: addedToBalance.data![0].balance.toString());
+        await storeLocal.write(key: Constant.MIN_WITHDRAWAL, value: addedToBalance.data![0].minWithdrawal.toString());
+        await storeLocal.write(key: Constant.UPI, value: addedToBalance.data![0].upi.toString());
+        await storeLocal.write(key: Constant.HOLDER_NAME, value: addedToBalance.data![0].holderName.toString());
+        await storeLocal.write(key: Constant.ACCOUNT_NUM, value: addedToBalance.data![0].accountNum.toString());
+        await storeLocal.write(key: Constant.IFSC, value: addedToBalance.data![0].ifsc.toString());
+        await storeLocal.write(key: Constant.BANK, value: addedToBalance.data![0].bank.toString());
+        await storeLocal.write(key: Constant.BRANCH, value: addedToBalance.data![0].branch.toString());
+        await storeLocal.write(key: Constant.HIRING_EARNINGS, value: addedToBalance.data![0].hiringEarings.toString());
+        await storeLocal.write(key: Constant.ORDERS_EARNINGS, value: addedToBalance.data![0].ordersEarnings.toString());
+        await storeLocal.write(key: Constant.TOTAL_ORDER, value: addedToBalance.data![0].totalOrders.toString());
+        await storeLocal.write(key: Constant.TODAY_ORDER, value: addedToBalance.data![0].todayOrders.toString());
+        await storeLocal.write(key: Constant.AVERAGE_ORDER, value: addedToBalance.data![0].averageOrders.toString());
+        await storeLocal.write(key: Constant.BALANCE_NEXTGEN, value: addedToBalance.data![0].balance.toString());
+        update();
+
+        balance.value = (await storeLocal.read(key: Constant.BALANCE))!;
+        minimum.value = (await storeLocal.read(key: Constant.MIN_WITHDRAWAL))!;
+        mobile.value = (await storeLocal.read(key: Constant.MOBILE))!;
+        earn.value = (await storeLocal.read(key: Constant.EARN))!;
+        name.value = (await storeLocal.read(key: Constant.NAME))!;
+        upi.value = (await storeLocal.read(key: Constant.UPI))!;
+        userId.value = (await storeLocal.read(key: Constant.USER_ID))!;
+        holderName.value = (await storeLocal.read(key: Constant.HOLDER_NAME))!;
+        accountNum.value = (await storeLocal.read(key: Constant.ACCOUNT_NUM))!;
+        ifscCode.value = (await storeLocal.read(key: Constant.IFSC))!;
+        bankName.value = (await storeLocal.read(key: Constant.BANK))!;
+        branch.value = (await storeLocal.read(key: Constant.BRANCH))!;
+        ordersEarnings.value = (await storeLocal.read(key: Constant.ORDERS_EARNINGS))!;
+        hiringEarnings.value = (await storeLocal.read(key: Constant.HIRING_EARNINGS))!;
+        update();
+      }
+
       Get.snackbar('Balance', addedToBalance.message.toString(),colorText: kPrimaryColor,backgroundColor: kWhiteColor,duration: const Duration(seconds: 3),);
 
       update();
@@ -220,5 +377,28 @@ class WalletCon extends GetxController {
     } catch (e) {
       debugPrint("transactionType errors: $e");
     }
+  }
+
+  void showLoadingIndicator(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 8),
+              Text('Loading...'),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void hideLoadingIndicator(BuildContext context) {
+    Navigator.of(context).pop();
   }
 }

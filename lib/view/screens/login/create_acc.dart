@@ -202,7 +202,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                           fontSize: Dimensions.FONT_SIZE_DEFAULT),
                     ),
                     const SizedBox(height: Dimensions.PADDING_SIZE_SMALL),
-                    DateTextField(controller: DOBController,color: kTextDarkColor,borderColor: kPrimaryColor,),
+                    DateTextField(controller: DOBController,color: kTextDarkColor,borderColor: kPrimaryColor,startYear: 1900,endYear: 2020,),
                     const SizedBox(height: Dimensions.PADDING_SIZE_SMALL),
                     const Text(
                       "Location",
@@ -378,6 +378,8 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                   child: InkWell(
                     onTap: () async {
                       var device_id = await storeLocal.read(key: Constant.MY_DEVICE_ID);
+                      authCon.showLoadingIndicator(context);
+                      await Future.delayed(const Duration(seconds: 5));
                       authCon.registerAPI(
                           nameController.text,
                           phoneNumController.text,
@@ -388,6 +390,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                           DOBController.text,
                           hrIdController.text,
                           aadhaarController.text);
+                      authCon.hideLoadingIndicator(context);
                     },
                     child: Container(
                       height: Dimensions.BUTTON_HEIGHT,

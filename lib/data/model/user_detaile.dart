@@ -12,13 +12,13 @@ class UserDetail {
     if (json['data'] != null) {
       data = <Data>[];
       json['data'].forEach((v) {
-        data!.add(new Data.fromJson(v));
+        data!.add(Data.fromJson(v));
       });
     }
     if (json['settings'] != null) {
       settings = <Settings>[];
       json['settings'].forEach((v) {
-        settings!.add(new Settings.fromJson(v));
+        settings!.add(Settings.fromJson(v));
       });
     }
   }
@@ -94,10 +94,13 @@ class Data {
   String? storeId;
   String? averageOrders;
   String? level;
-  String? hiringEarings;
-  String? ordersEarnings;
   String? abcdUser;
   String? interested;
+  String? ordersEarnings;
+  String? hiringEarings;
+  String? lastTodayOrders;
+  String? minQty;
+  String? maxQty;
 
   Data(
       {this.id,
@@ -156,10 +159,13 @@ class Data {
         this.storeId,
         this.averageOrders,
         this.level,
-        this.hiringEarings,
-        this.ordersEarnings,
         this.abcdUser,
-        this.interested});
+        this.interested,
+        this.ordersEarnings,
+        this.hiringEarings,
+        this.lastTodayOrders,
+        this.minQty,
+        this.maxQty});
 
   Data.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -218,10 +224,13 @@ class Data {
     storeId = json['store_id'];
     averageOrders = json['average_orders'];
     level = json['level'];
-    hiringEarings = json['hiring_earings'];
-    ordersEarnings = json['orders_earnings'];
     abcdUser = json['abcd_user'];
     interested = json['interested'];
+    ordersEarnings = json['orders_earnings'];
+    hiringEarings = json['hiring_earings'];
+    lastTodayOrders = json['last_today_orders'];
+    minQty = json['min_qty'];
+    maxQty = json['max_qty'];
   }
 
   Map<String, dynamic> toJson() {
@@ -282,10 +291,13 @@ class Data {
     data['store_id'] = storeId;
     data['average_orders'] = averageOrders;
     data['level'] = level;
-    data['hiring_earings'] = hiringEarings;
-    data['orders_earnings'] = ordersEarnings;
     data['abcd_user'] = abcdUser;
     data['interested'] = interested;
+    data['orders_earnings'] = ordersEarnings;
+    data['hiring_earings'] = hiringEarings;
+    data['last_today_orders'] = lastTodayOrders;
+    data['min_qty'] = minQty;
+    data['max_qty'] = maxQty;
     return data;
   }
 }
@@ -308,7 +320,7 @@ class Settings {
   String? postVideoDetails;
   String? referCoins;
   String? registerCoins;
-  String? watchOrdersStatus;
+  String? ordersStatus;
   String? vacancies;
 
   Settings(
@@ -329,7 +341,7 @@ class Settings {
         this.postVideoDetails,
         this.referCoins,
         this.registerCoins,
-        this.watchOrdersStatus,
+        this.ordersStatus,
         this.vacancies});
 
   Settings.fromJson(Map<String, dynamic> json) {
@@ -350,7 +362,7 @@ class Settings {
     postVideoDetails = json['post_video_details'];
     referCoins = json['refer_coins'];
     registerCoins = json['register_coins'];
-    watchOrdersStatus = json['watch_orders_status'];
+    ordersStatus = json['orders_status'];
     vacancies = json['vacancies'];
   }
 
@@ -373,7 +385,7 @@ class Settings {
     data['post_video_details'] = postVideoDetails;
     data['refer_coins'] = referCoins;
     data['register_coins'] = registerCoins;
-    data['watch_orders_status'] = watchOrdersStatus;
+    data['orders_status'] = ordersStatus;
     data['vacancies'] = vacancies;
     return data;
   }

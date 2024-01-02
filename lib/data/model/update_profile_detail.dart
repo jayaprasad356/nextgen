@@ -1,17 +1,17 @@
-class AddedToBalance {
+class UpdateProfileDetails {
   bool? success;
   String? message;
   List<Data>? data;
 
-  AddedToBalance({this.success, this.message, this.data});
+  UpdateProfileDetails({this.success, this.message, this.data});
 
-  AddedToBalance.fromJson(Map<String, dynamic> json) {
+  UpdateProfileDetails.fromJson(Map<String, dynamic> json) {
     success = json['success'];
     message = json['message'];
     if (json['data'] != null) {
       data = <Data>[];
       json['data'].forEach((v) {
-        data!.add(new Data.fromJson(v));
+        data!.add(Data.fromJson(v));
       });
     }
   }
@@ -31,7 +31,6 @@ class Data {
   String? id;
   String? mobile;
   String? name;
-  String? upi;
   String? email;
   String? totalReferrals;
   String? earn;
@@ -42,13 +41,10 @@ class Data {
   String? withdrawalStatus;
   String? status;
   String? joinedDate;
-  Null? fcmId;
+  String? fcmId;
   String? lastUpdated;
   String? minWithdrawal;
   String? registerBonusSent;
-  String? generateCoin;
-  String? totalOrdersViewed;
-  String? trailCompleted;
   String? accountNum;
   String? holderName;
   String? bank;
@@ -61,20 +57,11 @@ class Data {
   String? supportId;
   String? leadId;
   String? branchId;
-  Null? workedDays;
-  String? plan;
-  String? videoWallet;
-  String? mediaWallet;
-  String? postLeft;
+  String? workedDays;
   String? ordersTime;
-  String? oldPlan;
-  String? oldPb;
-  String? rewardOrders;
   String? blocked;
   String? referBonusSent;
-  String? refer;
   String? description;
-  String? ratings;
   String? hrId;
   String? aadhaarNum;
   String? dob;
@@ -84,80 +71,66 @@ class Data {
   String? storeId;
   String? averageOrders;
   String? level;
+  String? hiringEarings;
+  String? ordersEarnings;
   String? abcdUser;
   String? interested;
-  String? ordersEarnings;
-  String? hiringEarings;
-  String? lastTodayOrders;
+  String? ordersCost;
 
   Data(
       {this.id,
-      this.mobile,
-      this.name,
-      this.upi,
-      this.email,
-      this.totalReferrals,
-      this.earn,
-      this.balance,
-      this.deviceId,
-      this.referredBy,
-      this.referCode,
-      this.withdrawalStatus,
-      this.status,
-      this.joinedDate,
-      this.fcmId,
-      this.lastUpdated,
-      this.minWithdrawal,
-      this.registerBonusSent,
-      this.generateCoin,
-      this.totalOrdersViewed,
-      this.trailCompleted,
-      this.accountNum,
-      this.holderName,
-      this.bank,
-      this.branch,
-      this.ifsc,
-      this.watchOrders,
-      this.registeredDate,
-      this.totalOrders,
-      this.todayOrders,
-      this.supportId,
-      this.leadId,
-      this.branchId,
-      this.workedDays,
-      this.plan,
-      this.videoWallet,
-      this.mediaWallet,
-      this.postLeft,
-      this.ordersTime,
-      this.oldPlan,
-      this.oldPb,
-      this.rewardOrders,
-      this.blocked,
-      this.referBonusSent,
-      this.refer,
-      this.description,
-      this.ratings,
-      this.hrId,
-      this.aadhaarNum,
-      this.dob,
-      this.location,
-      this.password,
-      this.orderAvailable,
-      this.storeId,
-      this.averageOrders,
-      this.level,
-      this.abcdUser,
-      this.interested,
-      this.ordersEarnings,
-      this.hiringEarings,
-      this.lastTodayOrders});
+        this.mobile,
+        this.name,
+        this.email,
+        this.totalReferrals,
+        this.earn,
+        this.balance,
+        this.deviceId,
+        this.referredBy,
+        this.referCode,
+        this.withdrawalStatus,
+        this.status,
+        this.joinedDate,
+        this.fcmId,
+        this.lastUpdated,
+        this.minWithdrawal,
+        this.registerBonusSent,
+        this.accountNum,
+        this.holderName,
+        this.bank,
+        this.branch,
+        this.ifsc,
+        this.watchOrders,
+        this.registeredDate,
+        this.totalOrders,
+        this.todayOrders,
+        this.supportId,
+        this.leadId,
+        this.branchId,
+        this.workedDays,
+        this.ordersTime,
+        this.blocked,
+        this.referBonusSent,
+        this.description,
+        this.hrId,
+        this.aadhaarNum,
+        this.dob,
+        this.location,
+        this.password,
+        this.orderAvailable,
+        this.storeId,
+        this.averageOrders,
+        this.level,
+        this.hiringEarings,
+        this.ordersEarnings,
+        this.abcdUser,
+        this.interested,
+        this.ordersCost});
 
   Data.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     mobile = json['mobile'];
     name = json['name'];
-    upi = json['upi'];
     email = json['email'];
     totalReferrals = json['total_referrals'];
     earn = json['earn'];
@@ -172,9 +145,6 @@ class Data {
     lastUpdated = json['last_updated'];
     minWithdrawal = json['min_withdrawal'];
     registerBonusSent = json['register_bonus_sent'];
-    generateCoin = json['generate_coin'];
-    totalOrdersViewed = json['total_orders_viewed'];
-    trailCompleted = json['trail_completed'];
     accountNum = json['account_num'];
     holderName = json['holder_name'];
     bank = json['bank'];
@@ -188,19 +158,10 @@ class Data {
     leadId = json['lead_id'];
     branchId = json['branch_id'];
     workedDays = json['worked_days'];
-    plan = json['plan'];
-    videoWallet = json['video_wallet'];
-    mediaWallet = json['media_wallet'];
-    postLeft = json['post_left'];
     ordersTime = json['orders_time'];
-    oldPlan = json['old_plan'];
-    oldPb = json['old_pb'];
-    rewardOrders = json['reward_orders'];
     blocked = json['blocked'];
     referBonusSent = json['refer_bonus_sent'];
-    refer = json['refer'];
     description = json['description'];
-    ratings = json['ratings'];
     hrId = json['hr_id'];
     aadhaarNum = json['aadhaar_num'];
     dob = json['dob'];
@@ -210,11 +171,11 @@ class Data {
     storeId = json['store_id'];
     averageOrders = json['average_orders'];
     level = json['level'];
+    hiringEarings = json['hiring_earings'];
+    ordersEarnings = json['orders_earnings'];
     abcdUser = json['abcd_user'];
     interested = json['interested'];
-    ordersEarnings = json['orders_earnings'];
-    hiringEarings = json['hiring_earings'];
-    lastTodayOrders = json['last_today_orders'];
+    ordersCost = json['orders_cost'];
   }
 
   Map<String, dynamic> toJson() {
@@ -222,7 +183,6 @@ class Data {
     data['id'] = id;
     data['mobile'] = mobile;
     data['name'] = name;
-    data['upi'] = upi;
     data['email'] = email;
     data['total_referrals'] = totalReferrals;
     data['earn'] = earn;
@@ -237,9 +197,6 @@ class Data {
     data['last_updated'] = lastUpdated;
     data['min_withdrawal'] = minWithdrawal;
     data['register_bonus_sent'] = registerBonusSent;
-    data['generate_coin'] = generateCoin;
-    data['total_orders_viewed'] = totalOrdersViewed;
-    data['trail_completed'] = trailCompleted;
     data['account_num'] = accountNum;
     data['holder_name'] = holderName;
     data['bank'] = bank;
@@ -253,19 +210,10 @@ class Data {
     data['lead_id'] = leadId;
     data['branch_id'] = branchId;
     data['worked_days'] = workedDays;
-    data['plan'] = plan;
-    data['video_wallet'] = videoWallet;
-    data['media_wallet'] = mediaWallet;
-    data['post_left'] = postLeft;
     data['orders_time'] = ordersTime;
-    data['old_plan'] = oldPlan;
-    data['old_pb'] = oldPb;
-    data['reward_orders'] = rewardOrders;
     data['blocked'] = blocked;
     data['refer_bonus_sent'] = referBonusSent;
-    data['refer'] = refer;
     data['description'] = description;
-    data['ratings'] = ratings;
     data['hr_id'] = hrId;
     data['aadhaar_num'] = aadhaarNum;
     data['dob'] = dob;
@@ -275,11 +223,11 @@ class Data {
     data['store_id'] = storeId;
     data['average_orders'] = averageOrders;
     data['level'] = level;
+    data['hiring_earings'] = hiringEarings;
+    data['orders_earnings'] = ordersEarnings;
     data['abcd_user'] = abcdUser;
     data['interested'] = interested;
-    data['orders_earnings'] = ordersEarnings;
-    data['hiring_earings'] = hiringEarings;
-    data['last_today_orders'] = lastTodayOrders;
+    data['orders_cost'] = ordersCost;
     return data;
   }
 }

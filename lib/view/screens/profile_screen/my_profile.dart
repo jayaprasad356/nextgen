@@ -8,6 +8,7 @@ import 'package:nextgen/reports.dart';
 import 'package:nextgen/util/Color.dart';
 import 'package:nextgen/util/Constant.dart';
 import 'package:nextgen/view/screens/profile_screen/update_profile_screen.dart';
+import 'package:nextgen/view/screens/upi_screen/apply_leave.dart';
 import 'package:nextgen/view/screens/upi_screen/wallet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -226,25 +227,55 @@ class _MyProfileState extends State<MyProfile> {
                       ],
                     ),
                     Expanded(child: Container()),
-                    MaterialButton(
-                      color: colors.primary,
-                      onPressed: () {
-                        // Navigate to the BankDetailsScreen when the button is clicked
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => UpdateProfileScreen(),
+                    Column(
+                      children: [
+                        InkWell(
+                          onTap: (){
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => UpdateProfileScreen(),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            height: 30,
+                            width: 110,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                              color: colors.primary,
+                            ),
+                            alignment: Alignment.center,
+                            child: const Text('Update Profile',
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    color: colors.white,
+                                    fontFamily: "Montserra")),
                           ),
-                        );
-                      },
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: const Text('Update Profile',
-                          style: TextStyle(
-                              fontSize: 14,
-                              color: colors.white,
-                              fontFamily: "Montserra")),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        InkWell(
+                          onTap: (){
+                            Get.to(const ApplyLeave());
+                          },
+                          child: Container(
+                            height: 30,
+                            width: 110,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                              color: colors.primary,
+                            ),
+                            alignment: Alignment.center,
+                            child: const Text('Apply Leave',
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    color: colors.white,
+                                    fontFamily: "Montserra")),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -323,34 +354,6 @@ class _MyProfileState extends State<MyProfile> {
               const SizedBox(
                 height: 15,
               ),
-              // InkWell(
-              //   onTap: () => Get.to(const JobShow()),
-              //   child: const Row(
-              //     crossAxisAlignment: CrossAxisAlignment.center,
-              //     children: [
-              //       Padding(
-              //         padding: EdgeInsets.only(right: 10, left: 10),
-              //         child: ImageIcon(
-              //               AssetImage(
-              //                 "assets/images/challenge.png",
-              //               ),
-              //               color: colors.white,
-              //             ),
-              //       ),
-              //       SizedBox(
-              //         width: 15,
-              //       ),
-              //       Text(
-              //         "Info",
-              //         textAlign: TextAlign.start,
-              //         style: TextStyle(
-              //           color: Colors.white,
-              //           fontSize: 20,
-              //         ),
-              //       ),
-              //     ],
-              //   ),
-              // ),
             ],
           ),
         ),

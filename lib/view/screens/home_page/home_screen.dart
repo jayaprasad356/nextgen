@@ -20,6 +20,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:nextgen/util/color_const.dart';
 import 'package:nextgen/util/image_const.dart';
 import 'package:nextgen/util/index.dart';
+import 'package:nextgen/view/screens/home_page/sync.dart';
+import 'package:nextgen/view/screens/login/mainScreen.dart';
 import 'package:nextgen/view/widget/default_back.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:share_plus/share_plus.dart';
@@ -72,6 +74,7 @@ class HomeScreenState extends State<HomeScreen> {
   double progressbar = 0.0;
   late String image = "", referText = "", offer_image = "", refer_bonus = "";
   int orderCount = 0;
+  int totalQtySold = 0;
   int rewardAds = 0;
   double progressPercentage = 0.0;
   double progressPercentageTwo = 0.0;
@@ -88,6 +91,7 @@ class HomeScreenState extends State<HomeScreen> {
   String productEan = '';
   String qtySold = '';
   bool enablePlaceOrder = false;
+  bool enablePlaceOrderAVA = false;
   bool isPlaceOrder = false;
   bool isConfirm = false;
   String workDays = "";
@@ -96,11 +100,18 @@ class HomeScreenState extends State<HomeScreen> {
   String ordersEarnings = "";
   String todayOrder = "";
   String totalOrders = "";
+  int minQty = 1;
+  int maxQty = 1;
+  int executionCount = 0;
+  Timer? timer;
 
   @override
   void initState() {
     super.initState();
     // loadOrderCount();
+    // homeController.handleAsyncInit();
+    authCon.handleAsyncInit();
+    // qtySold = homeController.generateQtySoldNumber(int.parse(authCon.minQty.value),int.parse(authCon.maxQty.value)).toString();
     resetValue();
     handleAsyncInit();
 
@@ -126,15 +137,42 @@ class HomeScreenState extends State<HomeScreen> {
 
   void handleAsyncInit() async {
     productEan = homeController.generateRandomNineDigitNumber().toString();
-    qtySold = homeController.generateQtySoldNumber().toString();
     homeController.productEanCorrent(productEan);
     // homeController.handleAsyncInit();
     setState(() async {
       var todayOrder = await storeLocal.read(key: Constant.TODAY_ORDERS_CON);
       homeController.today_order_con.value = int.parse(todayOrder!);
-      isWeb = (await storeLocal.read(key: Constant.IS_WEB))!;
+      // isWeb = (await storeLocal.read(key: Constant.IS_WEB))!;
+      // totalOrders = (await storeLocal.read(key: Constant.TOTAL_ORDER))!;
       // orderCost = (await storeLocal.read(key: Constant.ORDER_COST))!;
-      // debugPrint("orderCost: $orderCost");
+      // debugPrint("totalOrders: $totalOrders");
+    });
+
+    const int maxExecutions = 2;
+    timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
+      setState(() async {
+        qtySold = homeController
+            .generateQtySoldNumber(int.parse(authCon.minQty.value),
+                int.parse(authCon.maxQty.value))
+            .toString();
+        var syncDataNextgenSuccess =
+            await storeLocal.read(key: 'syncDataNextgenSuccess');
+        debugPrint("syncDataNextgenSuccess: $syncDataNextgenSuccess");
+        if (syncDataNextgenSuccess == 'true') {
+          orderCount = 0;
+          debugPrint("orderCount: $orderCount");
+          totalQtySold = 0;
+          debugPrint("totalQtySold: $totalQtySold");
+          progressPercentage = 0.0;
+          debugPrint("progressPercentage: $progressPercentage");
+          saveOrderCount(orderCount, totalQtySold, progressPercentage);
+        }
+        await storeLocal.write(key: 'syncDataNextgenSuccess', value: 'false');
+      });
+      executionCount++;
+      if (executionCount >= maxExecutions) {
+        timer.cancel();
+      }
     });
   }
 
@@ -247,11 +285,17 @@ class HomeScreenState extends State<HomeScreen> {
     setState(() async {
       // orderCount = prefs.getInt('orderCount')!;
       String? orderCountLoad = await storeLocal.read(key: 'orderCountHome');
+      String? totalQtySoldNum = await storeLocal.read(key: 'totalQtySoldNum');
+      String? progressPercentageNum =
+          await storeLocal.read(key: 'progressPercentageSave');
       orderCount = int.parse(orderCountLoad!);
+      totalQtySold = int.parse(totalQtySoldNum!);
+      progressPercentage = double.parse(progressPercentageNum!);
       debugPrint("loadOrderCount orderCount: $orderCount");
+      debugPrint("loadOrderCount totalQtySold: $totalQtySold");
       // multiplyCostValue = prefs.getDouble('multiplyCostValue')!;
       // debugPrint("loadOrderCount multiplyCostValue: $multiplyCostValue");
-      progressPercentage = (orderCount / maximumValue);
+      // progressPercentage = (orderCount / maximumValue);
       debugPrint("loadOrderCount progressPercentage: $progressPercentage");
       if (orderCount <= 99) {
         isClaimButtonDisabled = true; // Disable the button
@@ -264,11 +308,19 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
 // Save orderCount to shared preferences
-  void saveOrderCount(int count) async {
+  void saveOrderCount(
+      int count, int totalQtySoldNum, double progressPercentageNum) async {
     // SharedPreferences prefs = await SharedPreferences.getInstance();
     String orderCountSave = count.toString();
+    String totalQtySoldNumSave = totalQtySoldNum.toString();
+    String progressPercentageSave = progressPercentageNum.toString();
     await storeLocal.write(key: 'orderCountHome', value: orderCountSave);
+    await storeLocal.write(key: 'totalQtySoldNum', value: totalQtySoldNumSave);
+    await storeLocal.write(
+        key: 'progressPercentageSave', value: progressPercentageSave);
     debugPrint("count: $count");
+    debugPrint("totalQtySoldNum: $totalQtySoldNum");
+    debugPrint("progressPercentageSave: $progressPercentageSave");
     // await prefs.setInt('orderCount', count);
     // await prefs.setDouble('multiplyCostValue', multiplyCostValue);
   }
@@ -306,7 +358,10 @@ class HomeScreenState extends State<HomeScreen> {
       homeController.copiedText.value = '';
       homeController.quantity.value = 0;
       homeController.orderAvailable.value = '0';
-      qtySold = homeController.generateQtySoldNumber().toString();
+      qtySold = homeController
+          .generateQtySoldNumber(
+              int.parse(authCon.minQty.value), int.parse(authCon.maxQty.value))
+          .toString();
     });
   }
 
@@ -351,39 +406,100 @@ class HomeScreenState extends State<HomeScreen> {
                             // debugPrint("syncType: $syncType");
                             try {
                               prefs = await SharedPreferences.getInstance();
-                              // setState(() {
-                              //   syncUniqueId;
-                              // });
-                              // debugPrint("syncUniqueId: $syncUniqueId");
-                              // Call the syncData function and get the result immediately
-                              var userID =
+                              String? userID =
                                   await storeLocal.read(key: Constant.ID);
-                              debugPrint("userID: $userID");
-                              homeController.syncData(
-                                context,
-                                userID,
-                                orderCount.toString(),
-                                (String syncDataNextgenSuccess) {
-                                  debugPrint(
-                                      "syncDataNextgenSuccess: $syncDataNextgenSuccess");
-                                  // Perform actions based on the result of the syncData function
-                                  if (syncDataNextgenSuccess == 'true') {
-                                    setState(() async {
-                                      isClaimButtonDisabled = true;
-                                      orderCount = 0;
-                                      saveOrderCount(orderCount);
-                                      progressPercentage =
-                                          (orderCount / maximumValue);
-                                      orderAvailable = (await storeLocal.read(key: Constant.ORDERAVAILABLE)!)!;
-                                      workDays = (await storeLocal.read(key: Constant.WORK_DAYS)!)!;
-                                      todayOrder = (await storeLocal.read(key: Constant.TODAY_ORDER)!)!;
-                                      totalOrders = (await storeLocal.read(key: Constant.TOTAL_ORDER)!)!;
-                                      averageOrders = (await storeLocal.read(key: Constant.AVERAGE_ORDER)!)!;
-                                      ordersEarnings = (await storeLocal.read(key: Constant.ORDERS_EARNINGS)!)!;
-                                    });
-                                  } else {}
-                                },
-                              );
+                              String? deviceID =
+                                  await storeLocal.read(key: Constant.DEVICE_ID);
+                              debugPrint("userID: $userID\ndeviceID: $deviceID");
+                              Get.to(Sync(
+                                userId: userID!,
+                                orders: orderCount.toString(),
+                                totalQtySold: totalQtySold.toString(),
+                                  deviceID: deviceID!,
+                              ));
+                              // homeController.showLoadingIndicator(context);
+                              // await Future.delayed(const Duration(seconds: 5));
+                              // homeController.hideLoadingIndicator(context);
+                              // homeController.syncData(
+                              //   userID,
+                              //   orderCount.toString(),
+                              //   totalQtySold.toString(),
+                              //   (String syncDataNextgenSuccess) {
+                              //     debugPrint(
+                              //         "syncDataNextgenSuccess: $syncDataNextgenSuccess");
+                              //     // Perform actions based on the result of the syncData function
+                              //     if (syncDataNextgenSuccess == 'true') {
+                              //       isClaimButtonDisabled = true;
+                              //       debugPrint(
+                              //           "isClaimButtonDisabled: $isClaimButtonDisabled");
+                              //       orderCount = 0;
+                              //       debugPrint("orderCount: $orderCount");
+                              //       totalQtySold = 0;
+                              //       debugPrint("totalQtySold: $totalQtySold");
+                              //       progressPercentage = 0.0;
+                              //       debugPrint(
+                              //           "progressPercentage: $progressPercentage");
+                              //       setState(() {
+                              //         isClaimButtonDisabled = true;
+                              //         debugPrint(
+                              //             "isClaimButtonDisabled: $isClaimButtonDisabled");
+                              //         orderCount = 0;
+                              //         debugPrint("orderCount: $orderCount");
+                              //         totalQtySold = 0;
+                              //         debugPrint("totalQtySold: $totalQtySold");
+                              //         progressPercentage = 0.0;
+                              //         debugPrint(
+                              //             "progressPercentage: $progressPercentage");
+                              //         orderAvailable = homeController
+                              //             .orderAvailable
+                              //             .toString();
+                              //         debugPrint(
+                              //             "orderAvailable: $orderAvailable");
+                              //         workDays =
+                              //             homeController.workDays.toString();
+                              //         debugPrint("workDays: $workDays");
+                              //         todayOrder =
+                              //             homeController.todayOrder.toString();
+                              //         debugPrint("todayOrder: $todayOrder");
+                              //         totalOrders =
+                              //             homeController.todayOrder.toString();
+                              //         debugPrint("totalOrders: $totalOrders");
+                              //         averageOrders = homeController
+                              //             .averageOrders
+                              //             .toString();
+                              //         debugPrint(
+                              //             "averageOrders: $averageOrders");
+                              //         ordersEarnings = homeController
+                              //             .orderEarnings
+                              //             .toString();
+                              //         // orderAvailable = (await storeLocal.read(
+                              //         //     key: Constant.ORDERAVAILABLE)!)!;
+                              //         // debugPrint("orderAvailable: $orderAvailable");
+                              //         // workDays = (await storeLocal.read(
+                              //         //     key: Constant.WORK_DAYS)!)!;
+                              //         // debugPrint("workDays: $workDays");
+                              //         // todayOrder = (await storeLocal.read(
+                              //         //     key: Constant.TODAY_ORDER)!)!;
+                              //         // debugPrint("todayOrder: $todayOrder");
+                              //         // totalOrders = (await storeLocal.read(
+                              //         //     key: Constant.TOTAL_ORDER)!)!;
+                              //         // debugPrint("totalOrders: $totalOrders");
+                              //         // averageOrders = (await storeLocal.read(
+                              //         //     key: Constant.AVERAGE_ORDER)!)!;
+                              //         // debugPrint("averageOrders: $averageOrders");
+                              //         // ordersEarnings = (await storeLocal.read(
+                              //         //     key: Constant.ORDERS_EARNINGS)!)!;
+                              //         debugPrint(
+                              //             "ordersEarnings: $ordersEarnings");
+                              //         saveOrderCount(orderCount, totalQtySold,
+                              //             progressPercentage);
+                              //       });
+                              //     } else {}
+                              //   },
+                              // );
+                              // Navigator.of(context).pushReplacement(
+                              //   MaterialPageRoute(builder: (context) => const MainScreen()),
+                              // );
                             } catch (e) {
                               // Handle any errors that occur during the process
                               debugPrint("Error: $e");
@@ -455,18 +571,24 @@ class HomeScreenState extends State<HomeScreen> {
                                     color: Colors.white,
                                     fontSize: Dimensions.FONT_SIZE_EXTRA_LARGE),
                               ),
-                              Obx(
-                                () => Text(
-                                  ordersEarnings != ""
-                                      ? ordersEarnings
-                                      : authCon.order_earnings.toString(),
-                                  style: const TextStyle(
-                                      fontFamily: 'MontserratBold',
-                                      color: Colors.white,
-                                      fontSize:
-                                          Dimensions.FONT_SIZE_EXTRA_LARGE),
-                                ),
-                              ),
+                              ordersEarnings != ""
+                                  ? Text(
+                                      ordersEarnings,
+                                      style: const TextStyle(
+                                          fontFamily: 'MontserratBold',
+                                          color: kTextColor,
+                                          fontSize: Dimensions.FONT_SIZE_SMALL),
+                                    )
+                                  : Obx(
+                                      () => Text(
+                                        authCon.order_earnings.toString(),
+                                        style: const TextStyle(
+                                            fontFamily: 'MontserratBold',
+                                            color: Colors.white,
+                                            fontSize: Dimensions
+                                                .FONT_SIZE_EXTRA_LARGE),
+                                      ),
+                                    ),
                             ],
                           ),
                         ),
@@ -533,55 +655,91 @@ class HomeScreenState extends State<HomeScreen> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Obx(
-                                  () => Text(
-                                    "${todayOrder != "" ? todayOrder : authCon.today_order} + $orderCount",
-                                    style: const TextStyle(
-                                        fontFamily: 'MontserratBold',
-                                        color: kTextColor,
-                                        fontSize: Dimensions.FONT_SIZE_SMALL),
-                                  ),
-                                ),
+                                todayOrder != ""
+                                    ? Text(
+                                        "$todayOrder + $orderCount",
+                                        style: const TextStyle(
+                                            fontFamily: 'MontserratBold',
+                                            color: kTextColor,
+                                            fontSize:
+                                                Dimensions.FONT_SIZE_SMALL),
+                                      )
+                                    : Obx(
+                                        () => Text(
+                                          "${authCon.today_order} + $orderCount",
+                                          style: const TextStyle(
+                                              fontFamily: 'MontserratBold',
+                                              color: kTextColor,
+                                              fontSize:
+                                                  Dimensions.FONT_SIZE_SMALL),
+                                        ),
+                                      ),
                                 const SizedBox(
                                     height:
                                         Dimensions.PADDING_SIZE_EXTRA_SMALL),
-                                Obx(
-                                  () => Text(
-                                    "${totalOrders != "" ? totalOrders : authCon.total_order} + $orderCount",
-                                    style: const TextStyle(
-                                        fontFamily: 'MontserratBold',
-                                        color: kTextColor,
-                                        fontSize: Dimensions.FONT_SIZE_SMALL),
-                                  ),
-                                ),
+                                totalOrders != ""
+                                    ? Text(
+                                        "$totalOrders + $orderCount",
+                                        style: const TextStyle(
+                                            fontFamily: 'MontserratBold',
+                                            color: kTextColor,
+                                            fontSize:
+                                                Dimensions.FONT_SIZE_SMALL),
+                                      )
+                                    : Obx(
+                                        () => Text(
+                                          "${authCon.total_order} + $orderCount",
+                                          style: const TextStyle(
+                                              fontFamily: 'MontserratBold',
+                                              color: kTextColor,
+                                              fontSize:
+                                                  Dimensions.FONT_SIZE_SMALL),
+                                        ),
+                                      ),
                                 const SizedBox(
                                     height:
                                         Dimensions.PADDING_SIZE_EXTRA_SMALL),
-                                Obx(
-                                  () => Text(
-                                    workDays != ""
-                                        ? workDays
-                                        : authCon.work_days.toString(),
-                                    style: const TextStyle(
-                                        fontFamily: 'MontserratBold',
-                                        color: kTextColor,
-                                        fontSize: Dimensions.FONT_SIZE_SMALL),
-                                  ),
-                                ),
+                                workDays != ""
+                                    ? Text(
+                                        workDays,
+                                        style: const TextStyle(
+                                            fontFamily: 'MontserratBold',
+                                            color: kTextColor,
+                                            fontSize:
+                                                Dimensions.FONT_SIZE_SMALL),
+                                      )
+                                    : Obx(
+                                        () => Text(
+                                          authCon.work_days.toString(),
+                                          style: const TextStyle(
+                                              fontFamily: 'MontserratBold',
+                                              color: kTextColor,
+                                              fontSize:
+                                                  Dimensions.FONT_SIZE_SMALL),
+                                        ),
+                                      ),
                                 const SizedBox(
                                     height:
                                         Dimensions.PADDING_SIZE_EXTRA_SMALL),
-                                Obx(
-                                  () => Text(
-                                    averageOrders != ""
-                                        ? averageOrders
-                                        : authCon.average_orders.toString(),
-                                    style: const TextStyle(
-                                        fontFamily: 'MontserratBold',
-                                        color: kTextColor,
-                                        fontSize: Dimensions.FONT_SIZE_SMALL),
-                                  ),
-                                ),
+                                averageOrders != ""
+                                    ? Text(
+                                        averageOrders,
+                                        style: const TextStyle(
+                                            fontFamily: 'MontserratBold',
+                                            color: kTextColor,
+                                            fontSize:
+                                                Dimensions.FONT_SIZE_SMALL),
+                                      )
+                                    : Obx(
+                                        () => Text(
+                                          authCon.average_orders.toString(),
+                                          style: const TextStyle(
+                                              fontFamily: 'MontserratBold',
+                                              color: kTextColor,
+                                              fontSize:
+                                                  Dimensions.FONT_SIZE_SMALL),
+                                        ),
+                                      ),
                               ],
                             ),
                           ],
@@ -875,206 +1033,124 @@ class HomeScreenState extends State<HomeScreen> {
                       ),
                       Obx(
                         () => homeController.orderAvailable == "1"
-                            ? Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                            ? Column(
                                 children: [
-                                  Column(
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      const Text(
-                                        "Add to Cart",
-                                        style: TextStyle(
-                                            fontFamily: 'MontserratBold',
-                                            color: kTextColor,
-                                            fontSize:
-                                                Dimensions.FONT_SIZE_LARGE),
-                                      ),
-                                      Row(
+                                      Column(
                                         children: [
-                                          InkWell(
-                                            onTap: () => homeController
-                                                .decreaseQuantity(),
-                                            child: Image.asset(
-                                              AppIcons.MINUS_REGTAGLE,
-                                              height: 30,
-                                            ),
+                                          const Text(
+                                            "Add to Cart",
+                                            style: TextStyle(
+                                                fontFamily: 'MontserratBold',
+                                                color: kTextColor,
+                                                fontSize:
+                                                    Dimensions.FONT_SIZE_LARGE),
                                           ),
-                                          const SizedBox(
-                                              width: Dimensions
-                                                  .PADDING_SIZE_SMALL),
-                                          Obx(
-                                            () => homeController.isLoading.value
-                                                ? const SizedBox(
-                                                    height: 40,
-                                                    width: 40,
-                                                    child:
-                                                        CupertinoActivityIndicator(
-                                                      color: Colors.white,
-                                                    ),
-                                                  )
-                                                : Container(
-                                                    height: 40,
-                                                    width: 40,
-                                                    alignment: Alignment.center,
-                                                    child: Text(
-                                                      homeController.quantity
-                                                          .toString(),
-                                                      style: const TextStyle(
-                                                        fontFamily:
-                                                            'MontserratBold',
-                                                        color: kWhiteColor,
-                                                        fontSize: Dimensions
-                                                            .FONT_SIZE_ULTRA_LARGE,
+                                          Row(
+                                            children: [
+                                              InkWell(
+                                                onTap: () => homeController
+                                                    .decreaseQuantity(),
+                                                child: Image.asset(
+                                                  AppIcons.MINUS_REGTAGLE,
+                                                  height: 30,
+                                                ),
+                                              ),
+                                              const SizedBox(
+                                                  width: Dimensions
+                                                      .PADDING_SIZE_SMALL),
+                                              Obx(
+                                                () => homeController
+                                                        .isLoading.value
+                                                    ? const SizedBox(
+                                                        height: 40,
+                                                        width: 40,
+                                                        child:
+                                                            CupertinoActivityIndicator(
+                                                          color: Colors.white,
+                                                        ),
+                                                      )
+                                                    : Container(
+                                                        height: 40,
+                                                        width: 40,
+                                                        alignment:
+                                                            Alignment.center,
+                                                        child: Text(
+                                                          homeController
+                                                              .quantity
+                                                              .toString(),
+                                                          style:
+                                                              const TextStyle(
+                                                            fontFamily:
+                                                                'MontserratBold',
+                                                            color: kWhiteColor,
+                                                            fontSize: Dimensions
+                                                                .FONT_SIZE_ULTRA_LARGE,
+                                                          ),
+                                                        ),
                                                       ),
-                                                    ),
-                                                  ),
-                                          ),
-                                          const SizedBox(
-                                              width: Dimensions
-                                                  .PADDING_SIZE_SMALL),
-                                          InkWell(
-                                            onTap: () => homeController
-                                                .increaseQuantity(),
-                                            child: Image.asset(
-                                              AppIcons.PIUSE_REGTAGLE,
-                                              height: 30,
-                                            ),
+                                              ),
+                                              const SizedBox(
+                                                  width: Dimensions
+                                                      .PADDING_SIZE_SMALL),
+                                              InkWell(
+                                                onTap: () => homeController
+                                                    .increaseQuantity(),
+                                                child: Image.asset(
+                                                  AppIcons.PIUSE_REGTAGLE,
+                                                  height: 30,
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ),
-                                    ],
-                                  ),
-                                  const SizedBox(
-                                      width:
-                                          Dimensions.PADDING_SIZE_EXTRA_SMALL),
-                                  InkWell(
-                                    onTap: () {
-                                      setState(() {
-                                        isConfirm = true;
-                                      });
-                                      Timer(const Duration(seconds: 3),
-                                          () async {
-                                        if (qtySold ==
-                                            homeController.quantity
-                                                .toString()) {
-                                          debugPrint(
-                                              'qtySold == homeController.quantity');
-                                          debugPrint('qtySold:$qtySold');
-                                          debugPrint(
-                                              'homeController.quantity:${homeController.quantity}');
+                                      const SizedBox(
+                                          width: Dimensions
+                                              .PADDING_SIZE_EXTRA_SMALL),
+                                      InkWell(
+                                        onTap: () {
                                           setState(() {
-                                            enablePlaceOrder = true;
+                                            isConfirm = true;
                                           });
-                                        } else {
-                                          debugPrint(
-                                              'qtySold != homeController.quantity');
-                                          debugPrint('qtySold:$qtySold');
-                                          debugPrint(
-                                              'homeController.quantity:${homeController.quantity.value}');
-                                          setState(() {
-                                            enablePlaceOrder = false;
-                                          });
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            const SnackBar(
-                                              content: Text(
-                                                "Please correct your Quantity.",
-                                              ),
-                                              duration: Duration(seconds: 2),
-                                              backgroundColor: kPurpleColor,
-                                              behavior: SnackBarBehavior
-                                                  .floating, // Add this line
-                                              margin: EdgeInsets.only(
-                                                  bottom: 10,
-                                                  left: 15,
-                                                  right: 15),
-                                            ),
-                                          );
-                                        }
-                                        setState(() {
-                                          isConfirm = false;
-                                        });
-                                      });
-                                    },
-                                    child: Container(
-                                      height: Dimensions.BUTTON_HEIGHT,
-                                      width: size.width * 0.36,
-                                      decoration: BoxDecoration(
-                                        // color: Colors.grey,
-                                        gradient: const LinearGradient(
-                                          colors: [
-                                            Color(0xFF569DAA),
-                                            Color(0xFF0A4D68),
-                                          ],
-                                        ),
-                                        border: const Border(
-                                          bottom: BorderSide(
-                                            color: Color(0xFF0A3648),
-                                            width: 4.0,
-                                          ),
-                                          right: BorderSide(
-                                            color: Color(0xFF0A3648),
-                                            width: 2.0,
-                                          ),
-                                        ),
-                                        borderRadius:
-                                            BorderRadius.circular(1000),
-                                      ),
-                                      alignment: Alignment.center,
-                                      child: isConfirm == true
-                                          ? const CupertinoActivityIndicator(
-                                              color: Colors.white,
-                                            )
-                                          : const Text(
-                                              "Confirm",
-                                              style: TextStyle(
-                                                  fontFamily: 'MontserratBold',
-                                                  color: Colors.white,
-                                                  fontSize: Dimensions
-                                                      .FONT_SIZE_DEFAULT),
-                                            ),
-                                    ),
-                                  ),
-                                ],
-                              )
-                            : Container(),
-                      ),
-                      Obx(
-                        () => homeController.orderAvailable == "1"
-                            ? const SizedBox(
-                                height: Dimensions.PADDING_SIZE_SMALL)
-                            : Container(),
-                      ),
-                      Obx(
-                        () => homeController.orderAvailable == "1"
-                            ? InkWell(
-                                onTap: enablePlaceOrder == true
-                                    ? (int.parse(todayOrder != ""
-                                                ? todayOrder
-                                                : authCon.today_order
-                                                    .toString()) >=
-                                            int.parse(averageOrders != ""
-                                                ? averageOrders
-                                                : authCon.average_orders
-                                                    .toString()))
-                                        ? () {
-                                            setState(() {
-                                              enablePlaceOrder = false;
-                                              isPlaceOrder = true;
-                                            });
-                                            // setState(() {
-                                            //   isPlaceOrder = true;
-                                            // });
-                                            Timer(const Duration(seconds: 4),
-                                                () {
+                                          Timer(const Duration(seconds: 3),
+                                              () async {
+                                            if (int.parse(qtySold) ==
+                                                int.parse(homeController
+                                                    .quantity
+                                                    .toString())) {
+                                              debugPrint(
+                                                  'qtySold == homeController.quantity');
+                                              debugPrint('qtySold:$qtySold');
+                                              debugPrint(
+                                                  'homeController.quantity:${homeController.quantity}');
                                               setState(() {
-                                                isPlaceOrder = false;
+                                                homeController.enablePlaceOrder
+                                                    .value = true;
+                                                debugPrint(
+                                                    'homeController.enablePlaceOrder.value:$homeController.enablePlaceOrder.value');
+                                              });
+                                            } else {
+                                              debugPrint(
+                                                  'qtySold != homeController.quantity');
+                                              debugPrint('qtySold:$qtySold');
+                                              debugPrint(
+                                                  'homeController.quantity:${homeController.quantity.value}');
+                                              setState(() {
+                                                homeController.enablePlaceOrder
+                                                    .value = false;
                                               });
                                               ScaffoldMessenger.of(context)
                                                   .showSnackBar(
                                                 const SnackBar(
+                                                  content: Text(
+                                                    "Please correct your Quantity.",
+                                                  ),
                                                   duration:
-                                                      Duration(seconds: 3),
+                                                      Duration(seconds: 2),
                                                   backgroundColor: kPurpleColor,
                                                   behavior: SnackBarBehavior
                                                       .floating, // Add this line
@@ -1082,213 +1158,379 @@ class HomeScreenState extends State<HomeScreen> {
                                                       bottom: 10,
                                                       left: 15,
                                                       right: 15),
-                                                  content: Text(
-                                                    'You have completed today orders',
-                                                    style: TextStyle(
+                                                ),
+                                              );
+                                            }
+                                            setState(() {
+                                              isConfirm = false;
+                                            });
+                                          });
+                                        },
+                                        child: Container(
+                                          height: Dimensions.BUTTON_HEIGHT,
+                                          width: size.width * 0.36,
+                                          decoration: BoxDecoration(
+                                            // color: Colors.grey,
+                                            gradient: const LinearGradient(
+                                              colors: [
+                                                Color(0xFF569DAA),
+                                                Color(0xFF0A4D68),
+                                              ],
+                                            ),
+                                            border: const Border(
+                                              bottom: BorderSide(
+                                                color: Color(0xFF0A3648),
+                                                width: 4.0,
+                                              ),
+                                              right: BorderSide(
+                                                color: Color(0xFF0A3648),
+                                                width: 2.0,
+                                              ),
+                                            ),
+                                            borderRadius:
+                                                BorderRadius.circular(1000),
+                                          ),
+                                          alignment: Alignment.center,
+                                          child: isConfirm == true
+                                              ? const CupertinoActivityIndicator(
+                                                  color: Colors.white,
+                                                )
+                                              : const Text(
+                                                  "Confirm",
+                                                  style: TextStyle(
                                                       fontFamily:
                                                           'MontserratBold',
                                                       color: Colors.white,
                                                       fontSize: Dimensions
-                                                          .FONT_SIZE_DEFAULT,
-                                                    ),
-                                                  ),
+                                                          .FONT_SIZE_DEFAULT),
                                                 ),
-                                              );
-                                              resetValue();
-                                              productEan = homeController
-                                                  .generateRandomNineDigitNumber()
-                                                  .toString();
-                                            });
-                                          }
-                                        : () {
-                                            setState(() {
-                                              enablePlaceOrder = false;
-                                              isPlaceOrder = true;
-                                            });
-                                            Timer(
-                                                const Duration(seconds: 4),
-                                                orderCount >= 100
-                                                    ? () {
-                                                        setState(() {
-                                                          isPlaceOrder = false;
-                                                        });
-                                                        ScaffoldMessenger.of(
-                                                                context)
-                                                            .showSnackBar(
-                                                          const SnackBar(
-                                                            duration: Duration(
-                                                                seconds: 3),
-                                                            backgroundColor:
-                                                                kPurpleColor,
-                                                            behavior:
-                                                                SnackBarBehavior
-                                                                    .floating, // Add this line
-                                                            margin:
-                                                                EdgeInsets.only(
-                                                                    bottom: 10,
-                                                                    left: 15,
-                                                                    right: 15),
-                                                            content: Text(
-                                                              'Sync Now Try Again...',
-                                                              style: TextStyle(
-                                                                fontFamily:
-                                                                    'MontserratBold',
-                                                                color: Colors
-                                                                    .white,
-                                                                fontSize: Dimensions
-                                                                    .FONT_SIZE_DEFAULT,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        );
-                                                        resetValue();
-                                                        productEan = homeController
-                                                            .generateRandomNineDigitNumber()
-                                                            .toString();
-                                                      }
-                                                    : () {
-                                                        homeController
-                                                            .todayOrders();
-                                                        // multiplyCostValue =
-                                                        //     orderCount *
-                                                        //         double.parse(authCon
-                                                        //             .orders_cost
-                                                        //             .toString());
-                                                        setState(() {
-                                                          isPlaceOrder = false;
-                                                          orderCount++;
-                                                          // progressPercentage = (orderCount / maximumValue);
-                                                          print(
-                                                              'orderCount called $orderCount times.');
-                                                          debugPrint(
-                                                              "timerCount: $orderCount");
-                                                          if (orderCount <=
-                                                              99) {
-                                                            // orderCount=99;
-                                                            progressPercentage =
-                                                                (orderCount /
-                                                                    maximumValue);
-                                                            print(
-                                                                'progressPercentage $progressPercentage times.');
-                                                            isClaimButtonDisabled =
-                                                                true; // Disable the button
-                                                          } else if (orderCount >
-                                                              99) {
-                                                            // syncUniqueId = homeController.generateRandomSixDigitNumber();
-                                                            // debugPrint("syncUniqueId: $syncUniqueId");
-                                                            // orderCount = 0;
-                                                            progressPercentage =
-                                                                (orderCount /
-                                                                    maximumValue);
-                                                            isClaimButtonDisabled =
-                                                                false; // Disable the button
-                                                            // orderCount = 0;
-                                                          } else if (orderCount >
-                                                              100) {
-                                                            progressPercentage =
-                                                                0.0;
-                                                            isClaimButtonDisabled =
-                                                                false; // Enable the button
-                                                            orderCount = 0;
-                                                          }
-                                                          saveOrderCount(
-                                                              orderCount);
-                                                        });
-                                                        ScaffoldMessenger.of(
-                                                                context)
-                                                            .showSnackBar(
-                                                          SnackBar(
-                                                            duration:
-                                                                const Duration(
-                                                                    seconds: 3),
-                                                            backgroundColor:
-                                                                kPurpleColor,
-                                                            behavior:
-                                                                SnackBarBehavior
-                                                                    .floating, // Add this line
-                                                            margin:
-                                                                const EdgeInsets
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(
+                                      height: Dimensions.PADDING_SIZE_SMALL),
+                                  InkWell(
+                                    onTap: homeController
+                                                .enablePlaceOrder.value ==
+                                            true
+                                        ? (int.parse(authCon.today_order
+                                                    .toString()) <
+                                                int.parse(authCon.average_orders
+                                                    .toString()))
+                                            // ? (int.parse(homeController
+                                            // .todayOrder.value !=
+                                            // ""
+                                            // ? homeController.todayOrder
+                                            // .toString()
+                                            // : authCon.today_order
+                                            // .toString()) >=
+                                            // int.parse(homeController
+                                            //     .averageOrders.value !=
+                                            //     ""
+                                            //     ? homeController.averageOrders
+                                            //     .toString()
+                                            //     : authCon.average_orders
+                                            //     .toString()))
+                                            ? () {
+                                                setState(() {
+                                                  homeController
+                                                      .enablePlaceOrder
+                                                      .value = false;
+                                                  isPlaceOrder = true;
+                                                });
+                                                Timer(
+                                                    const Duration(seconds: 4),
+                                                    orderCount >= 100
+                                                        ? () {
+                                                            setState(() {
+                                                              isPlaceOrder =
+                                                                  false;
+                                                            });
+                                                            ScaffoldMessenger
+                                                                    .of(context)
+                                                                .showSnackBar(
+                                                              const SnackBar(
+                                                                duration:
+                                                                    Duration(
+                                                                        seconds:
+                                                                            3),
+                                                                backgroundColor:
+                                                                    kPurpleColor,
+                                                                behavior:
+                                                                    SnackBarBehavior
+                                                                        .floating, // Add this line
+                                                                margin: EdgeInsets
                                                                     .only(
-                                                                    bottom: 10,
-                                                                    left: 15,
-                                                                    right: 15),
-                                                            content: RichText(
-                                                              text:
-                                                                  const TextSpan(
-                                                                style:
-                                                                    TextStyle(
-                                                                  fontFamily:
-                                                                      'MontserratBold',
-                                                                  color: Colors
-                                                                      .white,
-                                                                  fontSize:
-                                                                      Dimensions
-                                                                          .FONT_SIZE_DEFAULT,
-                                                                ),
-                                                                children: [
-                                                                  TextSpan(
-                                                                    text:
-                                                                        'Order Placed Successfully ',
+                                                                        bottom:
+                                                                            10,
+                                                                        left:
+                                                                            15,
+                                                                        right:
+                                                                            15),
+                                                                content: Text(
+                                                                  'Sync Now Try Again...',
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontFamily:
+                                                                        'MontserratBold',
+                                                                    color: Colors
+                                                                        .white,
+                                                                    fontSize:
+                                                                        Dimensions
+                                                                            .FONT_SIZE_DEFAULT,
                                                                   ),
-                                                                  TextSpan(
-                                                                    text: '✔️',
+                                                                ),
+                                                              ),
+                                                            );
+                                                            resetValue();
+                                                            productEan =
+                                                                homeController
+                                                                    .generateRandomNineDigitNumber()
+                                                                    .toString();
+                                                          }
+                                                        : () {
+                                                            homeController
+                                                                .todayOrders();
+                                                            // multiplyCostValue =
+                                                            //     orderCount *
+                                                            //         double.parse(authCon
+                                                            //             .orders_cost
+                                                            //             .toString());
+                                                            setState(() {
+                                                              isPlaceOrder =
+                                                                  false;
+                                                              orderCount++;
+                                                              // progressPercentage = (orderCount / maximumValue);
+                                                              print(
+                                                                  'orderCount called $orderCount times.');
+                                                              debugPrint(
+                                                                  "timerCount: $orderCount");
+                                                              totalQtySold = int.parse(
+                                                                      homeController
+                                                                          .quantity
+                                                                          .toString()) +
+                                                                  totalQtySold;
+                                                              debugPrint(
+                                                                  "totalQtySold: $totalQtySold");
+                                                              if (orderCount <=
+                                                                  99) {
+                                                                // orderCount=99;
+                                                                progressPercentage =
+                                                                    (orderCount /
+                                                                        maximumValue);
+                                                                print(
+                                                                    'progressPercentage $progressPercentage times.');
+                                                                isClaimButtonDisabled =
+                                                                    true; // Disable the button
+                                                              } else if (orderCount >
+                                                                  99) {
+                                                                // syncUniqueId = homeController.generateRandomSixDigitNumber();
+                                                                // debugPrint("syncUniqueId: $syncUniqueId");
+                                                                // orderCount = 0;
+                                                                progressPercentage =
+                                                                    (orderCount /
+                                                                        maximumValue);
+                                                                isClaimButtonDisabled =
+                                                                    false; // Disable the button
+                                                                // orderCount = 0;
+                                                              } else if (orderCount >
+                                                                  100) {
+                                                                progressPercentage =
+                                                                    0.0;
+                                                                isClaimButtonDisabled =
+                                                                    false; // Enable the button
+                                                                orderCount = 0;
+                                                              }
+                                                              saveOrderCount(
+                                                                  orderCount,
+                                                                  totalQtySold,
+                                                                  progressPercentage);
+                                                            });
+                                                            ScaffoldMessenger
+                                                                    .of(context)
+                                                                .showSnackBar(
+                                                              SnackBar(
+                                                                duration:
+                                                                    const Duration(
+                                                                        seconds:
+                                                                            3),
+                                                                backgroundColor:
+                                                                    kPurpleColor,
+                                                                behavior:
+                                                                    SnackBarBehavior
+                                                                        .floating, // Add this line
+                                                                margin:
+                                                                    const EdgeInsets
+                                                                        .only(
+                                                                        bottom:
+                                                                            10,
+                                                                        left:
+                                                                            15,
+                                                                        right:
+                                                                            15),
+                                                                content:
+                                                                    RichText(
+                                                                  text:
+                                                                      const TextSpan(
                                                                     style:
                                                                         TextStyle(
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
+                                                                      fontFamily:
+                                                                          'MontserratBold',
                                                                       color: Colors
-                                                                          .green,
+                                                                          .white,
                                                                       fontSize:
-                                                                          20,
+                                                                          Dimensions
+                                                                              .FONT_SIZE_DEFAULT,
                                                                     ),
+                                                                    children: [
+                                                                      TextSpan(
+                                                                        text:
+                                                                            'Order Placed Successfully ',
+                                                                      ),
+                                                                      TextSpan(
+                                                                        text:
+                                                                            '✔️',
+                                                                        style:
+                                                                            TextStyle(
+                                                                          fontWeight:
+                                                                              FontWeight.bold,
+                                                                          color:
+                                                                              Colors.green,
+                                                                          fontSize:
+                                                                              20,
+                                                                        ),
+                                                                      ),
+                                                                    ],
                                                                   ),
-                                                                ],
+                                                                ),
                                                               ),
-                                                            ),
-                                                          ),
-                                                        );
-                                                        resetValue();
-                                                        productEan = homeController
-                                                            .generateRandomNineDigitNumber()
-                                                            .toString();
-                                                      });
-                                          }
-                                    : () {},
-                                child: Container(
-                                  height: Dimensions.BUTTON_HEIGHT,
-                                  width: size.width,
-                                  // decoration: enablePlaceOrder == true
-                                  decoration:  enablePlaceOrder == true
-                                          ? (int.parse(todayOrder != ""
-                                      ? todayOrder
-                                      : authCon.today_order
-                                      .toString()) <=
-                                      int.parse(averageOrders != ""
-                                          ? averageOrders
-                                          : authCon.average_orders
-                                          .toString()))
-                                      ? BoxDecoration(
-                                              color: kPrimaryColor,
-                                              gradient: const LinearGradient(
-                                                colors: [
-                                                  Colors.deepOrange,
-                                                  Colors.pink
-                                                ],
-                                              ),
-                                              border: Border(
-                                                bottom: BorderSide(
-                                                  color: Colors.pink.shade900,
-                                                  width: 4.0,
-                                                ),
-                                                right: BorderSide(
-                                                  color: Colors.pink.shade900,
-                                                  width: 1.0,
-                                                ),
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(1000),
-                                            )
+                                                            );
+                                                            resetValue();
+                                                            productEan =
+                                                                homeController
+                                                                    .generateRandomNineDigitNumber()
+                                                                    .toString();
+                                                          });
+                                              }
+                                            : () {
+                                                setState(() {
+                                                  homeController
+                                                      .enablePlaceOrder
+                                                      .value = false;
+                                                  isPlaceOrder = true;
+                                                });
+                                                // setState(() {
+                                                //   isPlaceOrder = true;
+                                                // });
+                                                Timer(
+                                                    const Duration(seconds: 4),
+                                                    () {
+                                                  setState(() {
+                                                    isPlaceOrder = false;
+                                                  });
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    const SnackBar(
+                                                      duration:
+                                                          Duration(seconds: 3),
+                                                      backgroundColor:
+                                                          kPurpleColor,
+                                                      behavior: SnackBarBehavior
+                                                          .floating, // Add this line
+                                                      margin: EdgeInsets.only(
+                                                          bottom: 10,
+                                                          left: 15,
+                                                          right: 15),
+                                                      content: Text(
+                                                        'You have completed today orders',
+                                                        style: TextStyle(
+                                                          fontFamily:
+                                                              'MontserratBold',
+                                                          color: Colors.white,
+                                                          fontSize: Dimensions
+                                                              .FONT_SIZE_DEFAULT,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  );
+                                                  resetValue();
+                                                  productEan = homeController
+                                                      .generateRandomNineDigitNumber()
+                                                      .toString();
+                                                });
+                                              }
+                                        : () {},
+                                    child: Container(
+                                      height: Dimensions.BUTTON_HEIGHT,
+                                      width: size.width,
+                                      // decoration: homeController.enablePlaceOrder.value == true
+                                      decoration: homeController
+                                                  .enablePlaceOrder.value ==
+                                              true
+                                          ? (int.parse(authCon.today_order
+                                                      .toString()) >=
+                                                  int.parse(authCon
+                                                      .average_orders
+                                                      .toString()))
+                                              // ? (int.parse(homeController
+                                              // .todayOrder.value !=
+                                              // ""
+                                              // ? homeController.todayOrder
+                                              // .toString()
+                                              // : authCon.today_order
+                                              // .toString()) >=
+                                              // int.parse(homeController
+                                              //     .averageOrders
+                                              //     .value !=
+                                              //     ""
+                                              //     ? homeController.averageOrders
+                                              //     .toString()
+                                              //     : authCon.average_orders
+                                              //     .toString()))
+                                              ? BoxDecoration(
+                                                  color: Colors.grey,
+                                                  border: Border(
+                                                    bottom: BorderSide(
+                                                      color:
+                                                          Colors.grey.shade900,
+                                                      width: 4.0,
+                                                    ),
+                                                    right: BorderSide(
+                                                      color:
+                                                          Colors.grey.shade900,
+                                                      width: 1.0,
+                                                    ),
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          1000),
+                                                )
+                                              : BoxDecoration(
+                                                  color: kPrimaryColor,
+                                                  gradient:
+                                                      const LinearGradient(
+                                                    colors: [
+                                                      Colors.deepOrange,
+                                                      Colors.pink
+                                                    ],
+                                                  ),
+                                                  border: Border(
+                                                    bottom: BorderSide(
+                                                      color:
+                                                          Colors.pink.shade900,
+                                                      width: 4.0,
+                                                    ),
+                                                    right: BorderSide(
+                                                      color:
+                                                          Colors.pink.shade900,
+                                                      width: 1.0,
+                                                    ),
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          1000),
+                                                )
                                           : BoxDecoration(
                                               color: Colors.grey,
                                               border: Border(
@@ -1303,36 +1545,27 @@ class HomeScreenState extends State<HomeScreen> {
                                               ),
                                               borderRadius:
                                                   BorderRadius.circular(1000),
-                                            )
-                                      : BoxDecoration(
-                                          color: Colors.grey,
-                                          border: Border(
-                                            bottom: BorderSide(
-                                              color: Colors.grey.shade900,
-                                              width: 4.0,
                                             ),
-                                            right: BorderSide(
-                                              color: Colors.grey.shade900,
-                                              width: 1.0,
-                                            ),
-                                          ),
-                                          borderRadius:
-                                              BorderRadius.circular(1000),
-                                        ),
-                                  alignment: Alignment.center,
-                                  child: (int.parse(todayOrder != ""
-                                              ? todayOrder
-                                              : authCon.today_order
-                                                  .toString()) <=
-                                          int.parse(averageOrders != ""
-                                              ? averageOrders
-                                              : authCon.average_orders
+                                      alignment: Alignment.center,
+                                      child: (int.parse(authCon.today_order
+                                                  .toString()) >=
+                                              int.parse(authCon.average_orders
                                                   .toString()))
-                                      ? isPlaceOrder == true
-                                          ? const CupertinoActivityIndicator(
-                                              color: Colors.white,
-                                            )
-                                          : const Text(
+                                          // child: (int.parse(
+                                          //     homeController.todayOrder.value !=
+                                          //         ""
+                                          //         ? homeController.todayOrder
+                                          //         .toString()
+                                          //         : authCon.today_order
+                                          //         .toString()) >=
+                                          //     int.parse(homeController
+                                          //         .averageOrders.value !=
+                                          //         ""
+                                          //         ? homeController.averageOrders
+                                          //         .toString()
+                                          //         : authCon.average_orders
+                                          //         .toString()))
+                                          ? const Text(
                                               "Place Order",
                                               style: TextStyle(
                                                   fontFamily: 'MontserratBold',
@@ -1340,15 +1573,22 @@ class HomeScreenState extends State<HomeScreen> {
                                                   fontSize: Dimensions
                                                       .FONT_SIZE_DEFAULT),
                                             )
-                                      : const Text(
-                                          "Place Order",
-                                          style: TextStyle(
-                                              fontFamily: 'MontserratBold',
-                                              color: Colors.white,
-                                              fontSize:
-                                                  Dimensions.FONT_SIZE_DEFAULT),
-                                        ),
-                                ),
+                                          : isPlaceOrder == true
+                                              ? const CupertinoActivityIndicator(
+                                                  color: Colors.white,
+                                                )
+                                              : const Text(
+                                                  "Place Order",
+                                                  style: TextStyle(
+                                                      fontFamily:
+                                                          'MontserratBold',
+                                                      color: Colors.white,
+                                                      fontSize: Dimensions
+                                                          .FONT_SIZE_DEFAULT),
+                                                ),
+                                    ),
+                                  ),
+                                ],
                               )
                             : Container(),
                       ),
