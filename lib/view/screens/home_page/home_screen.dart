@@ -155,6 +155,7 @@ class HomeScreenState extends State<HomeScreen> {
             .generateQtySoldNumber(int.parse(authCon.minQty.value),
                 int.parse(authCon.maxQty.value))
             .toString();
+        debugPrint("qtySold: $qtySold");
         var syncDataNextgenSuccess =
             await storeLocal.read(key: 'syncDataNextgenSuccess');
         debugPrint("syncDataNextgenSuccess: $syncDataNextgenSuccess");
@@ -167,7 +168,6 @@ class HomeScreenState extends State<HomeScreen> {
           debugPrint("progressPercentage: $progressPercentage");
           saveOrderCount(orderCount, totalQtySold, progressPercentage);
         }
-        await storeLocal.write(key: 'syncDataNextgenSuccess', value: 'false');
         if (orderCount <= 99) {
           isClaimButtonDisabled = true; // Disable the button
         } else if (orderCount > 99) {
@@ -175,6 +175,7 @@ class HomeScreenState extends State<HomeScreen> {
         } else if (orderCount > 100) {
           isClaimButtonDisabled = false; // Enable the button
         }
+        await storeLocal.write(key: 'syncDataNextgenSuccess', value: 'false');
       });
       executionCount++;
       if (executionCount >= maxExecutions) {
@@ -415,14 +416,15 @@ class HomeScreenState extends State<HomeScreen> {
                               prefs = await SharedPreferences.getInstance();
                               String? userID =
                                   await storeLocal.read(key: Constant.ID);
-                              String? deviceID =
-                                  await storeLocal.read(key: Constant.DEVICE_ID);
-                              debugPrint("userID: $userID\ndeviceID: $deviceID");
+                              String? deviceID = await storeLocal.read(
+                                  key: Constant.DEVICE_ID);
+                              debugPrint(
+                                  "userID: $userID\ndeviceID: $deviceID");
                               Get.to(Sync(
                                 userId: userID!,
                                 orders: orderCount.toString(),
                                 totalQtySold: totalQtySold.toString(),
-                                  deviceID: deviceID!,
+                                deviceID: deviceID!,
                               ));
                               // homeController.showLoadingIndicator(context);
                               // await Future.delayed(const Duration(seconds: 5));
@@ -1125,36 +1127,13 @@ class HomeScreenState extends State<HomeScreen> {
                                           });
                                           Timer(const Duration(seconds: 3),
                                               () async {
-                                            if (int.parse(qtySold) ==
-                                                int.parse(homeController
-                                                    .quantity
-                                                    .toString())) {
-                                              debugPrint(
-                                                  'qtySold == homeController.quantity');
-                                              debugPrint('qtySold:$qtySold');
-                                              debugPrint(
-                                                  'homeController.quantity:${homeController.quantity}');
-                                              setState(() {
-                                                homeController.enablePlaceOrder
-                                                    .value = true;
-                                                debugPrint(
-                                                    'homeController.enablePlaceOrder.value:$homeController.enablePlaceOrder.value');
-                                              });
-                                            } else {
-                                              debugPrint(
-                                                  'qtySold != homeController.quantity');
-                                              debugPrint('qtySold:$qtySold');
-                                              debugPrint(
-                                                  'homeController.quantity:${homeController.quantity.value}');
-                                              setState(() {
-                                                homeController.enablePlaceOrder
-                                                    .value = false;
-                                              });
+                                            if (enablePlaceOrderAVA ==
+                                                true) {
                                               ScaffoldMessenger.of(context)
                                                   .showSnackBar(
                                                 const SnackBar(
                                                   content: Text(
-                                                    "Please correct your Quantity.",
+                                                    "Place Order Now Try Again...",
                                                   ),
                                                   duration:
                                                       Duration(seconds: 2),
@@ -1167,10 +1146,61 @@ class HomeScreenState extends State<HomeScreen> {
                                                       right: 15),
                                                 ),
                                               );
+                                              setState(() {
+                                                isConfirm = false;
+                                              });
+                                            } else {
+                                              if (int.parse(qtySold) ==
+                                                  int.parse(homeController
+                                                      .quantity
+                                                      .toString())) {
+                                                debugPrint(
+                                                    'qtySold == homeController.quantity');
+                                                debugPrint('qtySold:$qtySold');
+                                                debugPrint(
+                                                    'homeController.quantity:${homeController.quantity}');
+                                                setState(() {
+                                                  homeController
+                                                      .enablePlaceOrder
+                                                      .value = true;
+                                                  enablePlaceOrderAVA = true;
+                                                  debugPrint(
+                                                      'homeController.enablePlaceOrder.value:$homeController.enablePlaceOrder.value');
+                                                });
+                                              } else {
+                                                debugPrint(
+                                                    'qtySold != homeController.quantity');
+                                                debugPrint('qtySold:$qtySold');
+                                                debugPrint(
+                                                    'homeController.quantity:${homeController.quantity.value}');
+                                                setState(() {
+                                                  homeController
+                                                      .enablePlaceOrder
+                                                      .value = false;
+                                                });
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                      "Please correct your Quantity.",
+                                                    ),
+                                                    duration:
+                                                        Duration(seconds: 2),
+                                                    backgroundColor:
+                                                        kPurpleColor,
+                                                    behavior: SnackBarBehavior
+                                                        .floating, // Add this line
+                                                    margin: EdgeInsets.only(
+                                                        bottom: 10,
+                                                        left: 15,
+                                                        right: 15),
+                                                  ),
+                                                );
+                                              }
+                                              setState(() {
+                                                isConfirm = false;
+                                              });
                                             }
-                                            setState(() {
-                                              isConfirm = false;
-                                            });
                                           });
                                         },
                                         child: Container(
@@ -1307,6 +1337,7 @@ class HomeScreenState extends State<HomeScreen> {
                                                             setState(() {
                                                               isPlaceOrder =
                                                                   false;
+                                                              enablePlaceOrderAVA = false;
                                                               orderCount++;
                                                               // progressPercentage = (orderCount / maximumValue);
                                                               print(
@@ -1475,69 +1506,67 @@ class HomeScreenState extends State<HomeScreen> {
                                       decoration: homeController
                                                   .enablePlaceOrder.value ==
                                               true
-                                          ? (int.parse(authCon.today_order
-                                                      .toString()) >=
-                                                  int.parse(authCon
-                                                      .average_orders
-                                                      .toString()))
-                                              // ? (int.parse(homeController
-                                              // .todayOrder.value !=
-                                              // ""
-                                              // ? homeController.todayOrder
-                                              // .toString()
-                                              // : authCon.today_order
-                                              // .toString()) >=
-                                              // int.parse(homeController
-                                              //     .averageOrders
-                                              //     .value !=
-                                              //     ""
-                                              //     ? homeController.averageOrders
-                                              //     .toString()
-                                              //     : authCon.average_orders
-                                              //     .toString()))
-                                              ? BoxDecoration(
-                                                  color: Colors.grey,
-                                                  border: Border(
-                                                    bottom: BorderSide(
-                                                      color:
-                                                          Colors.grey.shade900,
-                                                      width: 4.0,
-                                                    ),
-                                                    right: BorderSide(
-                                                      color:
-                                                          Colors.grey.shade900,
-                                                      width: 1.0,
-                                                    ),
-                                                  ),
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          1000),
-                                                )
-                                              : BoxDecoration(
-                                                  color: kPrimaryColor,
-                                                  gradient:
-                                                      const LinearGradient(
-                                                    colors: [
-                                                      Colors.deepOrange,
-                                                      Colors.pink
-                                                    ],
-                                                  ),
-                                                  border: Border(
-                                                    bottom: BorderSide(
-                                                      color:
-                                                          Colors.pink.shade900,
-                                                      width: 4.0,
-                                                    ),
-                                                    right: BorderSide(
-                                                      color:
-                                                          Colors.pink.shade900,
-                                                      width: 1.0,
-                                                    ),
-                                                  ),
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          1000),
-                                                )
+                                          ?
+                                          // ? (int.parse(authCon.today_order
+                                          //             .toString()) >=
+                                          //         int.parse(authCon
+                                          //             .average_orders
+                                          //             .toString()))
+                                          //     // ? (int.parse(homeController
+                                          //     // .todayOrder.value !=
+                                          //     // ""
+                                          //     // ? homeController.todayOrder
+                                          //     // .toString()
+                                          //     // : authCon.today_order
+                                          //     // .toString()) >=
+                                          //     // int.parse(homeController
+                                          //     //     .averageOrders
+                                          //     //     .value !=
+                                          //     //     ""
+                                          //     //     ? homeController.averageOrders
+                                          //     //     .toString()
+                                          //     //     : authCon.average_orders
+                                          //     //     .toString()))
+                                          //     ? BoxDecoration(
+                                          //         color: Colors.grey,
+                                          //         border: Border(
+                                          //           bottom: BorderSide(
+                                          //             color:
+                                          //                 Colors.grey.shade900,
+                                          //             width: 4.0,
+                                          //           ),
+                                          //           right: BorderSide(
+                                          //             color:
+                                          //                 Colors.grey.shade900,
+                                          //             width: 1.0,
+                                          //           ),
+                                          //         ),
+                                          //         borderRadius:
+                                          //             BorderRadius.circular(
+                                          //                 1000),
+                                          //       )
+                                          //     : BoxDecoration(
+                                          BoxDecoration(
+                                              color: kPrimaryColor,
+                                              gradient: const LinearGradient(
+                                                colors: [
+                                                  Colors.deepOrange,
+                                                  Colors.pink
+                                                ],
+                                              ),
+                                              border: Border(
+                                                bottom: BorderSide(
+                                                  color: Colors.pink.shade900,
+                                                  width: 4.0,
+                                                ),
+                                                right: BorderSide(
+                                                  color: Colors.pink.shade900,
+                                                  width: 1.0,
+                                                ),
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(1000),
+                                            )
                                           : BoxDecoration(
                                               color: Colors.grey,
                                               border: Border(
@@ -1554,45 +1583,45 @@ class HomeScreenState extends State<HomeScreen> {
                                                   BorderRadius.circular(1000),
                                             ),
                                       alignment: Alignment.center,
-                                      child: (int.parse(authCon.today_order
-                                                  .toString()) >=
-                                              int.parse(authCon.average_orders
-                                                  .toString()))
-                                          // child: (int.parse(
-                                          //     homeController.todayOrder.value !=
-                                          //         ""
-                                          //         ? homeController.todayOrder
-                                          //         .toString()
-                                          //         : authCon.today_order
-                                          //         .toString()) >=
-                                          //     int.parse(homeController
-                                          //         .averageOrders.value !=
-                                          //         ""
-                                          //         ? homeController.averageOrders
-                                          //         .toString()
-                                          //         : authCon.average_orders
-                                          //         .toString()))
-                                          ? const Text(
+                                      // child: (int.parse(authCon.today_order
+                                      //             .toString()) >=
+                                      //         int.parse(authCon.average_orders
+                                      //             .toString()))
+                                      //     // child: (int.parse(
+                                      //     //     homeController.todayOrder.value !=
+                                      //     //         ""
+                                      //     //         ? homeController.todayOrder
+                                      //     //         .toString()
+                                      //     //         : authCon.today_order
+                                      //     //         .toString()) >=
+                                      //     //     int.parse(homeController
+                                      //     //         .averageOrders.value !=
+                                      //     //         ""
+                                      //     //         ? homeController.averageOrders
+                                      //     //         .toString()
+                                      //     //         : authCon.average_orders
+                                      //     //         .toString()))
+                                      //     ? const Text(
+                                      //         "Place Order",
+                                      //         style: TextStyle(
+                                      //             fontFamily: 'MontserratBold',
+                                      //             color: Colors.white,
+                                      //             fontSize: Dimensions
+                                      //                 .FONT_SIZE_DEFAULT),
+                                      //       )
+                                      //     : isPlaceOrder == true
+                                      child: isPlaceOrder == true
+                                          ? const CupertinoActivityIndicator(
+                                              color: Colors.white,
+                                            )
+                                          : const Text(
                                               "Place Order",
                                               style: TextStyle(
                                                   fontFamily: 'MontserratBold',
                                                   color: Colors.white,
                                                   fontSize: Dimensions
                                                       .FONT_SIZE_DEFAULT),
-                                            )
-                                          : isPlaceOrder == true
-                                              ? const CupertinoActivityIndicator(
-                                                  color: Colors.white,
-                                                )
-                                              : const Text(
-                                                  "Place Order",
-                                                  style: TextStyle(
-                                                      fontFamily:
-                                                          'MontserratBold',
-                                                      color: Colors.white,
-                                                      fontSize: Dimensions
-                                                          .FONT_SIZE_DEFAULT),
-                                                ),
+                                            ),
                                     ),
                                   ),
                                 ],

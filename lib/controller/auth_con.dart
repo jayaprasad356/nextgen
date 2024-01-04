@@ -60,9 +60,6 @@ class AuthCon extends GetxController implements GetxService {
     userDetailsAPI(userID);
     deviceID.value = (await storeLocal.read(key: Constant.DEVICE_ID))!;
     debugPrint('deviceID.value: ${deviceID.value}');
-    if (deviceID.value == '') {
-      logout();
-    }
   }
 
   void showLoadingIndicator(BuildContext context) {
@@ -315,6 +312,9 @@ class AuthCon extends GetxController implements GetxService {
         await storeLocal.write(key: Constant.OLD_PLAN, value: userDetail.data![0].oldPlan.toString());
         await storeLocal.write(key: Constant.PLAN, value: userDetail.data![0].plan.toString());
         update();
+      }
+      if (deviceID.value == '') {
+        logout();
       }
       if (userDetail.settings != null && userDetail.settings!.isNotEmpty) {
         vacancies.value = userDetail.settings![0].vacancies.toString();

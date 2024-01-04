@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:html' as html;
 
 // import 'package:color_challenge/test.dart';
 import 'package:nextgen/controller/auth_con.dart';
@@ -63,6 +64,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   print('A bg message just showed up :  ${message.messageId}');
 }
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -303,6 +305,7 @@ class _MyAppState extends State<MyApp> {
         }
       },
     );
+
   }
 
   String isOpenLap() {

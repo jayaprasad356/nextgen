@@ -87,6 +87,37 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     // setupSettings();
 
+    html.window.addEventListener('visibilitychange', (event) {
+      if (html.document.visibilityState == 'visible') {
+        // Tab is active
+        print('Tab is now active');
+        html.window.location.reload();
+        // Future.delayed(Duration(seconds: 2), () {
+        //   showDialog(
+        //     context: context,
+        //     builder: (BuildContext context) {
+        //       return AlertDialog(
+        //         title: Text("Welcome to Your App"),
+        //         content: Text("This is an automatic alert."),
+        //         actions: [
+        //           InkWell(
+        //             onTap: () {
+        //               Navigator.of(context).pop(); // Close the dialog
+        //             },
+        //             child: Text("OK"),
+        //           ),
+        //         ],
+        //       );
+        //     },
+        //   );
+        // });
+      } else {
+        // Tab is not active
+        print('Tab is now inactive');
+      }
+    });
+
+
     FirebaseMessaging.instance.getToken().then((token) {
       setState(() {
         _fcmToken = token!;
