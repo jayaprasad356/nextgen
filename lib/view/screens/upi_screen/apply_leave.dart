@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:nextgen/controller/profile_con.dart';
 import 'package:nextgen/controller/upi_controller.dart';
 import 'package:nextgen/util/Color.dart';
@@ -88,7 +89,7 @@ class _ApplyLeaveState extends State<ApplyLeave> {
               const SizedBox(
                 height: 20,
               ),
-              DateTextField(controller: dateController,color: kWhiteColor,borderColor: kPrimaryColor,startYear: 2000,endYear: 2050,),
+              DateTextField(controller: dateController,color: kWhiteColor,borderColor: kPrimaryColor,startYear: 2024,endYear: 2075,),
               const SizedBox(
                 height: 16,
               ),
@@ -123,11 +124,32 @@ class _ApplyLeaveState extends State<ApplyLeave> {
               ),
               MaterialButton(
                 onPressed: () async {
-                  debugPrint("dateController: ${dateController.text}\nreasonController.text: ${reasonController.text}");
-                  profileCon.applyLeave(dateController.text, reasonController.text);
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => ApplyLeave()),
-                  );
+                  DateTime today = DateTime.now().toLocal();
+                  int date = int.parse(DateFormat('dd').format(today));
+                  int month = int.parse(DateFormat('MM').format(today));
+                  int year = int.parse(DateFormat('yyyy').format(today));
+                  print("Today's date: $year/$month/$date");
+                  if("$year/$month/$date" == dateController.text) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          "Can't take leave today",
+                        ),
+                        duration: Duration(seconds: 2),
+                        backgroundColor: kPurpleColor,
+                        behavior: SnackBarBehavior.floating,
+                        // Add this line
+                        margin:
+                            EdgeInsets.only(bottom: 10, left: 15, right: 15),
+                      ),
+                    );
+                  } else {
+                    debugPrint("dateController: ${dateController.text}\nreasonController.text: ${reasonController.text}");
+                    profileCon.applyLeave(dateController.text, reasonController.text);
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (context) => ApplyLeave()),
+                    );
+                  }
                 },
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),

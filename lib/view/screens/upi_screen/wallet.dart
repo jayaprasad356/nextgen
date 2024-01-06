@@ -304,8 +304,11 @@ class _walletState extends State<wallet> {
                               ),
                             ),
                             MaterialButton(
-                              onPressed: () {
+                              onPressed: () async {
+                                authCon.showLoadingIndicator(context);
+                                await Future.delayed(const Duration(seconds: 5));
                                 walletCon.addToMainBalance('orders_earnings');
+                                authCon.hideLoadingIndicator(context);
                               },
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
@@ -436,8 +439,11 @@ class _walletState extends State<wallet> {
                               ),
                             ),
                             MaterialButton(
-                              onPressed: () {
+                              onPressed: () async {
+                                authCon.showLoadingIndicator(context);
+                              await Future.delayed(const Duration(seconds: 5));
                                 walletCon.addToMainBalance('hiring_earnings');
+                                authCon.hideLoadingIndicator(context);
                               },
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,

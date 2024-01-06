@@ -1,7 +1,7 @@
 {
   "hosting": {
-    "site": "next-gen-74543",
-//    "site": "next-gen-a052d",
+//    "site": "next-gen-74543",
+    "site": "next-gen-a052d",
     "public": "build/web",
     "ignore": [
       "firebase.json",
