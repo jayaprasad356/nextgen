@@ -72,7 +72,7 @@ class _NotificationsState extends State<Notifications> {
                 child: GestureDetector(
                     onTap: () {},
                     child: Card(
-                      color: colors.cc_velvet,
+                      color: colors.white,
                       margin: const EdgeInsets.only(
                            bottom: 5, top: 5),
                       child: Padding(
@@ -83,7 +83,7 @@ class _NotificationsState extends State<Notifications> {
                             Text(
                               notificationController.notificationData[index].title,
                               style: const TextStyle(
-                                color: colors.white,
+                                color: colors.black,
                                 fontFamily: 'MontserratBold',
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -94,8 +94,8 @@ class _NotificationsState extends State<Notifications> {
                             Text(
                               notificationController.notificationData[index].description,
                               style: const TextStyle(
-                                color: colors.white,
-                                fontFamily: 'MontserratLight',
+                                color: colors.black,
+                                fontFamily: 'MontserratMedium',
                                 fontSize:
                                     14, // You can adjust the font size as needed
                               ),
@@ -121,7 +121,7 @@ class _NotificationsState extends State<Notifications> {
                                     style: TextStyle(
                                         fontSize: 14,
                                         color: colors.white,
-                                        fontFamily: "MontserratLight")),
+                                        fontFamily: "MontserratMedium")),
                               ) : const SizedBox(),
                             SizedBox(height: (notificationController
                                 .notificationData[index].link.isNotEmpty)
@@ -129,8 +129,8 @@ class _NotificationsState extends State<Notifications> {
                             Text(
                               notificationController.notificationData[index].datetime,
                               style: const TextStyle(
-                                color: colors.white,
-                                fontFamily: 'MontserratLight',
+                                color: colors.black,
+                                fontFamily: 'MontserratMedium',
                                 fontSize:
                                     14, // You can adjust the font size as needed
                               ),

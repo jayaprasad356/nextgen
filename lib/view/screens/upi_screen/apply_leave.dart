@@ -133,7 +133,7 @@ class _ApplyLeaveState extends State<ApplyLeave> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text(
-                          "Can't take leave today",
+                          "You cannot take leave today. Try another date",
                         ),
                         duration: Duration(seconds: 2),
                         backgroundColor: kPurpleColor,

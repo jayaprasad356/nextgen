@@ -142,6 +142,9 @@ flutter:
     - family: MontserratBold
       fonts:
         - asset: assets/fonts/Montserrat-Bold.ttf
+    - family: MontserratMedium
+      fonts:
+        - asset: assets/fonts/Montserrat-Medium.ttf
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
