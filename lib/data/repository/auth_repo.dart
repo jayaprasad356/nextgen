@@ -58,6 +58,17 @@ class AuthRepo {
     );
   }
 
+  Future<Response> forgetPass(String email, String mobile, String password) async {
+    Map<String, String> body = {
+      'email': email,
+      'mobile': mobile,
+      'password': password,
+    };
+    return await apiClient.postData(
+        Constant.FORGET_PASS, body, {}
+    );
+  }
+
   Future<Response> userDetails(
       String userId,
       ) async {

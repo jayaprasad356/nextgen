@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter/widgets.dart';
 import 'package:nextgen/Helper/apiCall.dart';
 import 'package:nextgen/controller/auth_con.dart';
 import 'package:nextgen/controller/full_time_page_con.dart';
@@ -104,6 +105,7 @@ class HomeScreenState extends State<HomeScreen> {
   int maxQty = 1;
   int executionCount = 0;
   Timer? timer;
+  bool showActivityIndicator = true;
 
   @override
   void initState() {
@@ -133,6 +135,11 @@ class HomeScreenState extends State<HomeScreen> {
 
     // progressPercentageTwo = double.parse(reward_ads);
     // debugPrint("progressPercentageTwo : $progressPercentageTwo");
+    Future.delayed(const Duration(seconds: 4), () {
+      setState(() {
+        showActivityIndicator = false;
+      });
+    });
   }
 
   void handleAsyncInit() async {
@@ -370,6 +377,12 @@ class HomeScreenState extends State<HomeScreen> {
           .generateQtySoldNumber(
               int.parse(authCon.minQty.value), int.parse(authCon.maxQty.value))
           .toString();
+      showActivityIndicator = true;
+      Future.delayed(const Duration(seconds: 4), () {
+        setState(() {
+          showActivityIndicator = false;
+        });
+      });
     });
   }
 
@@ -647,16 +660,6 @@ class HomeScreenState extends State<HomeScreen> {
                                       color: kTextColor,
                                       fontSize: Dimensions.FONT_SIZE_SMALL),
                                 ),
-                                SizedBox(
-                                    height:
-                                        Dimensions.PADDING_SIZE_EXTRA_SMALL),
-                                Text(
-                                  "Department Store.",
-                                  style: TextStyle(
-                                      fontFamily: 'MontserratBold',
-                                      color: kPurpleColor,
-                                      fontSize: Dimensions.FONT_SIZE_SMALL),
-                                ),
                               ],
                             ),
                             const SizedBox(
@@ -730,26 +733,100 @@ class HomeScreenState extends State<HomeScreen> {
                                 const SizedBox(
                                     height:
                                         Dimensions.PADDING_SIZE_EXTRA_SMALL),
-                                averageOrders != ""
-                                    ? Text(
-                                        averageOrders,
-                                        style: const TextStyle(
+                                Obx(() => authCon.student_plan.value == '1'
+                                    ? const Text(
+                                        '300',
+                                        style: TextStyle(
                                             fontFamily: 'MontserratBold',
                                             color: kTextColor,
                                             fontSize:
                                                 Dimensions.FONT_SIZE_SMALL),
                                       )
-                                    : Obx(
-                                        () => Text(
-                                          authCon.average_orders.toString(),
-                                          style: const TextStyle(
-                                              fontFamily: 'MontserratBold',
-                                              color: kTextColor,
-                                              fontSize:
-                                                  Dimensions.FONT_SIZE_SMALL),
-                                        ),
-                                      ),
+                                    : averageOrders != ""
+                                        ? Text(
+                                            averageOrders,
+                                            style: const TextStyle(
+                                                fontFamily: 'MontserratBold',
+                                                color: kTextColor,
+                                                fontSize:
+                                                    Dimensions.FONT_SIZE_SMALL),
+                                          )
+                                        : Obx(
+                                            () => Text(
+                                              authCon.average_orders.toString(),
+                                              style: const TextStyle(
+                                                  fontFamily: 'MontserratBold',
+                                                  color: kTextColor,
+                                                  fontSize: Dimensions
+                                                      .FONT_SIZE_SMALL),
+                                            ),
+                                          )),
                               ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(
+                            height: Dimensions.PADDING_SIZE_EXTRA_SMALL),
+                        Row(
+                          children: [
+                            Obx(
+                              () => Text(
+                                authCon.student_plan.value == '1'
+                                    ? "Student Plan."
+                                    : "Department Store.",
+                                style: const TextStyle(
+                                    fontFamily: 'MontserratBold',
+                                    color: kPurpleColor,
+                                    fontSize: Dimensions.FONT_SIZE_SMALL),
+                              ),
+                            ),
+                            Obx(
+                              () => authCon.student_plan.value == '1'
+                                  ? const SizedBox()
+                                  : const SizedBox(
+                                  width: Dimensions.PADDING_SIZE_SMALL),
+                            ),
+                            Obx(
+                              () => authCon.student_plan.value == '1'
+                                  ? const SizedBox()
+                                  : InkWell(
+                                onTap: () {
+                                  // showAlertDialog(context);
+                                  showAlertDialog(
+                                      context,
+                                      authCon.today_order.toString(),
+                                      authCon.total_order.toString(),
+                                      authCon.work_days.toString());
+                                },
+                                child: Container(
+                                  height: Dimensions.BUTTON_HEIGHT,
+                                  width: size.width * 0.2,
+                                  decoration: BoxDecoration(
+                                    color: kPurpleColor,
+                                    borderRadius:
+                                    BorderRadius.circular(1000),
+                                    border: Border(
+                                      bottom: BorderSide(
+                                        color: Colors.purple.shade800,
+                                        width: 4.0,
+                                      ),
+                                      right: BorderSide(
+                                        color: Colors.purple.shade800,
+                                        width: 2.0,
+                                      ),
+                                    ),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: const Text(
+                                    'Increase\nAverage',
+                                    style: TextStyle(
+                                        fontFamily: 'MontserratMedium',
+                                        color: Colors.white,
+                                        fontSize:
+                                        Dimensions.FONT_SIZE_SMALL),
+                                  ),
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -774,6 +851,8 @@ class HomeScreenState extends State<HomeScreen> {
                         InkWell(
                           onTap: () {
                             homeController.copyText(context, productEan);
+                            debugPrint(
+                                "student_plan: ${authCon.student_plan.value}");
                           },
                           child: Container(
                             height: Dimensions.BUTTON_HEIGHT,
@@ -851,13 +930,18 @@ class HomeScreenState extends State<HomeScreen> {
                             borderRadius: BorderRadius.circular(1000),
                           ),
                           alignment: Alignment.center,
-                          child: Text(
-                            qtySold,
-                            style: const TextStyle(
-                                fontFamily: 'MontserratBold',
-                                color: Colors.white,
-                                fontSize: Dimensions.FONT_SIZE_DEFAULT),
-                          ),
+                          child: showActivityIndicator
+                              ? const CupertinoActivityIndicator(
+                                  color: Colors.white,
+                                )
+                              : Text(
+                                  '$qtySold',
+                                  style: const TextStyle(
+                                    fontFamily: 'MontserratBold',
+                                    color: Colors.white,
+                                    fontSize: Dimensions.FONT_SIZE_DEFAULT,
+                                  ),
+                                ),
                         ),
                       ],
                     ),
@@ -983,14 +1067,17 @@ class HomeScreenState extends State<HomeScreen> {
                                       );
                                     }
                                   : () {
+                                      debugPrint(
+                                          "isAvailable: ${homeController.isAvailableRandom.value}");
                                       homeController
                                           .productEanCorrent(productEan);
                                       if (homeController.isCheck.value !=
                                           true) {
                                         homeController.checkAvailability(
-                                            context,
-                                            homeController.copiedText
-                                                .toString());
+                                          context,
+                                          homeController.copiedText.toString(),
+                                          authCon.productStatus.toString(),
+                                        );
                                       }
                                     },
                               child: Container(
@@ -1036,204 +1123,630 @@ class HomeScreenState extends State<HomeScreen> {
                       ),
                       Obx(
                         () => homeController.orderAvailable == "1"
-                            ? const SizedBox(
-                                height: Dimensions.PADDING_SIZE_SMALL)
+                            ? homeController.isAvailableRandom.value == true
+                                ? const SizedBox(
+                                    height: Dimensions.PADDING_SIZE_SMALL)
+                                : Container()
                             : Container(),
                       ),
                       Obx(
                         () => homeController.orderAvailable == "1"
-                            ? Column(
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                            ? homeController.isAvailableRandom.value == true
+                                ? Column(
                                     children: [
-                                      Column(
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
-                                          const Text(
-                                            "Add to Cart",
-                                            style: TextStyle(
-                                                fontFamily: 'MontserratBold',
-                                                color: kTextColor,
-                                                fontSize:
-                                                    Dimensions.FONT_SIZE_LARGE),
-                                          ),
-                                          Row(
+                                          Column(
                                             children: [
-                                              InkWell(
-                                                onTap: () => homeController
-                                                    .decreaseQuantity(),
-                                                child: Image.asset(
-                                                  AppIcons.MINUS_REGTAGLE,
-                                                  height: 30,
-                                                ),
+                                              const Text(
+                                                "Add to Cart",
+                                                style: TextStyle(
+                                                    fontFamily:
+                                                        'MontserratBold',
+                                                    color: kTextColor,
+                                                    fontSize: Dimensions
+                                                        .FONT_SIZE_LARGE),
                                               ),
-                                              const SizedBox(
-                                                  width: Dimensions
-                                                      .PADDING_SIZE_SMALL),
-                                              Obx(
-                                                () => homeController
-                                                        .isLoading.value
-                                                    ? const SizedBox(
-                                                        height: 40,
-                                                        width: 40,
-                                                        child:
-                                                            CupertinoActivityIndicator(
-                                                          color: Colors.white,
-                                                        ),
-                                                      )
-                                                    : Container(
-                                                        height: 40,
-                                                        width: 40,
-                                                        alignment:
-                                                            Alignment.center,
-                                                        child: Text(
-                                                          homeController
-                                                              .quantity
-                                                              .toString(),
-                                                          style:
-                                                              const TextStyle(
-                                                            fontFamily:
-                                                                'MontserratBold',
-                                                            color: kWhiteColor,
-                                                            fontSize: Dimensions
-                                                                .FONT_SIZE_ULTRA_LARGE,
+                                              Row(
+                                                children: [
+                                                  InkWell(
+                                                    onTap: () => homeController
+                                                        .decreaseQuantity(),
+                                                    child: Image.asset(
+                                                      AppIcons.MINUS_REGTAGLE,
+                                                      height: 30,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(
+                                                      width: Dimensions
+                                                          .PADDING_SIZE_SMALL),
+                                                  Obx(
+                                                    () => homeController
+                                                            .isLoading.value
+                                                        ? SizedBox(
+                                                            height: 40,
+                                                            width: homeController
+                                                                        .quantity >=
+                                                                    100
+                                                                ? 55
+                                                                : 40,
+                                                            child:
+                                                                const CupertinoActivityIndicator(
+                                                              color:
+                                                                  Colors.white,
+                                                            ),
+                                                          )
+                                                        : Container(
+                                                            height: 40,
+                                                            width: homeController
+                                                                        .quantity >=
+                                                                    100
+                                                                ? 55
+                                                                : 40,
+                                                            alignment: Alignment
+                                                                .center,
+                                                            child: Text(
+                                                              homeController
+                                                                  .quantity
+                                                                  .toString(),
+                                                              style:
+                                                                  const TextStyle(
+                                                                fontFamily:
+                                                                    'MontserratBold',
+                                                                color:
+                                                                    kWhiteColor,
+                                                                fontSize: Dimensions
+                                                                    .FONT_SIZE_ULTRA_LARGE,
+                                                              ),
+                                                            ),
                                                           ),
-                                                        ),
-                                                      ),
-                                              ),
-                                              const SizedBox(
-                                                  width: Dimensions
-                                                      .PADDING_SIZE_SMALL),
-                                              InkWell(
-                                                onTap: () => homeController
-                                                    .increaseQuantity(),
-                                                child: Image.asset(
-                                                  AppIcons.PIUSE_REGTAGLE,
-                                                  height: 30,
-                                                ),
+                                                  ),
+                                                  const SizedBox(
+                                                      width: Dimensions
+                                                          .PADDING_SIZE_SMALL),
+                                                  InkWell(
+                                                    onTap: () => homeController
+                                                        .increaseQuantity(),
+                                                    child: Image.asset(
+                                                      AppIcons.PIUSE_REGTAGLE,
+                                                      height: 30,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ],
+                                          ),
+                                          const SizedBox(
+                                              width: Dimensions
+                                                  .PADDING_SIZE_EXTRA_SMALL),
+                                          InkWell(
+                                            onTap: () {
+                                              setState(() {
+                                                isConfirm = true;
+                                              });
+                                              Timer(const Duration(seconds: 3),
+                                                  () async {
+                                                if (enablePlaceOrderAVA ==
+                                                    true) {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    const SnackBar(
+                                                      content: Text(
+                                                        "Place Order Now Try Again...",
+                                                      ),
+                                                      duration:
+                                                          Duration(seconds: 2),
+                                                      backgroundColor:
+                                                          kPurpleColor,
+                                                      behavior: SnackBarBehavior
+                                                          .floating, // Add this line
+                                                      margin: EdgeInsets.only(
+                                                          bottom: 10,
+                                                          left: 15,
+                                                          right: 15),
+                                                    ),
+                                                  );
+                                                  setState(() {
+                                                    isConfirm = false;
+                                                  });
+                                                } else {
+                                                  if (int.parse(qtySold) ==
+                                                      int.parse(homeController
+                                                          .quantity
+                                                          .toString())) {
+                                                    debugPrint(
+                                                        'qtySold == homeController.quantity');
+                                                    debugPrint(
+                                                        'qtySold:$qtySold');
+                                                    debugPrint(
+                                                        'homeController.quantity:${homeController.quantity}');
+                                                    setState(() {
+                                                      homeController
+                                                          .enablePlaceOrder
+                                                          .value = true;
+                                                      enablePlaceOrderAVA =
+                                                          true;
+                                                      debugPrint(
+                                                          'homeController.enablePlaceOrder.value:$homeController.enablePlaceOrder.value');
+                                                    });
+                                                  } else {
+                                                    debugPrint(
+                                                        'qtySold != homeController.quantity');
+                                                    debugPrint(
+                                                        'qtySold:$qtySold');
+                                                    debugPrint(
+                                                        'homeController.quantity:${homeController.quantity.value}');
+                                                    setState(() {
+                                                      homeController
+                                                          .enablePlaceOrder
+                                                          .value = false;
+                                                    });
+                                                    ScaffoldMessenger.of(
+                                                            context)
+                                                        .showSnackBar(
+                                                      const SnackBar(
+                                                        content: Text(
+                                                          "Please correct your Quantity.",
+                                                        ),
+                                                        duration: Duration(
+                                                            seconds: 2),
+                                                        backgroundColor:
+                                                            kPurpleColor,
+                                                        behavior: SnackBarBehavior
+                                                            .floating, // Add this line
+                                                        margin: EdgeInsets.only(
+                                                            bottom: 10,
+                                                            left: 15,
+                                                            right: 15),
+                                                      ),
+                                                    );
+                                                  }
+                                                  setState(() {
+                                                    isConfirm = false;
+                                                  });
+                                                }
+                                              });
+                                            },
+                                            child: Container(
+                                              height: Dimensions.BUTTON_HEIGHT,
+                                              width:
+                                                  homeController.quantity >= 100
+                                                      ? size.width * 0.33
+                                                      : size.width * 0.36,
+                                              decoration: BoxDecoration(
+                                                // color: Colors.grey,
+                                                gradient: const LinearGradient(
+                                                  colors: [
+                                                    Color(0xFF569DAA),
+                                                    Color(0xFF0A4D68),
+                                                  ],
+                                                ),
+                                                border: const Border(
+                                                  bottom: BorderSide(
+                                                    color: Color(0xFF0A3648),
+                                                    width: 4.0,
+                                                  ),
+                                                  right: BorderSide(
+                                                    color: Color(0xFF0A3648),
+                                                    width: 2.0,
+                                                  ),
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(1000),
+                                              ),
+                                              alignment: Alignment.center,
+                                              child: isConfirm == true
+                                                  ? const CupertinoActivityIndicator(
+                                                      color: Colors.white,
+                                                    )
+                                                  : const Text(
+                                                      "Confirm",
+                                                      style: TextStyle(
+                                                        fontFamily:
+                                                            'MontserratBold',
+                                                        color: Colors.white,
+                                                        fontSize: Dimensions
+                                                            .FONT_SIZE_DEFAULT,
+                                                      ),
+                                                    ),
+                                            ),
                                           ),
                                         ],
                                       ),
                                       const SizedBox(
-                                          width: Dimensions
-                                              .PADDING_SIZE_EXTRA_SMALL),
+                                          height:
+                                              Dimensions.PADDING_SIZE_SMALL),
                                       InkWell(
-                                        onTap: () {
-                                          setState(() {
-                                            isConfirm = true;
-                                          });
-                                          Timer(const Duration(seconds: 3),
-                                              () async {
-                                            if (enablePlaceOrderAVA ==
-                                                true) {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
-                                                const SnackBar(
-                                                  content: Text(
-                                                    "Place Order Now Try Again...",
-                                                  ),
-                                                  duration:
-                                                      Duration(seconds: 2),
-                                                  backgroundColor: kPurpleColor,
-                                                  behavior: SnackBarBehavior
-                                                      .floating, // Add this line
-                                                  margin: EdgeInsets.only(
-                                                      bottom: 10,
-                                                      left: 15,
-                                                      right: 15),
-                                                ),
-                                              );
-                                              setState(() {
-                                                isConfirm = false;
-                                              });
-                                            } else {
-                                              if (int.parse(qtySold) ==
-                                                  int.parse(homeController
-                                                      .quantity
-                                                      .toString())) {
-                                                debugPrint(
-                                                    'qtySold == homeController.quantity');
-                                                debugPrint('qtySold:$qtySold');
-                                                debugPrint(
-                                                    'homeController.quantity:${homeController.quantity}');
-                                                setState(() {
-                                                  homeController
-                                                      .enablePlaceOrder
-                                                      .value = true;
-                                                  enablePlaceOrderAVA = true;
-                                                  debugPrint(
-                                                      'homeController.enablePlaceOrder.value:$homeController.enablePlaceOrder.value');
-                                                });
-                                              } else {
-                                                debugPrint(
-                                                    'qtySold != homeController.quantity');
-                                                debugPrint('qtySold:$qtySold');
-                                                debugPrint(
-                                                    'homeController.quantity:${homeController.quantity.value}');
-                                                setState(() {
-                                                  homeController
-                                                      .enablePlaceOrder
-                                                      .value = false;
-                                                });
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(
-                                                  const SnackBar(
-                                                    content: Text(
-                                                      "Please correct your Quantity.",
-                                                    ),
-                                                    duration:
-                                                        Duration(seconds: 2),
-                                                    backgroundColor:
-                                                        kPurpleColor,
-                                                    behavior: SnackBarBehavior
-                                                        .floating, // Add this line
-                                                    margin: EdgeInsets.only(
-                                                        bottom: 10,
-                                                        left: 15,
-                                                        right: 15),
-                                                  ),
-                                                );
-                                              }
-                                              setState(() {
-                                                isConfirm = false;
-                                              });
-                                            }
-                                          });
-                                        },
+                                        onTap: homeController
+                                                    .enablePlaceOrder.value ==
+                                                true
+                                            ? (int.parse(authCon.today_order
+                                                        .toString()) <
+                                                    int.parse(authCon
+                                                        .average_orders
+                                                        .toString()))
+                                                // ? (int.parse(homeController
+                                                // .todayOrder.value !=
+                                                // ""
+                                                // ? homeController.todayOrder
+                                                // .toString()
+                                                // : authCon.today_order
+                                                // .toString()) >=
+                                                // int.parse(homeController
+                                                //     .averageOrders.value !=
+                                                //     ""
+                                                //     ? homeController.averageOrders
+                                                //     .toString()
+                                                //     : authCon.average_orders
+                                                //     .toString()))
+                                                ? () {
+                                                    setState(() {
+                                                      homeController
+                                                          .enablePlaceOrder
+                                                          .value = false;
+                                                      isPlaceOrder = true;
+                                                    });
+                                                    homeController
+                                                        .showLoadingIndicator(
+                                                            context);
+                                                    Timer(
+                                                        const Duration(
+                                                            seconds: 4),
+                                                        orderCount >= 100
+                                                            ? () {
+                                                                setState(() {
+                                                                  isPlaceOrder =
+                                                                      false;
+                                                                });
+                                                                ScaffoldMessenger.of(
+                                                                        context)
+                                                                    .showSnackBar(
+                                                                  const SnackBar(
+                                                                    duration: Duration(
+                                                                        seconds:
+                                                                            3),
+                                                                    backgroundColor:
+                                                                        kPurpleColor,
+                                                                    behavior:
+                                                                        SnackBarBehavior
+                                                                            .floating, // Add this line
+                                                                    margin: EdgeInsets.only(
+                                                                        bottom:
+                                                                            10,
+                                                                        left:
+                                                                            15,
+                                                                        right:
+                                                                            15),
+                                                                    content:
+                                                                        Text(
+                                                                      'Sync Now Try Again...',
+                                                                      style:
+                                                                          TextStyle(
+                                                                        fontFamily:
+                                                                            'MontserratBold',
+                                                                        color: Colors
+                                                                            .white,
+                                                                        fontSize:
+                                                                            Dimensions.FONT_SIZE_DEFAULT,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                );
+                                                                resetValue();
+                                                                productEan =
+                                                                    homeController
+                                                                        .generateRandomNineDigitNumber()
+                                                                        .toString();
+                                                                homeController
+                                                                    .hideLoadingIndicator(
+                                                                        context);
+                                                              }
+                                                            : () {
+                                                                homeController
+                                                                    .todayOrders();
+                                                                // multiplyCostValue =
+                                                                //     orderCount *
+                                                                //         double.parse(authCon
+                                                                //             .orders_cost
+                                                                //             .toString());
+                                                                setState(() {
+                                                                  isPlaceOrder =
+                                                                      false;
+                                                                  enablePlaceOrderAVA =
+                                                                      false;
+                                                                  orderCount++;
+                                                                  // progressPercentage = (orderCount / maximumValue);
+                                                                  print(
+                                                                      'orderCount called $orderCount times.');
+                                                                  debugPrint(
+                                                                      "timerCount: $orderCount");
+                                                                  totalQtySold = int.parse(homeController
+                                                                          .quantity
+                                                                          .toString()) +
+                                                                      totalQtySold;
+                                                                  debugPrint(
+                                                                      "totalQtySold: $totalQtySold");
+                                                                  if (orderCount <=
+                                                                      99) {
+                                                                    // orderCount=99;
+                                                                    progressPercentage =
+                                                                        (orderCount /
+                                                                            maximumValue);
+                                                                    print(
+                                                                        'progressPercentage $progressPercentage times.');
+                                                                    isClaimButtonDisabled =
+                                                                        true; // Disable the button
+                                                                  } else if (orderCount >
+                                                                      99) {
+                                                                    // syncUniqueId = homeController.generateRandomSixDigitNumber();
+                                                                    // debugPrint("syncUniqueId: $syncUniqueId");
+                                                                    // orderCount = 0;
+                                                                    progressPercentage =
+                                                                        (orderCount /
+                                                                            maximumValue);
+                                                                    isClaimButtonDisabled =
+                                                                        false; // Disable the button
+                                                                    // orderCount = 0;
+                                                                  } else if (orderCount >
+                                                                      100) {
+                                                                    progressPercentage =
+                                                                        0.0;
+                                                                    isClaimButtonDisabled =
+                                                                        false; // Enable the button
+                                                                    orderCount =
+                                                                        0;
+                                                                  }
+                                                                  saveOrderCount(
+                                                                      orderCount,
+                                                                      totalQtySold,
+                                                                      progressPercentage);
+                                                                });
+                                                                ScaffoldMessenger.of(
+                                                                        context)
+                                                                    .showSnackBar(
+                                                                  SnackBar(
+                                                                    duration: const Duration(
+                                                                        seconds:
+                                                                            3),
+                                                                    backgroundColor:
+                                                                        kPurpleColor,
+                                                                    behavior:
+                                                                        SnackBarBehavior
+                                                                            .floating, // Add this line
+                                                                    margin: const EdgeInsets
+                                                                        .only(
+                                                                        bottom:
+                                                                            10,
+                                                                        left:
+                                                                            15,
+                                                                        right:
+                                                                            15),
+                                                                    content:
+                                                                        RichText(
+                                                                      text:
+                                                                          const TextSpan(
+                                                                        style:
+                                                                            TextStyle(
+                                                                          fontFamily:
+                                                                              'MontserratBold',
+                                                                          color:
+                                                                              Colors.white,
+                                                                          fontSize:
+                                                                              Dimensions.FONT_SIZE_DEFAULT,
+                                                                        ),
+                                                                        children: [
+                                                                          TextSpan(
+                                                                            text:
+                                                                                'Order Placed Successfully ',
+                                                                          ),
+                                                                          TextSpan(
+                                                                            text:
+                                                                                '✔️',
+                                                                            style:
+                                                                                TextStyle(
+                                                                              fontWeight: FontWeight.bold,
+                                                                              color: Colors.green,
+                                                                              fontSize: 20,
+                                                                            ),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                );
+                                                                resetValue();
+                                                                productEan =
+                                                                    homeController
+                                                                        .generateRandomNineDigitNumber()
+                                                                        .toString();
+                                                                homeController
+                                                                    .hideLoadingIndicator(
+                                                                        context);
+                                                              });
+                                                  }
+                                                : () {
+                                                    setState(() {
+                                                      homeController
+                                                          .enablePlaceOrder
+                                                          .value = false;
+                                                      isPlaceOrder = true;
+                                                    });
+                                                    homeController
+                                                        .showLoadingIndicator(
+                                                            context);
+                                                    // setState(() {
+                                                    //   isPlaceOrder = true;
+                                                    // });
+                                                    Timer(
+                                                        const Duration(
+                                                            seconds: 4), () {
+                                                      setState(() {
+                                                        isPlaceOrder = false;
+                                                      });
+                                                      ScaffoldMessenger.of(
+                                                              context)
+                                                          .showSnackBar(
+                                                        const SnackBar(
+                                                          duration: Duration(
+                                                              seconds: 3),
+                                                          backgroundColor:
+                                                              kPurpleColor,
+                                                          behavior: SnackBarBehavior
+                                                              .floating, // Add this line
+                                                          margin:
+                                                              EdgeInsets.only(
+                                                                  bottom: 10,
+                                                                  left: 15,
+                                                                  right: 15),
+                                                          content: Text(
+                                                            'You have completed today orders',
+                                                            style: TextStyle(
+                                                              fontFamily:
+                                                                  'MontserratBold',
+                                                              color:
+                                                                  Colors.white,
+                                                              fontSize: Dimensions
+                                                                  .FONT_SIZE_DEFAULT,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      );
+                                                      resetValue();
+                                                      productEan = homeController
+                                                          .generateRandomNineDigitNumber()
+                                                          .toString();
+                                                      homeController
+                                                          .hideLoadingIndicator(
+                                                              context);
+                                                    });
+                                                  }
+                                            : () {},
                                         child: Container(
                                           height: Dimensions.BUTTON_HEIGHT,
-                                          width: size.width * 0.36,
-                                          decoration: BoxDecoration(
-                                            // color: Colors.grey,
-                                            gradient: const LinearGradient(
-                                              colors: [
-                                                Color(0xFF569DAA),
-                                                Color(0xFF0A4D68),
-                                              ],
-                                            ),
-                                            border: const Border(
-                                              bottom: BorderSide(
-                                                color: Color(0xFF0A3648),
-                                                width: 4.0,
-                                              ),
-                                              right: BorderSide(
-                                                color: Color(0xFF0A3648),
-                                                width: 2.0,
-                                              ),
-                                            ),
-                                            borderRadius:
-                                                BorderRadius.circular(1000),
-                                          ),
+                                          width: size.width,
+                                          // decoration: homeController.enablePlaceOrder.value == true
+                                          decoration: homeController
+                                                      .enablePlaceOrder.value ==
+                                                  true
+                                              ?
+                                              // ? (int.parse(authCon.today_order
+                                              //             .toString()) >=
+                                              //         int.parse(authCon
+                                              //             .average_orders
+                                              //             .toString()))
+                                              //     // ? (int.parse(homeController
+                                              //     // .todayOrder.value !=
+                                              //     // ""
+                                              //     // ? homeController.todayOrder
+                                              //     // .toString()
+                                              //     // : authCon.today_order
+                                              //     // .toString()) >=
+                                              //     // int.parse(homeController
+                                              //     //     .averageOrders
+                                              //     //     .value !=
+                                              //     //     ""
+                                              //     //     ? homeController.averageOrders
+                                              //     //     .toString()
+                                              //     //     : authCon.average_orders
+                                              //     //     .toString()))
+                                              //     ? BoxDecoration(
+                                              //         color: Colors.grey,
+                                              //         border: Border(
+                                              //           bottom: BorderSide(
+                                              //             color:
+                                              //                 Colors.grey.shade900,
+                                              //             width: 4.0,
+                                              //           ),
+                                              //           right: BorderSide(
+                                              //             color:
+                                              //                 Colors.grey.shade900,
+                                              //             width: 1.0,
+                                              //           ),
+                                              //         ),
+                                              //         borderRadius:
+                                              //             BorderRadius.circular(
+                                              //                 1000),
+                                              //       )
+                                              //     : BoxDecoration(
+                                              BoxDecoration(
+                                                  color: kPrimaryColor,
+                                                  gradient:
+                                                      const LinearGradient(
+                                                    colors: [
+                                                      Colors.deepOrange,
+                                                      Colors.pink
+                                                    ],
+                                                  ),
+                                                  border: Border(
+                                                    bottom: BorderSide(
+                                                      color:
+                                                          Colors.pink.shade900,
+                                                      width: 4.0,
+                                                    ),
+                                                    right: BorderSide(
+                                                      color:
+                                                          Colors.pink.shade900,
+                                                      width: 1.0,
+                                                    ),
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          1000),
+                                                )
+                                              : BoxDecoration(
+                                                  color: Colors.grey,
+                                                  border: Border(
+                                                    bottom: BorderSide(
+                                                      color:
+                                                          Colors.grey.shade900,
+                                                      width: 4.0,
+                                                    ),
+                                                    right: BorderSide(
+                                                      color:
+                                                          Colors.grey.shade900,
+                                                      width: 1.0,
+                                                    ),
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          1000),
+                                                ),
                                           alignment: Alignment.center,
-                                          child: isConfirm == true
+                                          // child: (int.parse(authCon.today_order
+                                          //             .toString()) >=
+                                          //         int.parse(authCon.average_orders
+                                          //             .toString()))
+                                          //     // child: (int.parse(
+                                          //     //     homeController.todayOrder.value !=
+                                          //     //         ""
+                                          //     //         ? homeController.todayOrder
+                                          //     //         .toString()
+                                          //     //         : authCon.today_order
+                                          //     //         .toString()) >=
+                                          //     //     int.parse(homeController
+                                          //     //         .averageOrders.value !=
+                                          //     //         ""
+                                          //     //         ? homeController.averageOrders
+                                          //     //         .toString()
+                                          //     //         : authCon.average_orders
+                                          //     //         .toString()))
+                                          //     ? const Text(
+                                          //         "Place Order",
+                                          //         style: TextStyle(
+                                          //             fontFamily: 'MontserratBold',
+                                          //             color: Colors.white,
+                                          //             fontSize: Dimensions
+                                          //                 .FONT_SIZE_DEFAULT),
+                                          //       )
+                                          //     : isPlaceOrder == true
+                                          child: isPlaceOrder == true
                                               ? const CupertinoActivityIndicator(
                                                   color: Colors.white,
                                                 )
                                               : const Text(
-                                                  "Confirm",
+                                                  "Place Order",
                                                   style: TextStyle(
                                                       fontFamily:
                                                           'MontserratBold',
@@ -1244,422 +1757,42 @@ class HomeScreenState extends State<HomeScreen> {
                                         ),
                                       ),
                                     ],
-                                  ),
-                                  const SizedBox(
-                                      height: Dimensions.PADDING_SIZE_SMALL),
-                                  InkWell(
-                                    onTap: homeController
-                                                .enablePlaceOrder.value ==
-                                            true
-                                        ? (int.parse(authCon.today_order
-                                                    .toString()) <
-                                                int.parse(authCon.average_orders
-                                                    .toString()))
-                                            // ? (int.parse(homeController
-                                            // .todayOrder.value !=
-                                            // ""
-                                            // ? homeController.todayOrder
-                                            // .toString()
-                                            // : authCon.today_order
-                                            // .toString()) >=
-                                            // int.parse(homeController
-                                            //     .averageOrders.value !=
-                                            //     ""
-                                            //     ? homeController.averageOrders
-                                            //     .toString()
-                                            //     : authCon.average_orders
-                                            //     .toString()))
-                                            ? () {
-                                                setState(() {
-                                                  homeController
-                                                      .enablePlaceOrder
-                                                      .value = false;
-                                                  isPlaceOrder = true;
-                                                });
-                                                Timer(
-                                                    const Duration(seconds: 4),
-                                                    orderCount >= 100
-                                                        ? () {
-                                                            setState(() {
-                                                              isPlaceOrder =
-                                                                  false;
-                                                            });
-                                                            ScaffoldMessenger
-                                                                    .of(context)
-                                                                .showSnackBar(
-                                                              const SnackBar(
-                                                                duration:
-                                                                    Duration(
-                                                                        seconds:
-                                                                            3),
-                                                                backgroundColor:
-                                                                    kPurpleColor,
-                                                                behavior:
-                                                                    SnackBarBehavior
-                                                                        .floating, // Add this line
-                                                                margin: EdgeInsets
-                                                                    .only(
-                                                                        bottom:
-                                                                            10,
-                                                                        left:
-                                                                            15,
-                                                                        right:
-                                                                            15),
-                                                                content: Text(
-                                                                  'Sync Now Try Again...',
-                                                                  style:
-                                                                      TextStyle(
-                                                                    fontFamily:
-                                                                        'MontserratBold',
-                                                                    color: Colors
-                                                                        .white,
-                                                                    fontSize:
-                                                                        Dimensions
-                                                                            .FONT_SIZE_DEFAULT,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            );
-                                                            resetValue();
-                                                            productEan =
-                                                                homeController
-                                                                    .generateRandomNineDigitNumber()
-                                                                    .toString();
-                                                          }
-                                                        : () {
-                                                            homeController
-                                                                .todayOrders();
-                                                            // multiplyCostValue =
-                                                            //     orderCount *
-                                                            //         double.parse(authCon
-                                                            //             .orders_cost
-                                                            //             .toString());
-                                                            setState(() {
-                                                              isPlaceOrder =
-                                                                  false;
-                                                              enablePlaceOrderAVA = false;
-                                                              orderCount++;
-                                                              // progressPercentage = (orderCount / maximumValue);
-                                                              print(
-                                                                  'orderCount called $orderCount times.');
-                                                              debugPrint(
-                                                                  "timerCount: $orderCount");
-                                                              totalQtySold = int.parse(
-                                                                      homeController
-                                                                          .quantity
-                                                                          .toString()) +
-                                                                  totalQtySold;
-                                                              debugPrint(
-                                                                  "totalQtySold: $totalQtySold");
-                                                              if (orderCount <=
-                                                                  99) {
-                                                                // orderCount=99;
-                                                                progressPercentage =
-                                                                    (orderCount /
-                                                                        maximumValue);
-                                                                print(
-                                                                    'progressPercentage $progressPercentage times.');
-                                                                isClaimButtonDisabled =
-                                                                    true; // Disable the button
-                                                              } else if (orderCount >
-                                                                  99) {
-                                                                // syncUniqueId = homeController.generateRandomSixDigitNumber();
-                                                                // debugPrint("syncUniqueId: $syncUniqueId");
-                                                                // orderCount = 0;
-                                                                progressPercentage =
-                                                                    (orderCount /
-                                                                        maximumValue);
-                                                                isClaimButtonDisabled =
-                                                                    false; // Disable the button
-                                                                // orderCount = 0;
-                                                              } else if (orderCount >
-                                                                  100) {
-                                                                progressPercentage =
-                                                                    0.0;
-                                                                isClaimButtonDisabled =
-                                                                    false; // Enable the button
-                                                                orderCount = 0;
-                                                              }
-                                                              saveOrderCount(
-                                                                  orderCount,
-                                                                  totalQtySold,
-                                                                  progressPercentage);
-                                                            });
-                                                            ScaffoldMessenger
-                                                                    .of(context)
-                                                                .showSnackBar(
-                                                              SnackBar(
-                                                                duration:
-                                                                    const Duration(
-                                                                        seconds:
-                                                                            3),
-                                                                backgroundColor:
-                                                                    kPurpleColor,
-                                                                behavior:
-                                                                    SnackBarBehavior
-                                                                        .floating, // Add this line
-                                                                margin:
-                                                                    const EdgeInsets
-                                                                        .only(
-                                                                        bottom:
-                                                                            10,
-                                                                        left:
-                                                                            15,
-                                                                        right:
-                                                                            15),
-                                                                content:
-                                                                    RichText(
-                                                                  text:
-                                                                      const TextSpan(
-                                                                    style:
-                                                                        TextStyle(
-                                                                      fontFamily:
-                                                                          'MontserratBold',
-                                                                      color: Colors
-                                                                          .white,
-                                                                      fontSize:
-                                                                          Dimensions
-                                                                              .FONT_SIZE_DEFAULT,
-                                                                    ),
-                                                                    children: [
-                                                                      TextSpan(
-                                                                        text:
-                                                                            'Order Placed Successfully ',
-                                                                      ),
-                                                                      TextSpan(
-                                                                        text:
-                                                                            '✔️',
-                                                                        style:
-                                                                            TextStyle(
-                                                                          fontWeight:
-                                                                              FontWeight.bold,
-                                                                          color:
-                                                                              Colors.green,
-                                                                          fontSize:
-                                                                              20,
-                                                                        ),
-                                                                      ),
-                                                                    ],
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            );
-                                                            resetValue();
-                                                            productEan =
-                                                                homeController
-                                                                    .generateRandomNineDigitNumber()
-                                                                    .toString();
-                                                          });
-                                              }
-                                            : () {
-                                                setState(() {
-                                                  homeController
-                                                      .enablePlaceOrder
-                                                      .value = false;
-                                                  isPlaceOrder = true;
-                                                });
-                                                // setState(() {
-                                                //   isPlaceOrder = true;
-                                                // });
-                                                Timer(
-                                                    const Duration(seconds: 4),
-                                                    () {
-                                                  setState(() {
-                                                    isPlaceOrder = false;
-                                                  });
-                                                  ScaffoldMessenger.of(context)
-                                                      .showSnackBar(
-                                                    const SnackBar(
-                                                      duration:
-                                                          Duration(seconds: 3),
-                                                      backgroundColor:
-                                                          kPurpleColor,
-                                                      behavior: SnackBarBehavior
-                                                          .floating, // Add this line
-                                                      margin: EdgeInsets.only(
-                                                          bottom: 10,
-                                                          left: 15,
-                                                          right: 15),
-                                                      content: Text(
-                                                        'You have completed today orders',
-                                                        style: TextStyle(
-                                                          fontFamily:
-                                                              'MontserratBold',
-                                                          color: Colors.white,
-                                                          fontSize: Dimensions
-                                                              .FONT_SIZE_DEFAULT,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  );
-                                                  resetValue();
-                                                  productEan = homeController
-                                                      .generateRandomNineDigitNumber()
-                                                      .toString();
-                                                });
-                                              }
-                                        : () {},
-                                    child: Container(
-                                      height: Dimensions.BUTTON_HEIGHT,
-                                      width: size.width,
-                                      // decoration: homeController.enablePlaceOrder.value == true
-                                      decoration: homeController
-                                                  .enablePlaceOrder.value ==
-                                              true
-                                          ?
-                                          // ? (int.parse(authCon.today_order
-                                          //             .toString()) >=
-                                          //         int.parse(authCon
-                                          //             .average_orders
-                                          //             .toString()))
-                                          //     // ? (int.parse(homeController
-                                          //     // .todayOrder.value !=
-                                          //     // ""
-                                          //     // ? homeController.todayOrder
-                                          //     // .toString()
-                                          //     // : authCon.today_order
-                                          //     // .toString()) >=
-                                          //     // int.parse(homeController
-                                          //     //     .averageOrders
-                                          //     //     .value !=
-                                          //     //     ""
-                                          //     //     ? homeController.averageOrders
-                                          //     //     .toString()
-                                          //     //     : authCon.average_orders
-                                          //     //     .toString()))
-                                          //     ? BoxDecoration(
-                                          //         color: Colors.grey,
-                                          //         border: Border(
-                                          //           bottom: BorderSide(
-                                          //             color:
-                                          //                 Colors.grey.shade900,
-                                          //             width: 4.0,
-                                          //           ),
-                                          //           right: BorderSide(
-                                          //             color:
-                                          //                 Colors.grey.shade900,
-                                          //             width: 1.0,
-                                          //           ),
-                                          //         ),
-                                          //         borderRadius:
-                                          //             BorderRadius.circular(
-                                          //                 1000),
-                                          //       )
-                                          //     : BoxDecoration(
-                                          BoxDecoration(
-                                              color: kPrimaryColor,
-                                              gradient: const LinearGradient(
-                                                colors: [
-                                                  Colors.deepOrange,
-                                                  Colors.pink
-                                                ],
-                                              ),
-                                              border: Border(
-                                                bottom: BorderSide(
-                                                  color: Colors.pink.shade900,
-                                                  width: 4.0,
-                                                ),
-                                                right: BorderSide(
-                                                  color: Colors.pink.shade900,
-                                                  width: 1.0,
-                                                ),
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(1000),
-                                            )
-                                          : BoxDecoration(
-                                              color: Colors.grey,
-                                              border: Border(
-                                                bottom: BorderSide(
-                                                  color: Colors.grey.shade900,
-                                                  width: 4.0,
-                                                ),
-                                                right: BorderSide(
-                                                  color: Colors.grey.shade900,
-                                                  width: 1.0,
-                                                ),
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(1000),
-                                            ),
-                                      alignment: Alignment.center,
-                                      // child: (int.parse(authCon.today_order
-                                      //             .toString()) >=
-                                      //         int.parse(authCon.average_orders
-                                      //             .toString()))
-                                      //     // child: (int.parse(
-                                      //     //     homeController.todayOrder.value !=
-                                      //     //         ""
-                                      //     //         ? homeController.todayOrder
-                                      //     //         .toString()
-                                      //     //         : authCon.today_order
-                                      //     //         .toString()) >=
-                                      //     //     int.parse(homeController
-                                      //     //         .averageOrders.value !=
-                                      //     //         ""
-                                      //     //         ? homeController.averageOrders
-                                      //     //         .toString()
-                                      //     //         : authCon.average_orders
-                                      //     //         .toString()))
-                                      //     ? const Text(
-                                      //         "Place Order",
-                                      //         style: TextStyle(
-                                      //             fontFamily: 'MontserratBold',
-                                      //             color: Colors.white,
-                                      //             fontSize: Dimensions
-                                      //                 .FONT_SIZE_DEFAULT),
-                                      //       )
-                                      //     : isPlaceOrder == true
-                                      child: isPlaceOrder == true
-                                          ? const CupertinoActivityIndicator(
-                                              color: Colors.white,
-                                            )
-                                          : const Text(
-                                              "Place Order",
-                                              style: TextStyle(
-                                                  fontFamily: 'MontserratBold',
-                                                  color: Colors.white,
-                                                  fontSize: Dimensions
-                                                      .FONT_SIZE_DEFAULT),
-                                            ),
-                                    ),
-                                  ),
-                                ],
-                              )
+                                  )
+                                : Container()
                             : Container(),
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: Dimensions.PADDING_SIZE_SMALL),
-                const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Hire Candidates",
-                      style: TextStyle(
-                          fontFamily: 'MontserratBold',
-                          color: kTextColor,
-                          fontWeight: FontWeight.bold,
-                          fontSize: Dimensions.FONT_SIZE_OVER_LARGE),
-                    ),
-                    SizedBox(width: Dimensions.PADDING_SIZE_SMALL),
-                    Icon(
-                      Icons.groups,
-                      size: 30,
-                      color: kWhiteColor,
-                    ),
-                  ],
-                ),
-                const Text(
-                  "\'Per Hiring Get ₹ 600 Incentives\n( ₹ 500 + 500 Orders ₹ 100 = ₹ 600)\'",
-                  // "\"Get Rs 650 Incentives & \n150 Orders Bonus\"",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontFamily: 'MontserratBold',
-                      color: kSecondaryColor,
-                      fontSize: Dimensions.FONT_SIZE_LARGE),
-                ),
+                // const Row(
+                //   mainAxisAlignment: MainAxisAlignment.center,
+                //   children: [
+                //     Text(
+                //       "Hire Candidates",
+                //       style: TextStyle(
+                //           fontFamily: 'MontserratBold',
+                //           color: kTextColor,
+                //           fontWeight: FontWeight.bold,
+                //           fontSize: Dimensions.FONT_SIZE_OVER_LARGE),
+                //     ),
+                //     SizedBox(width: Dimensions.PADDING_SIZE_SMALL),
+                //     Icon(
+                //       Icons.groups,
+                //       size: 30,
+                //       color: kWhiteColor,
+                //     ),
+                //   ],
+                // ),
+                // const Text(
+                //   "\'Per Hiring Get ₹ 600 Incentives\n( ₹ 500 + 500 Orders ₹ 100 = ₹ 600)\'",
+                //   // "\"Get Rs 650 Incentives & \n150 Orders Bonus\"",
+                //   textAlign: TextAlign.center,
+                //   style: TextStyle(
+                //       fontFamily: 'MontserratBold',
+                //       color: kSecondaryColor,
+                //       fontSize: Dimensions.FONT_SIZE_LARGE),
+                // ),
                 const Text(
                   "Vacancies Available",
                   style: TextStyle(
@@ -1757,160 +1890,806 @@ class HomeScreenState extends State<HomeScreen> {
   //   );
   // }
 
-// showAlertDialog(
-//   BuildContext context,
-//   String generatedOtp,
-// ) {
-//   Size size = MediaQuery.of(context).size;
-//
-//   AlertDialog alert = AlertDialog(
-//     shape: const RoundedRectangleBorder(
-//         borderRadius: BorderRadius.all(Radius.circular(10))),
-//     contentPadding: const EdgeInsets.all(20),
-//     content: Container(
-//       height: size.height * 0.2,
-//       decoration: const BoxDecoration(),
-//       child: Column(
-//         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//         children: [
-//           Row(
-//             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//             children: [
-//               SizedBox(
-//                 width: size.width * 0.5,
-//                 child: Text(
-//                   generatedOtp,
-//                   style: const TextStyle(
-//                     fontFamily: 'MontserratBold',
-//                     fontSize: 14,
-//                     color: Colors.black,
-//                   ),
-//                 ),
-//               ),
-//               InkWell(
-//                 onTap: () => Navigator.of(context).pop(),
-//                 child: Transform.rotate(
-//                   angle: 45 * (3.1415926535 / 180),
-//                   child: const Icon(
-//                     Icons.add,
-//                     // Adjust other properties as needed
-//                     size: 24.0,
-//                     color: Colors.black,
-//                   ),
-//                 ),
-//               )
-//             ],
-//           ),
-//           OtpInputField(
-//             generatedOtp: generatedOtp,
-//             onPress: (enteredOtp) {
-//               if (enteredOtp == generatedOtp) {
-//                 print('OTP Matched');
-//                 watchAds();
-//                 Navigator.of(context).pop();
-//               } else {
-//                 print('OTP Mismatch');
-//               }
-//               print('Entered OTP: $enteredOtp');
-//             },
-//           ),
-//         ],
-//       ),
-//     ),
-//   );
-//
-//   showDialog(
-//     context: context,
-//     builder: (BuildContext context) {
-//       return alert;
-//     },
-//   );
-// }
+  void showAlertDialog(
+    BuildContext context,
+    String todayOrders,
+    String totalOrders,
+    String totalWorkedDays,
+  ) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return MyAlertDialog(
+          todayOrders: todayOrders,
+          totalOrders: totalOrders,
+          totalWorkedDays: totalWorkedDays,
+        );
+      },
+    );
+  }
+
+  // showAlertDialog(
+  //   BuildContext context,
+  //   String todayOrders,
+  //   String totalOrders,
+  //   String totalWorkedDays,
+  // ) {
+  //   final TextEditingController totalOrdersTarget = TextEditingController();
+  //   @override
+  //   void dispose() {
+  //     totalOrdersTarget.dispose();
+  //     super.dispose();
+  //   }
+  //
+  //   int total_orders = (int.parse(totalOrders) - int.parse(todayOrders));
+  //   // int total_missed_orders = 0;
+  //   int total_missed_orders =
+  //       (int.tryParse(totalWorkedDays)! * 500) - total_orders;
+  //
+  //   // double result = 0.0;
+  //   // String resultText = '0';
+  //   //
+  //   double result = ((total_missed_orders < 0 ? 0 : total_missed_orders) / 500);
+  //   String resultText = result % 1 == 0
+  //       ? result.toInt().toString()
+  //       : (result >= 0 ? result.ceil() : result.floor()).toString();
+  //
+  //   Size size = MediaQuery.of(context).size;
+  //   Container alert = Container(
+  //     decoration: BoxDecoration(
+  //       borderRadius: BorderRadius.circular(16),
+  //       color: const Color(0xFFF2F2F2),
+  //     ),
+  //     margin: EdgeInsets.symmetric(
+  //         horizontal: size.width * 0.1, vertical: size.height * 0.1),
+  //     padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+  //     alignment: Alignment.center,
+  //     child: Column(
+  //       children: [
+  //         Align(
+  //           alignment: Alignment.topRight,
+  //           child: IconButton(
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //             },
+  //             icon: Container(
+  //               decoration: const BoxDecoration(
+  //                   shape: BoxShape.circle, color: Colors.white),
+  //               padding: const EdgeInsets.all(3),
+  //               child: Transform.rotate(
+  //                 angle: 45 * 3.1415926535 / 180,
+  //                 child: const Icon(Icons.add),
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //         const Text(
+  //           'Average Calculator',
+  //           style: TextStyle(
+  //               fontFamily: 'MontserratBold',
+  //               color: colors.primary_color,
+  //               fontSize: 18),
+  //         ),
+  //         const SizedBox(
+  //           height: 10,
+  //         ),
+  //         const Text(
+  //           'Today\'s Orders Generated, Will Not Be Calculated.',
+  //           textAlign: TextAlign.center,
+  //           style: TextStyle(
+  //               fontFamily: 'MontserratMedium',
+  //               color: colors.red,
+  //               fontSize: 12),
+  //         ),
+  //         const SizedBox(
+  //           height: 10,
+  //         ),
+  //         Padding(
+  //           padding: const EdgeInsets.only(left: 0),
+  //           child: Row(
+  //             mainAxisAlignment: MainAxisAlignment.center,
+  //             children: [
+  //               const Column(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   Text(
+  //                     'Total Orders Generated:',
+  //                     style: TextStyle(
+  //                         fontFamily: 'MontserratMedium',
+  //                         color: colors.black,
+  //                         fontSize: 14),
+  //                   ),
+  //                   Text(
+  //                     'Total Worked Days:',
+  //                     style: TextStyle(
+  //                         fontFamily: 'MontserratMedium',
+  //                         color: colors.black,
+  //                         fontSize: 14),
+  //                   ),
+  //                   // SizedBox(height: 10,),
+  //                   // Text(
+  //                   //   'Total Orders Target:',
+  //                   //   style: TextStyle(
+  //                   //       fontFamily: 'MontserratMedium',
+  //                   //       color: colors.black,
+  //                   //       fontSize: 14),
+  //                   // ),
+  //                   // SizedBox(height: 10,),
+  //                   Text(
+  //                     'Total Missed Orders:',
+  //                     style: TextStyle(
+  //                         fontFamily: 'MontserratMedium',
+  //                         color: colors.black,
+  //                         fontSize: 14),
+  //                   ),
+  //                 ],
+  //               ),
+  //               const SizedBox(
+  //                 width: 10,
+  //               ),
+  //               Column(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   Text(
+  //                     total_orders.toString(),
+  //                     style: const TextStyle(
+  //                         fontFamily: 'MontserratBold',
+  //                         color: colors.primary_color,
+  //                         fontSize: 14),
+  //                   ),
+  //                   Text(
+  //                     totalWorkedDays.toString(),
+  //                     style: const TextStyle(
+  //                         fontFamily: 'MontserratBold',
+  //                         color: colors.primary_color,
+  //                         fontSize: 14),
+  //                   ),
+  //                   // Card(
+  //                   //   child: SizedBox(
+  //                   //     height: 40,
+  //                   //     width: 120,
+  //                   //     child: TextField(
+  //                   //       controller: totalOrdersTarget,
+  //                   //       decoration: InputDecoration(
+  //                   //         filled: true,
+  //                   //         fillColor: const Color(0xFFF2F2F2),
+  //                   //         labelText: 'Enter Target',
+  //                   //         labelStyle: const TextStyle(
+  //                   //             fontFamily: 'MontserratBold',
+  //                   //             color: Colors.grey,
+  //                   //             fontSize: 12),
+  //                   //         border: OutlineInputBorder(
+  //                   //           borderSide: const BorderSide(
+  //                   //             width: 0.5,
+  //                   //             color: colors.primary_color,
+  //                   //           ),
+  //                   //           borderRadius: BorderRadius.circular(10.0),
+  //                   //         ),
+  //                   //         enabledBorder: OutlineInputBorder(
+  //                   //           borderSide: const BorderSide(
+  //                   //             width: 0.5,
+  //                   //             color: colors.primary_color,
+  //                   //           ),
+  //                   //           borderRadius: BorderRadius.circular(10.0),
+  //                   //         ),
+  //                   //       ),
+  //                   //       style: const TextStyle(
+  //                   //         fontFamily: 'MontserratBold',
+  //                   //         color: colors.primary_color,
+  //                   //         fontSize: 14,
+  //                   //       ),
+  //                   //     ),
+  //                   //   ),
+  //                   // ),
+  //                   Text(
+  //                     total_missed_orders < 0
+  //                         ? "0"
+  //                         : total_missed_orders.toString(),
+  //                     style: const TextStyle(
+  //                         fontFamily: 'MontserratBold',
+  //                         color: colors.primary_color,
+  //                         fontSize: 14),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //         Padding(
+  //           padding: const EdgeInsets.only(left: 20),
+  //           child: Row(
+  //             mainAxisAlignment: MainAxisAlignment.start,
+  //             children: [
+  //               const Column(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   Text(
+  //                     'Total Orders Target:',
+  //                     style: TextStyle(
+  //                         fontFamily: 'MontserratMedium',
+  //                         color: colors.black,
+  //                         fontSize: 14),
+  //                   ),
+  //                   SizedBox(
+  //                     height: 10,
+  //                   ),
+  //                   Text(
+  //                     'Total Missed Orders:',
+  //                     style: TextStyle(
+  //                         fontFamily: 'MontserratMedium',
+  //                         color: colors.black,
+  //                         fontSize: 14),
+  //                   ),
+  //                 ],
+  //               ),
+  //               const SizedBox(
+  //                 width: 10,
+  //               ),
+  //               Column(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   Card(
+  //                     child: SizedBox(
+  //                       height: 50,
+  //                       width: 120,
+  //                       child: TextField(
+  //                         controller: totalOrdersTarget,
+  //                         keyboardType: TextInputType.number,
+  //                         inputFormatters: [
+  //                           FilteringTextInputFormatter.digitsOnly
+  //                         ],
+  //                         decoration: const InputDecoration(
+  //                             enabledBorder: InputBorder.none,
+  //                             filled: true,
+  //                             fillColor: Color(0xFFF2F2F2),
+  //                             hintText: 'Enter Target',
+  //                             hintStyle: TextStyle(
+  //                                 fontFamily: 'MontserratBold',
+  //                                 color: Colors.grey,
+  //                                 fontSize: 12),
+  //                             border: InputBorder.none),
+  //                         style: const TextStyle(
+  //                           fontFamily: 'MontserratBold',
+  //                           color: colors.primary_color,
+  //                           fontSize: 14,
+  //                         ),
+  //                       ),
+  //                     ),
+  //                   ),
+  //                   Text(
+  //                     total_missed_orders < 0
+  //                         ? "0"
+  //                         : total_missed_orders.toString(),
+  //                     style: const TextStyle(
+  //                         fontFamily: 'MontserratBold',
+  //                         color: colors.primary_color,
+  //                         fontSize: 14),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //         const SizedBox(
+  //           height: 10,
+  //         ),
+  //         Card(
+  //           child: InkWell(
+  //             onTap: () {
+  //               setState(() {
+  //                 total_missed_orders = ((int.tryParse(totalWorkedDays)! +
+  //                         (int.tryParse(totalOrdersTarget.text)!) * 500) -
+  //                     total_orders);
+  //                 debugPrint("total_missed_orders: $total_missed_orders");
+  //                 result =
+  //                     ((total_missed_orders < 0 ? 0 : total_missed_orders) /
+  //                         500);
+  //                 resultText = result % 1 == 0
+  //                     ? result.toInt().toString()
+  //                     : (result >= 0 ? result.ceil() : result.floor())
+  //                         .toString();
+  //                 debugPrint("resultText: $resultText");
+  //               });
+  //             },
+  //             child: Container(
+  //               height: Dimensions.BUTTON_HEIGHT,
+  //               width: size.width * 0.2,
+  //               decoration: BoxDecoration(
+  //                 color: colors.primary,
+  //                 borderRadius: BorderRadius.circular(16),
+  //                 border: const Border(
+  //                   bottom: BorderSide(
+  //                     color: colors.secondary_color,
+  //                     width: 4.0,
+  //                   ),
+  //                   right: BorderSide(
+  //                     color: colors.secondary_color,
+  //                     width: 2.0,
+  //                   ),
+  //                 ),
+  //               ),
+  //               alignment: Alignment.center,
+  //               child: const Text(
+  //                 'Calculate',
+  //                 style: TextStyle(
+  //                     fontFamily: 'MontserratMedium',
+  //                     color: Colors.white,
+  //                     fontSize: Dimensions.FONT_SIZE_SMALL),
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //         const SizedBox(
+  //           height: 10,
+  //         ),
+  //         const Divider(
+  //           height: 0.5,
+  //           color: Colors.white70,
+  //         ),
+  //         const SizedBox(
+  //           height: 10,
+  //         ),
+  //         const Text(
+  //           'Total Hirings Needed',
+  //           style: TextStyle(
+  //               fontFamily: 'MontserratMedium',
+  //               color: colors.black,
+  //               fontSize: 14),
+  //         ),
+  //         const SizedBox(
+  //           height: 10,
+  //         ),
+  //         Container(
+  //           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+  //           decoration: BoxDecoration(
+  //               color: kSecondaryColor, borderRadius: BorderRadius.circular(6)),
+  //           child: Text(
+  //             resultText,
+  //             style: const TextStyle(
+  //                 fontFamily: 'MontserratBold',
+  //                 color: colors.white,
+  //                 fontSize: 16),
+  //           ),
+  //         ),
+  //         const SizedBox(
+  //           height: 10,
+  //         ),
+  //         Container(
+  //           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+  //           decoration: BoxDecoration(
+  //               color: kSecondaryColor,
+  //               borderRadius: BorderRadius.circular(10)),
+  //           child: const Text(
+  //             "Note : No Of Hirings shown is subject to today's date. And it will change on a daily basis, Based on total orders missed and worked days.",
+  //             style: TextStyle(
+  //                 fontFamily: 'MontserratMedium',
+  //                 color: colors.white,
+  //                 fontSize: 10),
+  //           ),
+  //         ),
+  //         const SizedBox(
+  //           height: 10,
+  //         ),
+  //         const Row(
+  //           mainAxisAlignment: MainAxisAlignment.center,
+  //           children: [
+  //             Text(
+  //               "Hire Candidates",
+  //               style: TextStyle(
+  //                   fontFamily: 'MontserratBold',
+  //                   color: Colors.black,
+  //                   fontWeight: FontWeight.bold,
+  //                   fontSize: Dimensions.FONT_SIZE_OVER_LARGE),
+  //             ),
+  //             SizedBox(width: Dimensions.PADDING_SIZE_SMALL),
+  //             Icon(
+  //               Icons.groups,
+  //               size: 30,
+  //               color: Colors.black,
+  //             ),
+  //           ],
+  //         ),
+  //         const Text(
+  //           "\'Per Hiring Get ₹ 600 Incentives\n( ₹ 500 + 500 Orders ₹ 100 = ₹ 600)\'",
+  //           // "\"Get Rs 650 Incentives & \n150 Orders Bonus\"",
+  //           textAlign: TextAlign.center,
+  //           style: TextStyle(
+  //               fontFamily: 'MontserratBold',
+  //               color: colors.red,
+  //               fontSize: Dimensions.FONT_SIZE_DEFAULT),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  //
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return alert;
+  //     },
+  //   );
+  // }
 }
 
-// class OtpInputField extends StatefulWidget {
-//   final String generatedOtp;
-//   final Function onPress;
-//   const OtpInputField(
-//       {super.key, required this.generatedOtp, required this.onPress});
-//
-//   @override
-//   _OtpInputFieldState createState() => _OtpInputFieldState();
-// }
-//
-// class _OtpInputFieldState extends State<OtpInputField> {
-//   TextEditingController otpController1 = TextEditingController();
-//   TextEditingController otpController2 = TextEditingController();
-//   TextEditingController otpController3 = TextEditingController();
-//   TextEditingController otpController4 = TextEditingController();
-//
-//   @override
-//   void dispose() {
-//     otpController1.dispose();
-//     otpController2.dispose();
-//     otpController3.dispose();
-//     otpController4.dispose();
-//     super.dispose();
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Column(
-//       children: [
-//         Row(
-//           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//           children: [
-//             buildOtpTextField(otpController1),
-//             buildOtpTextField(otpController2),
-//             buildOtpTextField(otpController3),
-//             buildOtpTextField(otpController4),
-//           ],
-//         ),
-//         const SizedBox(height: 20.0),
-//         ElevatedButton(
-//           onPressed: () {
-//             String enteredOtp =
-//                 "${otpController1.text}${otpController2.text}${otpController3.text}${otpController4.text}";
-//             widget.onPress(enteredOtp);
-//             //
-//             // if (enteredOtp == widget.generatedOtp) {
-//             //   print('OTP Matched');
-//             // } else {
-//             //   print('OTP Mismatch');
-//             // }
-//             // print('Entered OTP: ${otpController1.text}${otpController2.text}${otpController3.text}${otpController4.text}');
-//           },
-//           child: const Text('Submit'),
-//         ),
-//       ],
-//     );
-//   }
-//
-//   Widget buildOtpTextField(TextEditingController controller) {
-//     return Container(
-//       width: 50.0,
-//       height: 50.0,
-//       alignment: Alignment.center,
-//       decoration: BoxDecoration(
-//         border: Border.all(color: Colors.blue, width: 2.0),
-//         borderRadius: BorderRadius.circular(10.0),
-//       ),
-//       margin: const EdgeInsets.symmetric(horizontal: 3),
-//       child: TextField(
-//         controller: controller,
-//         maxLength: 1,
-//         keyboardType: TextInputType.number,
-//         textAlign: TextAlign.center,
-//         style: const TextStyle(fontSize: 24.0),
-//         decoration: const InputDecoration(
-//           counterText: '',
-//           enabledBorder: InputBorder.none,
-//           focusedBorder: InputBorder.none,
-//         ),
-//         onChanged: (value) {
-//           FocusScope.of(context).nextFocus();
-//         },
-//       ),
-//     );
-//   }
-// }
+class MyAlertDialog extends StatefulWidget {
+  final String todayOrders;
+  final String totalOrders;
+  final String totalWorkedDays;
+  const MyAlertDialog(
+      {super.key,
+      required this.todayOrders,
+      required this.totalOrders,
+      required this.totalWorkedDays});
+  @override
+  _MyAlertDialogState createState() => _MyAlertDialogState();
+}
+
+class _MyAlertDialogState extends State<MyAlertDialog> {
+  final TextEditingController totalOrdersTarget = TextEditingController();
+  @override
+  void dispose() {
+    totalOrdersTarget.dispose();
+    super.dispose();
+  }
+
+  int get totalOrdersDifference =>
+      int.parse(widget.totalOrders) - int.parse(widget.todayOrders);
+
+  // int get totalMissedOrders =>
+  //     ((int.tryParse(widget.totalWorkedDays)! + 1) ?? 0) * 500 - totalOrdersDifference;
+  //
+  // double get result => (totalMissedOrders < 0 ? 0 : totalMissedOrders) / 500;
+  //
+  // String get resultText => result % 1 == 0
+  //     ? result.toInt().toString()
+  //     : (result >= 0 ? result.ceil() : result.floor()).toString();
+
+  int totalMissedOrdersCalculate = 0;
+  // double resultCalculate = 0;
+  String resultTextCalculate = "0";
+
+  @override
+  Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        color: const Color(0xFFF2F2F2),
+      ),
+      margin: EdgeInsets.symmetric(
+          horizontal: size.width * 0.05, vertical: size.height * 0.1),
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF2F2F2),
+        body: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Align(
+                alignment: Alignment.topRight,
+                child: IconButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  icon: Container(
+                    decoration: const BoxDecoration(
+                        shape: BoxShape.circle, color: Colors.white),
+                    padding: const EdgeInsets.all(3),
+                    child: Transform.rotate(
+                      angle: 45 * 3.1415926535 / 180,
+                      child: const Icon(Icons.add),
+                    ),
+                  ),
+                ),
+              ),
+              const Text(
+                'Average Calculator',
+                style: TextStyle(
+                    fontFamily: 'MontserratBold',
+                    color: colors.primary_color,
+                    fontSize: 18),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Total Orders Generated:',
+                        style: TextStyle(
+                            fontFamily: 'MontserratMedium',
+                            color: colors.black,
+                            fontSize: 14),
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      const Text(
+                        'Total Worked Days:',
+                        style: TextStyle(
+                            fontFamily: 'MontserratMedium',
+                            color: colors.black,
+                            fontSize: 14),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Row(
+                        children: [
+                          const Text(
+                            'Enter Today\'s Target',
+                            style: TextStyle(
+                                fontFamily: 'MontserratMedium',
+                                color: colors.black,
+                                fontSize: 14),
+                          ),
+                          Image.asset(
+                            'assets/images/arrow.123354.png',
+                            height: 30,
+                          )
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 25,
+                      ),
+                      const Text(
+                        'Total Missed Orders:',
+                        style: TextStyle(
+                            fontFamily: 'MontserratMedium',
+                            color: colors.black,
+                            fontSize: 14),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        totalOrdersDifference.toString(),
+                        style: const TextStyle(
+                            fontFamily: 'MontserratBold',
+                            color: colors.primary_color,
+                            fontSize: 14),
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      Text(
+                        "${int.parse(widget.totalWorkedDays) + 1}",
+                        style: const TextStyle(
+                            fontFamily: 'MontserratBold',
+                            color: colors.primary_color,
+                            fontSize: 14),
+                      ),
+                      Card(
+                        color: const Color(0xFFF2F2F2),
+                        elevation: 0,
+                        child: SizedBox(
+                          height: 50,
+                          width: size.width * 0.2,
+                          child: TextField(
+                            controller: totalOrdersTarget,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly
+                            ],
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: kSecondaryColor,
+                              border: OutlineInputBorder(
+                                borderSide: const BorderSide(
+                                  width: 0.1,
+                                  color: Colors.white70,
+                                ),
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: const BorderSide(
+                                  width: 0.1,
+                                  color: Colors.white70,
+                                ),
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                            ),
+                            style: const TextStyle(
+                              fontFamily: 'MontserratBold',
+                              color: colors.white,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      Text(
+                        totalMissedOrdersCalculate.toString(),
+                        style: const TextStyle(
+                            fontFamily: 'MontserratBold',
+                            color: colors.primary_color,
+                            fontSize: 14),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Card(
+                color: const Color(0xFFF2F2F2),
+                elevation: 0,
+                child: InkWell(
+                  onTap: () {
+                    if (totalOrdersTarget.text.isNotEmpty) {
+                      setState(() {
+                        totalMissedOrdersCalculate =
+                            ((int.tryParse(widget.totalWorkedDays)! + 1) * 500 -
+                                (int.tryParse(totalOrdersTarget.text)!) -
+                                totalOrdersDifference);
+                        debugPrint(
+                            "totalMissedOrdersCalculate: $totalMissedOrdersCalculate");
+
+                        var resultCalculate = ((totalMissedOrdersCalculate < 0
+                                ? 0
+                                : totalMissedOrdersCalculate) /
+                            500);
+                        resultTextCalculate = resultCalculate % 1 == 0
+                            ? resultCalculate.toInt().toString()
+                            : (resultCalculate >= 0
+                                    ? resultCalculate.ceil()
+                                    : resultCalculate.floor())
+                                .toString();
+                        debugPrint("resultTextCalculate: $resultTextCalculate");
+                      });
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          duration: Duration(seconds: 3),
+                          backgroundColor: kPurpleColor,
+                          behavior: SnackBarBehavior.floating, // Add this line
+                          margin:
+                              EdgeInsets.only(bottom: 10, left: 15, right: 15),
+                          content: Text(
+                            'Please enter your today target',
+                            style: TextStyle(
+                              fontFamily: 'MontserratBold',
+                              color: Colors.white,
+                              fontSize: Dimensions.FONT_SIZE_DEFAULT,
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                  child: Container(
+                    height: Dimensions.BUTTON_HEIGHT,
+                    width: size.width * 0.25,
+                    decoration: BoxDecoration(
+                      // color: Colors.grey,
+                      gradient: const LinearGradient(
+                        colors: [
+                          Color(0xFF569DAA),
+                          Color(0xFF0A4D68),
+                        ],
+                      ),
+                      border: const Border(
+                        bottom: BorderSide(
+                          color: Color(0xFF0A3648),
+                          width: 4.0,
+                        ),
+                        right: BorderSide(
+                          color: Color(0xFF0A3648),
+                          width: 2.0,
+                        ),
+                      ),
+                      borderRadius: BorderRadius.circular(1000),
+                    ),
+                    alignment: Alignment.center,
+                    child: const Text(
+                      'Calculate',
+                      style: TextStyle(
+                          fontFamily: 'MontserratMedium',
+                          color: Colors.white,
+                          fontSize: Dimensions.FONT_SIZE_SMALL),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              const Divider(
+                height: 0.5,
+                color: Colors.white70,
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              const Text(
+                'Total Hirings Needed',
+                style: TextStyle(
+                    fontFamily: 'MontserratMedium',
+                    color: colors.black,
+                    fontSize: 14),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                    color: kSecondaryColor,
+                    borderRadius: BorderRadius.circular(6)),
+                child: Text(
+                  resultTextCalculate,
+                  style: const TextStyle(
+                      fontFamily: 'MontserratBold',
+                      color: colors.white,
+                      fontSize: 16),
+                ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                    color: kSecondaryColor,
+                    borderRadius: BorderRadius.circular(10)),
+                child: const Text(
+                  "Note : No Of Hirings shown is subject to today's date. And it will change on a daily basis, Based on total orders missed and worked days.",
+                  style: TextStyle(
+                      fontFamily: 'MontserratMedium',
+                      color: colors.white,
+                      fontSize: 10),
+                ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Hire Candidates",
+                    style: TextStyle(
+                        fontFamily: 'MontserratBold',
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: Dimensions.FONT_SIZE_OVER_LARGE),
+                  ),
+                  SizedBox(width: Dimensions.PADDING_SIZE_SMALL),
+                  Icon(
+                    Icons.groups,
+                    size: 30,
+                    color: Colors.black,
+                  ),
+                ],
+              ),
+              const Text(
+                "\'Per Hiring Get ₹ 600 Incentives\n( ₹ 500 + 500 Orders ₹ 100 = ₹ 600)\'",
+                // "\"Get Rs 650 Incentives & \n150 Orders Bonus\"",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontFamily: 'MontserratBold',
+                    color: colors.red,
+                    fontSize: Dimensions.FONT_SIZE_DEFAULT),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

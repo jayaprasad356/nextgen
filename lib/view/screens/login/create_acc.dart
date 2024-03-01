@@ -381,6 +381,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                       authCon.showLoadingIndicator(context);
                       await Future.delayed(const Duration(seconds: 5));
                       authCon.registerAPI(
+                          context,
                           nameController.text,
                           phoneNumController.text,
                           passwordController.text,

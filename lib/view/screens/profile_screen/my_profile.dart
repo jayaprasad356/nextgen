@@ -9,6 +9,7 @@ import 'package:nextgen/util/Color.dart';
 import 'package:nextgen/util/Constant.dart';
 import 'package:nextgen/view/screens/profile_screen/update_profile_screen.dart';
 import 'package:nextgen/view/screens/upi_screen/apply_leave.dart';
+import 'package:nextgen/view/screens/upi_screen/marketing_leads.dart';
 import 'package:nextgen/view/screens/upi_screen/wallet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -319,6 +320,38 @@ class _MyProfileState extends State<MyProfile> {
                   ),
                 ),
               ),
+              // const SizedBox(
+              //   height: 15,
+              // ),
+              // Padding(
+              //   padding: const EdgeInsets.symmetric(horizontal: 15),
+              //   child: InkWell(
+              //     onTap: () => Get.to(const MarketingLeads()),
+              //     child: const Row(
+              //       crossAxisAlignment: CrossAxisAlignment.center,
+              //       children: [
+              //         Padding(
+              //           padding: EdgeInsets.only(right: 10, left: 10),
+              //           child: ImageIcon(
+              //             AssetImage("assets/images/download-removebg-preview11.png"),
+              //             color: colors.white,
+              //           ),
+              //         ),
+              //         SizedBox(
+              //           width: 15,
+              //         ),
+              //         Text(
+              //           "Marketing Leads",
+              //           textAlign: TextAlign.start,
+              //           style: TextStyle(
+              //             color: Colors.white,
+              //             fontSize: 20,
+              //           ),
+              //         ),
+              //       ],
+              //     ),
+              //   ),
+              // ),
               const SizedBox(
                 height: 15,
               ),

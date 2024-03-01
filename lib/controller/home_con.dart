@@ -44,6 +44,7 @@ class HomeController extends GetxController implements GetxService {
   int timer = 1;
   RxBool isLoading = false.obs;
   RxBool enablePlaceOrder = false.obs;
+  RxBool isAvailableRandom = true.obs;
   // late int minQty;
   // late int maxQty;
   // String balance = "";
@@ -104,10 +105,13 @@ class HomeController extends GetxController implements GetxService {
     });
   }
 
-  void checkAvailability(context, String productEan) async {
+  void checkAvailability(context, String productEan, String availableRandom,) async {
     isCheck.value = true;
     Timer(const Duration(seconds: 3), () async {
+      if(availableRandom == "1"){isAvailableRandom.value =
+          generateRandomBoolVal();}
       debugPrint("productEan: $productEan");
+      debugPrint("=isAvailable: ${isAvailableRandom.value}");
       debugPrint("productEanCnt: $productEanCnt");
       if (productEanCnt == productEan) {
         orderAvailable.value =
@@ -117,7 +121,7 @@ class HomeController extends GetxController implements GetxService {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              orderAvailable == "1" ? "Available" : "Not Available",
+              orderAvailable == "1" ? isAvailableRandom.value == true ? "Available" : "Not Available" : "Not Available",
               style: const TextStyle(
                   fontFamily: 'MontserratBold',
                   color: Colors.white,
@@ -182,6 +186,13 @@ class HomeController extends GetxController implements GetxService {
     // Generate a random number between 100000 and 999999
     Random random = Random();
     return 100000 + random.nextInt(900000);
+  }
+
+  bool generateRandomBoolVal() {
+    Random random = Random();
+    int probability = random.nextInt(10);
+
+    return probability < 5;
   }
 
   int generateQtySoldNumber(int minQty,int maxQty) {

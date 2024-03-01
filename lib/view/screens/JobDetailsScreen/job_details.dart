@@ -49,6 +49,8 @@ class JobDetailScreenState extends State<JobDetailScreen> {
     'assets/images/NextGen Job Details - 8.jpg',
     'assets/images/NextGen Job Details - 9.jpg',
     'assets/images/NextGen Job Details - 10.jpg',
+    'assets/images/WhatsApp Image 2024-03-01 at 4.13.24 AM.jpeg',
+    'assets/images/WhatsApp Image 2024-03-01 at 4.13.59 AM.jpeg',
     'assets/images/NextGen Job Details - 11.jpg',
   ];
 

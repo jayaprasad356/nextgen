@@ -199,7 +199,7 @@ class _OtpVerificationState extends State<OtpVerification> {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const MainScreen(),
+                          builder: (context) =>  MainScreen(isNotifyNav: false,),
                         ),
                       );
                     }
@@ -559,7 +559,7 @@ class _OtpVerificationState extends State<OtpVerification> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => const MainScreen(),
+          builder: (context) =>  MainScreen(isNotifyNav: false,),
         ),
       );
 

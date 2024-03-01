@@ -212,7 +212,7 @@ class _SyncState extends State<Sync> {
                       await storeLocal.delete(key: 'syncDataNextgenSuccess');
                       await storeLocal.write(key: 'syncDataNextgenSuccess', value: syncDataNextgen.success.toString());
                       Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(builder: (context) => const MainScreen()),
+                        MaterialPageRoute(builder: (context) =>  MainScreen(isNotifyNav: false,)),
                       );
                     }
                     Get.snackbar(

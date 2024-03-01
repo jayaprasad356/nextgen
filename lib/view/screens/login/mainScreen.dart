@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:html' as html;
 
+import 'package:flutter/cupertino.dart';
 import 'package:nextgen/Helper/apiCall.dart';
 import 'package:nextgen/controller/auth_con.dart';
 import 'package:nextgen/controller/home_con.dart';
+import 'package:nextgen/controller/notification_con.dart';
 import 'package:nextgen/controller/pcc_controller.dart';
 import 'package:nextgen/model/jobs_show.dart';
 import 'package:nextgen/model/user.dart';
@@ -44,7 +46,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({Key? key}) : super(key: key);
+  final bool isNotifyNav;
+  MainScreen({Key? key, required this.isNotifyNav}) : super(key: key);
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -52,10 +55,13 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   final AuthCon authCon = Get.find<AuthCon>();
+  final NotificationController notificationController =
+  Get.find<NotificationController>();
   final HomeController homeController = Get.find<HomeController>();
   // final PCC c = Get.find<PCC>();
   final TextEditingController _payAmountController = TextEditingController();
   final TextEditingController _addCoinController = TextEditingController();
+
 
   int _selctedIndex = 0;
   String title = "Nextgen";
@@ -65,7 +71,7 @@ class _MainScreenState extends State<MainScreen> {
   bool _leftArrowVisible = false;
   bool _notificationVisible = false;
   bool _downloadVisible = false;
-  bool _addPost = false;
+  bool _youtubeVideo = false;
   late Users user;
   late SharedPreferences prefs;
   String coins = "0";
@@ -81,11 +87,17 @@ class _MainScreenState extends State<MainScreen> {
   int executionCount = 0;
   Timer? timer;
   String joinIsTrue = '';
+  late bool isNotifyId;
+  late Timer timerNotify;
 
   @override
   void initState() {
     super.initState();
     // setupSettings();
+
+    if (widget.isNotifyNav != true) {
+      notificationController.notificationAPI();
+    }
 
     html.window.addEventListener('visibilitychange', (event) {
       if (html.document.visibilityState == 'visible') {
@@ -117,7 +129,6 @@ class _MainScreenState extends State<MainScreen> {
       }
     });
 
-
     FirebaseMessaging.instance.getToken().then((token) {
       setState(() {
         _fcmToken = token!;
@@ -127,6 +138,12 @@ class _MainScreenState extends State<MainScreen> {
     });
     startTimer();
     // offerImage();
+    debugPrint('widget.isNotifyNav: ${widget.isNotifyNav}');
+    if (widget.isNotifyNav == true) {
+      _selctedIndex = 2;
+    } else {
+      _selctedIndex = 0;
+    }
     // if (status == '0') {
     //   _selctedIndex = 0;
     // } else {
@@ -137,7 +154,7 @@ class _MainScreenState extends State<MainScreen> {
   void startTimer() {
     const int maxExecutions = 2;
 
-    timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
+    timerNotify = Timer.periodic(const Duration(seconds: 2), (Timer timer) {
       _initializeData();
       executionCount++;
 
@@ -149,18 +166,114 @@ class _MainScreenState extends State<MainScreen> {
 
   Future<void> _initializeData() async {
     String? userID = await storeLocal.read(key: Constant.USER_ID);
-    debugPrint('userID: $userID');
+    debugPrint('home page userID: $userID');
     authCon.userDetailsAPI(userID);
     prefs = await SharedPreferences.getInstance();
-    setState(() {
+    setState(() async {
       _onItemTapped;
-      joinIsTrue = prefs.getString(Constant.JOIN_IS_TRUE)!;
-      debugPrint("joinIsTrue: $joinIsTrue");
-      status = prefs.getString(Constant.STATUS)!;
-      old_plan = prefs.getString(Constant.OLD_PLAN)!;
-      plan = prefs.getString(Constant.PLAN)!;
-      balance = prefs.getString(Constant.BALANCE)!;
+      debugPrint("home page joinIsTrue: $joinIsTrue");
+      // joinIsTrue = (await storeLocal.read(key: Constant.JOIN_IS_TRUE)!)!;
+      // debugPrint("home page joinIsTrue: $joinIsTrue");
+      status = (await storeLocal.read(key: Constant.STATUS))!;
+      old_plan = (await storeLocal.read(key: Constant.OLD_PLAN))!;
+      plan = (await storeLocal.read(key: Constant.PLAN))!;
+      balance = (await storeLocal.read(key: Constant.BALANCE))!;
+      isNotifyId = notificationController.isIdMatch.value;
+      debugPrint('isNotifyId isNotifyId: $isNotifyId');
+      // isNotifyId = (await storeLocal.read(key: "notificationId"))!;
+      if(isNotifyId == true) {
+        hideLoadingIndicator(context);
+        showLoadingIndicator(context);
+      }
     });
+  }
+
+  @override
+  void dispose() {
+    timerNotify.cancel(); // Cancel the timer when the widget is disposed
+    super.dispose();
+  }
+
+  void showLoadingIndicator(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return WillPopScope(
+          onWillPop: () async => false, // Disable back button press
+          child: AlertDialog(
+            // Remove 'const' here
+            content: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'You have new notification',
+                    style: TextStyle(
+                        fontFamily: 'MontserratMedium',
+                        color: Colors.black,
+                        fontSize: Dimensions.FONT_SIZE_LARGE),
+                  ),
+                  const SizedBox(height: 10),
+                  InkWell(
+                    onTap: (){
+                      // Set _selctedIndex to 2 when 'read' is tapped
+                      // setState(() {
+                      //   _selctedIndex = 2;
+                      //   hideLoadingIndicator(context);
+                      // });
+
+                      var isNotifyNav = true;
+
+                      notificationController.isIdMatch.value = false;
+
+                      Navigator.of(context).pop();
+                      // Navigate to the page corresponding to index 2
+                      debugPrint('isNotifyNav: $isNotifyNav');
+                      Get.to( MainScreen(isNotifyNav: isNotifyNav));
+                      isNotifyNav = false;
+                      debugPrint('false isNotifyNav: $isNotifyNav');
+                    },
+                    child: Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: kPurpleColor,
+                        borderRadius: BorderRadius.circular(1000),
+                        border: Border(
+                          bottom: BorderSide(
+                            color: Colors.purple.shade800,
+                            width: 4.0,
+                          ),
+                          right: BorderSide(
+                            color: Colors.purple.shade800,
+                            width: 2.0,
+                          ),
+                        ),
+                      ),
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: const Text(
+                        'Read',
+                        style: TextStyle(
+                            fontFamily: 'MontserratBold',
+                            color: kWhiteColor,
+                            fontSize: Dimensions.FONT_SIZE_DEFAULT),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+
+  void hideLoadingIndicator(BuildContext context) {
+    Navigator.of(context).pop();
   }
 
   @override
@@ -170,7 +283,6 @@ class _MainScreenState extends State<MainScreen> {
     joinIsTrue = prefs.getString(Constant.JOIN_IS_TRUE)!;
     debugPrint("setStatejoinIsTrue: $joinIsTrue");
   }
-
 
   // @override
   // void setState(VoidCallback fn) {
@@ -240,7 +352,7 @@ class _MainScreenState extends State<MainScreen> {
         _logoutVisible = false;
         _leftArrowVisible = false;
         _notificationVisible = false;
-        _addPost = false;
+        _youtubeVideo = true;
       } else if (index == 2) {
         title = "Notifications";
         _actionsVisible = false;
@@ -248,7 +360,7 @@ class _MainScreenState extends State<MainScreen> {
         _logoutVisible = false;
         _leftArrowVisible = false;
         _notificationVisible = false;
-        _addPost = false;
+        _youtubeVideo = false;
       } else if (index == 3) {
         title = "Profile";
         _actionsVisible = false;
@@ -256,7 +368,7 @@ class _MainScreenState extends State<MainScreen> {
         _logoutVisible = true;
         _leftArrowVisible = false;
         _notificationVisible = false;
-        _addPost = false;
+        _youtubeVideo = false;
       } else {
         title = "Nextgen";
         _actionsVisible = true;
@@ -264,7 +376,7 @@ class _MainScreenState extends State<MainScreen> {
         _logoutVisible = false;
         _leftArrowVisible = false;
         _notificationVisible = false;
-        _addPost = false;
+        _youtubeVideo = false;
       }
     });
   }
@@ -305,46 +417,63 @@ class _MainScreenState extends State<MainScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    InkWell(
-                      onTap: () async {
-                        authCon.showLoadingIndicator(context);
-                        await Future.delayed(const Duration(seconds: 5));
-                        html.window.location.reload();
-                        authCon.hideLoadingIndicator(context);
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: kPurpleColor,
-                          borderRadius: BorderRadius.circular(1000),
-                          border: Border(
-                            bottom: BorderSide(
-                              color: Colors.purple.shade800,
-                              width: 4.0,
-                            ),
-                            right: BorderSide(
-                              color: Colors.purple.shade800,
-                              width: 2.0,
-                            ),
-                          ),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
-                        child: const Icon(Icons.refresh,size: 20,color: Colors.white,),
-                      )
-                    ),
-                    const Text('Refresh',
+                    const Text(
+                      'How to take trail',
                       style: TextStyle(
                           fontFamily: 'MontserratLight',
                           color: kWhiteColor,
-                          fontSize: Dimensions.FONT_SIZE_EXTRA_SMALL),),
+                          fontSize: Dimensions.FONT_SIZE_EXTRA_SMALL),
+                    ),
+                    InkWell(
+                        onTap: () {
+                          String uri =
+                              'https://youtu.be/N0ao4OA_OQI?si=u0DxUYKe7Lrw7RHD';
+                          launchUrl(
+                            Uri.parse(uri),
+                            mode: LaunchMode.inAppWebView,
+                          );
+                          // authCon.showLoadingIndicator(context);
+                          // await Future.delayed(const Duration(seconds: 5));
+                          // html.window.location.reload();
+                          // authCon.hideLoadingIndicator(context);
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: kPurpleColor,
+                            borderRadius: BorderRadius.circular(1000),
+                            border: Border(
+                              bottom: BorderSide(
+                                color: Colors.purple.shade800,
+                                width: 4.0,
+                              ),
+                              right: BorderSide(
+                                color: Colors.purple.shade800,
+                                width: 2.0,
+                              ),
+                            ),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 5, horizontal: 10),
+                          child: const Text(
+                            'Open',
+                            style: TextStyle(
+                                fontFamily: 'MontserratBold',
+                                color: kWhiteColor,
+                                fontSize: Dimensions.FONT_SIZE_EXTRA_SMALL),
+                          ),
+                        )),
                   ],
-                ),const SizedBox(width: 30,),
+                ),
+                const SizedBox(
+                  width: 30,
+                ),
               ]
             : [
                 _logoutVisible
                     ? GestureDetector(
                         onTap: () {
-                          prefs.setString(Constant.LOGED_IN, "false");
-                          logout();
+                          // prefs.setString(Constant.LOGED_IN, "false");
+                          // logout();
                         },
                         child: Padding(
                           padding: const EdgeInsets.all(12.0),
@@ -360,43 +489,46 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                       )
                     : const Text(""),
-          _downloadVisible
-          // ? Container()
-              ? Padding(
-                padding: const EdgeInsets.only(right: 20),
-                child: InkWell(
-                onTap: () {
-                  String uri = 'https://drive.google.com/file/d/1IEFyCyKmAckRR7N043uZaCbTlTt54QoN/view?usp=drivesdk'; //place download link
-                  launchUrl(
-                    Uri.parse(uri),
-                    mode: LaunchMode.inAppWebView,
-                  );
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: kPurpleColor,
-                    borderRadius: BorderRadius.circular(1000),
-                    border: Border(
-                      bottom: BorderSide(
-                        color: Colors.purple.shade800,
-                        width: 4.0,
-                      ),
-                      right: BorderSide(
-                        color: Colors.purple.shade800,
-                        width: 2.0,
-                      ),
-                    ),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 10,horizontal: 20),
-                  child: const Text('Install App',
-                    style: TextStyle(
-                        fontFamily: 'MontserratBold',
-                        color: kWhiteColor,
-                        fontSize: Dimensions.FONT_SIZE_SMALL),),
-                )
-                          ),
-              )
-              : const Text(""),
+                _downloadVisible
+                    // ? Container()
+                    ? Padding(
+                        padding: const EdgeInsets.only(right: 20),
+                        child: InkWell(
+                            onTap: () {
+                              String uri =
+                                  'https://drive.google.com/file/d/1IEFyCyKmAckRR7N043uZaCbTlTt54QoN/view?usp=drivesdk'; //place download link
+                              launchUrl(
+                                Uri.parse(uri),
+                                mode: LaunchMode.inAppWebView,
+                              );
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: kPurpleColor,
+                                borderRadius: BorderRadius.circular(1000),
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: Colors.purple.shade800,
+                                    width: 4.0,
+                                  ),
+                                  right: BorderSide(
+                                    color: Colors.purple.shade800,
+                                    width: 2.0,
+                                  ),
+                                ),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 10, horizontal: 20),
+                              child: const Text(
+                                'Install App',
+                                style: TextStyle(
+                                    fontFamily: 'MontserratBold',
+                                    color: kWhiteColor,
+                                    fontSize: Dimensions.FONT_SIZE_SMALL),
+                              ),
+                            )),
+                      )
+                    : const Text(""),
                 _notificationVisible
                     ? GestureDetector(
                         onTap: () {
@@ -421,29 +553,64 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                       )
                     : const Text(""),
-                _addPost
-                    ? GestureDetector(
-                        onTap: () {
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //     builder: (context) => const PostUpload(),
-                          //   ),
-                          // );
-                        },
-                        child: const Padding(
-                          padding: EdgeInsets.all(12.0),
-                          child: ColorFiltered(
-                            colorFilter:
-                                ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                            child: Icon(
-                              Icons.add_box,
-                              color: Colors.white,
-                              size: 30,
+                _youtubeVideo
+                    ? Container(
+                  width: 100,
+                      margin: const EdgeInsets.only(
+                        right: 15,),
+                      child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const Text(
+                              'How we work',
+                              style: TextStyle(
+                                  fontFamily: 'MontserratLight',
+                                  color: kWhiteColor,
+                                  fontSize: Dimensions.FONT_SIZE_EXTRA_SMALL),
                             ),
-                          ),
+                            InkWell(
+                                onTap: () {
+                                  String uri =
+                                      'https://youtu.be/-h4tsBOdF50?si=fX3ez1_UE3l2Rfjx';
+                                  launchUrl(
+                                    Uri.parse(uri),
+                                    mode: LaunchMode.inAppWebView,
+                                  );
+                                  // authCon.showLoadingIndicator(context);
+                                  // await Future.delayed(const Duration(seconds: 5));
+                                  // html.window.location.reload();
+                                  // authCon.hideLoadingIndicator(context);
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: kPurpleColor,
+                                    borderRadius: BorderRadius.circular(1000),
+                                    border: Border(
+                                      bottom: BorderSide(
+                                        color: Colors.purple.shade800,
+                                        width: 4.0,
+                                      ),
+                                      right: BorderSide(
+                                        color: Colors.purple.shade800,
+                                        width: 2.0,
+                                      ),
+                                    ),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 5, horizontal: 10),
+                                  child: const Text(
+                                    'Open',
+                                    style: TextStyle(
+                                        fontFamily: 'MontserratBold',
+                                        color: kWhiteColor,
+                                        fontSize:
+                                            Dimensions.FONT_SIZE_EXTRA_SMALL),
+                                  ),
+                                )),
+                          ],
                         ),
-                      )
+                    )
                     : const Text(""),
               ],
       ),
@@ -473,7 +640,9 @@ class _MainScreenState extends State<MainScreen> {
               ),
               BottomNavigationBarItem(
                   icon: Icon(Icons.work,
-                      color: _selctedIndex == 1 ? Colors.deepOrange : colors.white),
+                      color: _selctedIndex == 1
+                          ? Colors.deepOrange
+                          : colors.white),
                   label: 'Job Detail',
                   backgroundColor: colors.white),
               BottomNavigationBarItem(
@@ -488,7 +657,9 @@ class _MainScreenState extends State<MainScreen> {
               ),
               BottomNavigationBarItem(
                   icon: Icon(Icons.person,
-                      color: _selctedIndex == 3 ? Colors.deepOrange : colors.white),
+                      color: _selctedIndex == 3
+                          ? Colors.deepOrange
+                          : colors.white),
                   label: 'Profile',
                   backgroundColor: colors.white),
             ],
@@ -773,6 +944,8 @@ class _MainScreenState extends State<MainScreen> {
     SystemNavigator.pop();
     FirebaseAuth.instance.signOut();
     await storeLocal.deleteAll();
-    Get.to(const LoginScreen());
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
+    );
   }
 }

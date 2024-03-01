@@ -419,7 +419,7 @@ class _NewProfileScreenState extends State<NewProfileScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => const MainScreen(),
+          builder: (context) =>  MainScreen(isNotifyNav: false,),
         ),
       );
     } else {

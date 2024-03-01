@@ -101,6 +101,12 @@ class Data {
   String? lastTodayOrders;
   String? minQty;
   String? maxQty;
+  String? enrollDate;
+  String? planPrice;
+  String? studentPlan;
+  String? days60Plan;
+  String? loginTime;
+  String? productStatus;
 
   Data(
       {this.id,
@@ -165,7 +171,13 @@ class Data {
         this.hiringEarings,
         this.lastTodayOrders,
         this.minQty,
-        this.maxQty});
+        this.maxQty,
+        this.enrollDate,
+        this.planPrice,
+        this.studentPlan,
+        this.days60Plan,
+        this.loginTime,
+        this.productStatus});
 
   Data.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -231,6 +243,12 @@ class Data {
     lastTodayOrders = json['last_today_orders'];
     minQty = json['min_qty'];
     maxQty = json['max_qty'];
+    enrollDate = json['enroll_date'];
+    planPrice = json['plan_price'];
+    studentPlan = json['student_plan'];
+    days60Plan = json['days_60_plan'];
+    loginTime = json['login_time'];
+    productStatus = json['product_status'];
   }
 
   Map<String, dynamic> toJson() {
@@ -298,6 +316,12 @@ class Data {
     data['last_today_orders'] = lastTodayOrders;
     data['min_qty'] = minQty;
     data['max_qty'] = maxQty;
+    data['enroll_date'] = enrollDate;
+    data['plan_price'] = planPrice;
+    data['student_plan'] = studentPlan;
+    data['days_60_plan'] = days60Plan;
+    data['login_time'] = loginTime;
+    data['product_status'] = productStatus;
     return data;
   }
 }

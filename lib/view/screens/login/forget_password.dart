@@ -9,7 +9,6 @@ import 'package:nextgen/util/Constant.dart';
 import 'package:nextgen/controller/utils.dart';
 import 'package:nextgen/util/index.dart';
 import 'package:nextgen/view/screens/login/create_acc.dart';
-import 'package:nextgen/view/screens/login/forget_password.dart';
 import 'package:nextgen/view/screens/login/otpVerfication.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -23,17 +22,18 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:device_info/device_info.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+class ForgetPassScreen extends StatefulWidget {
+  const ForgetPassScreen({Key? key}) : super(key: key);
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<ForgetPassScreen> createState() => _ForgetPassScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _ForgetPassScreenState extends State<ForgetPassScreen> {
   final AuthCon authCon = Get.find<AuthCon>();
   final TextEditingController phoneNumController = TextEditingController();
-  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController confirmController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   late SharedPreferences prefs;
   late Timer _timer;
@@ -44,9 +44,9 @@ class _LoginScreenState extends State<LoginScreen> {
     super.initState();
     // authCon.deviceInfo();
     deviceInfo();
-    _timer = Timer.periodic(const Duration(seconds: 2), (Timer timer) {
-      refreshPage();
-    });
+    // _timer = Timer.periodic(const Duration(seconds: 2), (Timer timer) {
+    //   refreshPage();
+    // });
   }
 
   Future<String> deviceInfo() async {
@@ -64,16 +64,15 @@ class _LoginScreenState extends State<LoginScreen> {
     return deviceID;
   }
 
-  @override
-  void dispose() {
-    _timer.cancel();
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   _timer.cancel();
+  //   super.dispose();
+  // }
 
-  void refreshPage() {
-    setState(() async {
-    });
-  }
+  // void refreshPage() {
+  //   setState(() async {});
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -103,12 +102,26 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      "Sign in Your Account",
-                      style: TextStyle(
-                          fontFamily: 'MontserratBold',
-                          color: kTextDarkColor,
-                          fontSize: Dimensions.FONT_SIZE_CLASSIC_LARGE),
+                    Row(
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            Get.back();
+                          },
+                          child: const Icon(
+                            Icons.arrow_back_ios_new,
+                            color: kTextDarkColor,
+                          ),
+                        ),
+                        const SizedBox(width: Dimensions.PADDING_SIZE_SMALL),
+                        const Text(
+                          "Forgot Password",
+                          style: TextStyle(
+                              fontFamily: 'MontserratBold',
+                              color: kTextDarkColor,
+                              fontSize: Dimensions.FONT_SIZE_CLASSIC_LARGE),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: Dimensions.PADDING_SIZE_SMALL),
                     const Text(
@@ -150,6 +163,42 @@ class _LoginScreenState extends State<LoginScreen> {
                           color: kTextDarkColor,
                           fontSize: Dimensions.FONT_SIZE_DEFAULT),
                     ),
+                    const Text(
+                      "Email",
+                      style: TextStyle(
+                          fontFamily: 'MontserratBold',
+                          color: kTextDarkColor,
+                          fontSize: Dimensions.FONT_SIZE_DEFAULT),
+                    ),
+                    const SizedBox(height: Dimensions.PADDING_SIZE_SMALL),
+                    TextField(
+                      controller: emailController,
+                      decoration: InputDecoration(
+                        hintText: 'Email ID', // Hint text
+                        hintStyle: const TextStyle(
+                            fontFamily: 'MontserratBold',
+                            color: kHintText,
+                            fontSize: Dimensions.FONT_SIZE_DEFAULT),
+                        border: OutlineInputBorder(
+                          borderSide: const BorderSide(
+                            width: 1,
+                            color: kPrimaryColor,
+                          ),
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(
+                            width: 1,
+                            color: kPrimaryColor,
+                          ),
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                      ),
+                      style: const TextStyle(
+                          fontFamily: 'MontserratBold',
+                          color: kTextDarkColor,
+                          fontSize: Dimensions.FONT_SIZE_DEFAULT),
+                    ),
                     const SizedBox(height: Dimensions.PADDING_SIZE_SMALL),
                     const Text(
                       "Password",
@@ -162,9 +211,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     Obx(
                       () => TextField(
                         controller: passwordController,
-                        obscureText: authCon.obscuredSiPass.value,
+                        obscureText: authCon.obscuredPass.value,
                         obscuringCharacter: "*",
-                        focusNode: authCon.textFieldFocusNodeSiPass,
+                        focusNode: authCon.textFieldFocusNodePass,
                         decoration: InputDecoration(
                           hintText: 'Enter Password', // Hint text
                           hintStyle: const TextStyle(
@@ -189,8 +238,62 @@ class _LoginScreenState extends State<LoginScreen> {
                             padding: const EdgeInsets.only(
                                 right: 10, top: 10, bottom: 10),
                             child: GestureDetector(
-                                onTap: authCon.toggleObscuredSiPass,
-                                child: authCon.obscuredSiPass.value
+                                onTap: authCon.toggleObscuredPass,
+                                child: authCon.obscuredPass.value
+                                    ? const Icon(Icons.visibility_off)
+                                    : const Icon(
+                                        Icons.visibility,
+                                        color: kPrimaryColor,
+                                      )),
+                          ),
+                        ),
+                        style: const TextStyle(
+                            fontFamily: 'MontserratBold',
+                            color: kTextDarkColor,
+                            fontSize: Dimensions.FONT_SIZE_DEFAULT),
+                      ),
+                    ),
+                    const SizedBox(height: Dimensions.PADDING_SIZE_SMALL),
+                    const Text(
+                      "Confirm Password",
+                      style: TextStyle(
+                          fontFamily: 'MontserratBold',
+                          color: kTextDarkColor,
+                          fontSize: Dimensions.FONT_SIZE_DEFAULT),
+                    ),
+                    const SizedBox(height: Dimensions.PADDING_SIZE_SMALL),
+                    Obx(
+                      () => TextField(
+                        controller: confirmController,
+                        obscureText: authCon.obscured.value,
+                        obscuringCharacter: "*",
+                        focusNode: authCon.textFieldFocusNode,
+                        decoration: InputDecoration(
+                          hintText: 'Enter Confirm Password', // Hint text
+                          hintStyle: const TextStyle(
+                              fontFamily: 'MontserratBold',
+                              color: kHintText,
+                              fontSize: Dimensions.FONT_SIZE_DEFAULT),
+                          border: OutlineInputBorder(
+                            borderSide: const BorderSide(
+                              width: 1,
+                              color: kPrimaryColor,
+                            ),
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(
+                              width: 1,
+                              color: kPrimaryColor,
+                            ),
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          suffixIcon: Padding(
+                            padding: const EdgeInsets.only(
+                                right: 10, top: 10, bottom: 10),
+                            child: GestureDetector(
+                                onTap: authCon.toggleObscured,
+                                child: authCon.obscured.value
                                     ? const Icon(Icons.visibility_off)
                                     : const Icon(
                                         Icons.visibility,
@@ -207,8 +310,25 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: Dimensions.PADDING_SIZE_LARGE),
                     InkWell(
                       onTap: () async {
-                        authCon.loginAPI(phoneNumController.text,
-                            passwordController.text, deviceID);
+                        authCon.showLoadingIndicator(context);
+                        await Future.delayed(const Duration(seconds: 5));
+                        if (passwordController.text == confirmController.text) {
+                          authCon.forgetPass(context,emailController.text,
+                              phoneNumController.text, passwordController.text);
+                        } else {
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(const SnackBar(
+                            content: Text(
+                                "Please check confirm password is similar to password."),
+                            duration: Duration(seconds: 2),
+                            backgroundColor: kPurpleColor,
+                            behavior:
+                                SnackBarBehavior.floating, // Add this line
+                            margin: EdgeInsets.only(
+                                bottom: 10, left: 15, right: 15),
+                          ));
+                        }
+                        authCon.hideLoadingIndicator(context);
                       },
                       child: Container(
                         height: Dimensions.BUTTON_HEIGHT,
@@ -232,69 +352,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         alignment: Alignment.center,
                         child: const Text(
-                          "Sign in",
+                          "Confirm",
                           style: TextStyle(
                               fontFamily: 'MontserratBold',
                               color: Colors.white,
                               fontSize: Dimensions.FONT_SIZE_DEFAULT),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: Dimensions.PADDING_SIZE_LARGE),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        InkWell(
-                          onTap: (){
-                            Get.to(const ForgetPassScreen());
-                          },
-                          child: const Text(
-                            "Forgot Password?",
-                            style: TextStyle(
-                              fontFamily: 'MontserratBold',
-                              color: kPrimaryColor,
-                              fontSize: Dimensions.FONT_SIZE_SMALL,
-                            ),
-                          ),
-                        ),
-                        InkWell(
-                          onTap: () {
-                            Get.to(const CreateAccountScreen());
-                          },
-                          child: Container(
-                            height: Dimensions.BUTTON_HEIGHT,
-                            width: size.width * 0.36,
-                            decoration: BoxDecoration(
-                              // color: Colors.grey,
-                              gradient: const LinearGradient(
-                                colors: [
-                                  Color(0xFF569DAA),
-                                  Color(0xFF0A4D68),
-                                ],
-                              ),
-                              border: const Border(
-                                bottom: BorderSide(
-                                  color: Color(0xFF0A3648),
-                                  width: 4.0,
-                                ),
-                                right: BorderSide(
-                                  color: Color(0xFF0A3648),
-                                  width: 2.0,
-                                ),
-                              ),
-                              borderRadius: BorderRadius.circular(1000),
-                            ),
-                            alignment: Alignment.center,
-                            child: const Text(
-                              "Create",
-                              style: TextStyle(
-                                  fontFamily: 'MontserratBold',
-                                  color: Colors.white,
-                                  fontSize: Dimensions.FONT_SIZE_DEFAULT),
-                            ),
-                          ),
-                        ),
-                      ],
                     ),
                   ],
                 ),

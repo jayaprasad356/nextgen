@@ -3,6 +3,8 @@ import 'dart:html';
 import 'dart:math';
 
 import 'package:flutter/services.dart';
+import 'package:get/get_rx/get_rx.dart';
+import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:nextgen/data/model/notification_mod.dart';
 import 'package:nextgen/data/model/sync_data_nextget.dart';
 import 'package:nextgen/data/repository/full_time_repo.dart';
@@ -23,6 +25,8 @@ class NotificationController extends GetxController implements GetxService {
   NotificationController({required this.notificationRepo});
   late SharedPreferences prefs;
   RxList<NotificationData> notificationData = <NotificationData>[].obs;
+  RxString notificationIdData = ''.obs;
+  RxBool isIdMatch = false.obs;
 
   Future<void> notificationAPI() async {
     try {
@@ -42,6 +46,36 @@ class NotificationController extends GetxController implements GetxService {
           var notificationDescription = notification.description!;
           var notificationLink = notification.link!;
           var notificationDatetime = notification.datetime!;
+          debugPrint("===> Stored notificationIdnotificationId: $notificationId");
+
+          if (notificationMod.data!.indexOf(notification) == 0) {
+            notificationIdData.value = notificationId;
+
+            // Store notificationId permanently once
+            if (!(await storeLocal.containsKey(key: "notificationId"))) {
+              await storeLocal.write(key: "notificationId", value: notificationId);
+            }
+
+            // Delete or restore the value manually
+            String? storedNotificationId = await storeLocal.read(key: "notificationId");
+            if (storedNotificationId != null) {
+              debugPrint("===> Stored notificationId: $storedNotificationId");
+
+              if(int.parse(storedNotificationId) < int.parse(notificationId)){
+                debugPrint("===> Stored notificationId notificationId : $notificationId");
+                isIdMatch.value = true;
+                await storeLocal.delete(key: "notificationId");
+                await storeLocal.write(key: "notificationId", value: notificationId);
+              }
+
+              // Delete the value manually
+              // await storeLocal.delete(key: "notificationId");
+
+              // Restore the value manually
+              // await storeLocal.write(key: "notificationId", value: "restored_value");
+            }
+          }
+
 
           // Create a NotificationData object and add it to the list
           NotificationData data = NotificationData(

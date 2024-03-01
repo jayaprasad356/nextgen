@@ -10,6 +10,7 @@ import 'package:nextgen/data/model/user_detaile.dart';
 import 'package:nextgen/data/repository/auth_repo.dart';
 import 'package:nextgen/data/repository/full_time_repo.dart';
 import 'package:get/get.dart';
+import 'package:nextgen/model/forget_pass.dart';
 import 'package:nextgen/util/Constant.dart';
 import 'package:nextgen/util/color_const.dart';
 import 'package:nextgen/view/screens/JobDetailsScreen/job_details.dart';
@@ -36,8 +37,12 @@ class AuthCon extends GetxController implements GetxService {
   late SharedPreferences prefs;
   final textFieldFocusNode = FocusNode();
   final textFieldFocusNodeCreate = FocusNode();
+  final textFieldFocusNodePass = FocusNode();
+  final textFieldFocusNodeSiPass = FocusNode();
   RxBool obscured = true.obs;
   RxBool obscuredCreate = true.obs;
+  RxBool obscuredPass = true.obs;
+  RxBool obscuredSiPass = true.obs;
   RxString work_days = ''.obs;
   RxString vacancies = ''.obs;
   RxString today_order = ''.obs;
@@ -49,7 +54,9 @@ class AuthCon extends GetxController implements GetxService {
   RxString joinIsTrue = ''.obs;
   RxString minQty = ''.obs;
   RxString maxQty = ''.obs;
+  RxString student_plan = ''.obs;
   RxString deviceID = ''.obs;
+  RxString productStatus = ''.obs;
 
   @override
   void onInit() async {
@@ -102,6 +109,20 @@ class AuthCon extends GetxController implements GetxService {
     update();
   }
 
+  void toggleObscuredPass() {
+    obscuredPass.value = !obscuredPass.value;
+    if (textFieldFocusNodePass.hasPrimaryFocus) return;
+    textFieldFocusNodePass.canRequestFocus = false;
+    update();
+  }
+
+  void toggleObscuredSiPass() {
+    obscuredSiPass.value = !obscuredSiPass.value;
+    if (textFieldFocusNodeSiPass.hasPrimaryFocus) return;
+    textFieldFocusNodeSiPass.canRequestFocus = false;
+    update();
+  }
+
   Future<void> clearSharedPreferences() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.clear();
@@ -147,7 +168,7 @@ class AuthCon extends GetxController implements GetxService {
       debugPrint("===> loginData message: ${loginData.success}");
       Get.snackbar('Sign In', loginData.message.toString(),colorText: kPrimaryColor,backgroundColor: kWhiteColor,duration: const Duration(seconds: 3),);
       if(loginData.registered.toString() == 'true'){
-        Get.to(const MainScreen());
+        Get.to( MainScreen(isNotifyNav: false,));
         // Get.to(const MyProfile());
         prefs.setString(Constant.LOGED_IN_STATUS, "true");
       }
@@ -165,6 +186,7 @@ class AuthCon extends GetxController implements GetxService {
   }
 
   Future<void> registerAPI(
+      context,
       name,
       mobile,
       password,
@@ -184,7 +206,9 @@ class AuthCon extends GetxController implements GetxService {
       registerScc = registerData.message.toString();
       Get.snackbar("Create Account", registerData.message.toString(),colorText: kPrimaryColor,backgroundColor: kWhiteColor,duration: const Duration(seconds: 3),);
       if(registerData.success.toString() == 'true'){
-        Get.to(const LoginScreen());
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => LoginScreen()),
+        );
       }
     } catch (e) {
       debugPrint("registerData errors: $e");
@@ -237,13 +261,13 @@ class AuthCon extends GetxController implements GetxService {
       debugPrint("===> joinData: $joinData");
       debugPrint("===> joinData message: ${joinData.message}");
       debugPrint("===> joinData message: ${joinData.success}");
-      if(joinData.success.toString() == 'true') {
-        prefs.setString(Constant.JOIN_IS_TRUE, "true");
-        joinIsTrue.value = 'true';
-      } else {
-        prefs.setString(Constant.JOIN_IS_TRUE, "false");
-        joinIsTrue.value = 'false';
-      }
+      // if(joinData.success.toString() == 'true') {
+      //   prefs.setString(Constant.JOIN_IS_TRUE, "true");
+      //   joinIsTrue.value = 'true';
+      // } else {
+      //   prefs.setString(Constant.JOIN_IS_TRUE, "false");
+      //   joinIsTrue.value = 'false';
+      // }
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text("Thanks For Showing Interest. We Will Call You For Further Process."),
         duration: Duration(seconds: 2),
@@ -254,6 +278,33 @@ class AuthCon extends GetxController implements GetxService {
       callback(joinData.success.toString());
     } catch (e) {
       debugPrint("joinData errors: $e");
+    }
+  }
+
+  Future<void> forgetPass(
+      context,
+      email,
+      mobile,
+      password, // Add the callback parameter
+      ) async {
+    try {
+      final value = await authRepo.forgetPass(email,mobile,password);
+      var responseData = value.body;
+      debugPrint("===> responseData: $responseData");
+      ForgetPass forgetPass = ForgetPass.fromJson(responseData);
+      debugPrint("===> forgetPass: $forgetPass");
+      debugPrint("===> forgetPass message: ${forgetPass.message}");
+      debugPrint("===> forgetPass message: ${forgetPass.success}");
+
+      Get.snackbar("Forgot Password", forgetPass.message.toString(),colorText: kPrimaryColor,backgroundColor: kWhiteColor,duration: const Duration(seconds: 3),);
+      if(forgetPass.success.toString() == 'true'){
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => LoginScreen()),
+        );
+      }
+
+    } catch (e) {
+      debugPrint("forgetPass errors: $e");
     }
   }
 
@@ -311,9 +362,13 @@ class AuthCon extends GetxController implements GetxService {
         await storeLocal.write(key: Constant.DEVICE_ID, value: userDetail.data![0].deviceId.toString());
         await storeLocal.write(key: Constant.OLD_PLAN, value: userDetail.data![0].oldPlan.toString());
         await storeLocal.write(key: Constant.PLAN, value: userDetail.data![0].plan.toString());
+        await storeLocal.write(key: Constant.STATUS, value: userDetail.data![0].status.toString());
+        await storeLocal.write(key: Constant.STUDENT_PLAN, value: userDetail.data![0].studentPlan.toString());
+        await storeLocal.write(key: Constant.PRODUCT_STATUS, value: userDetail.data![0].productStatus.toString());
         update();
       }
-      if (deviceID.value == '') {
+      // if (deviceID.value == '') {
+      if (deviceID.value == '' || userDetail.data![0].loginTime == null || userDetail.data![0].loginTime == "0000-00-00 00:00:00") {
         logout();
       }
       if (userDetail.settings != null && userDetail.settings!.isNotEmpty) {
@@ -337,10 +392,13 @@ class AuthCon extends GetxController implements GetxService {
     order_earnings.value = (await storeLocal.read(key: Constant.ORDERS_EARNINGS))!;
     minQty.value = (await storeLocal.read(key: Constant.MIN_QTY))!;
     maxQty.value = (await storeLocal.read(key: Constant.MAX_QTY))!;
+    student_plan.value = (await storeLocal.read(key: Constant.STUDENT_PLAN))!;
+    productStatus.value = (await storeLocal.read(key: Constant.PRODUCT_STATUS))!;
+    // student_plan.value = '1';
     // double earnAmount = double.parse(earn);
     // totalRefund = 'Total Refund = Rs. ${(earnAmount / 2).toStringAsFixed(2)}';
     debugPrint(
-        "total_order: $total_order");
+        "student_plan: $student_plan");
     update();
   }
 }

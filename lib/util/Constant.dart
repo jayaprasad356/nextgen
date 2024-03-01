@@ -11,6 +11,7 @@ class Constant {
   static const String BaseUrl = "${MainBaseUrl}api/";
   static const String LOGIN_URL = "${BaseUrl}login.php";
   static const String JOIN_URL = "${BaseUrl}join.php";
+  static const String FORGET_PASS = "${BaseUrl}forgot_password.php";
   static const String USER_DETAIL_URL = "${BaseUrl}user_details.php";
   static const String REGISTER_URL = "${BaseUrl}register.php";
   static const String UPDATE_PROFILE_URL = "${BaseUrl}update_profile.php";
@@ -106,6 +107,8 @@ class Constant {
   static const String REFERRED_BY = "referred_by";
   static const String REFER_CODE = "refer_code";
   static const String STATUS = "status";
+  static const String STUDENT_PLAN = "student_plan";
+  static const String PRODUCT_STATUS = "product_status";
   static const String JOINED_DATE = "joined_date";
   static const String LAST_UPDATED = "last_updated";
   static const String AD_STARTED_TIME = "ad_started_time";

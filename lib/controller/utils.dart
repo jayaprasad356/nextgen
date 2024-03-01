@@ -16,10 +16,16 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:uuid/uuid.dart';
 import 'package:platform_device_id_platform_interface/platform_device_id_platform_interface.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:device_info_plus/device_info_plus.dart';
+import 'dart:html' as html;
+import 'package:universal_html/html.dart' as uhtml;
+
+import 'dart:io';
 final googleSignIn = GoogleSignIn();
 
 class Utils extends GetxController {
-  final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
+  // final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
   late SharedPreferences prefs;
 
   showToast(String msg) {
@@ -51,20 +57,21 @@ class Utils extends GetxController {
   //   return deviceId;
   // }
 
-  // Future<String> deviceInfo() async {
-  //   late String deviceId;
-  //
-  //
-  //   deviceId = (await PlatformDeviceIdPlatform.instance.getDeviceId())!;
-  //     // deviceId = androidInfo.androidId;
-  //
-  //   debugPrint("deviceId: $deviceId");
-  //
-  //   final prefs = await SharedPreferences.getInstance();
-  //   prefs.setString(Constant.MY_DEVICE_ID, deviceId);
-  //
-  //   return deviceId;
-  // }
+  Future<String> deviceInfo() async {
+    String deviceIdentifier = "unknown";
+
+    uhtml.Navigator navigator = html.window.navigator;
+    String userAgent = navigator.userAgent;
+    String vendor = navigator.vendor;
+    int hardwareConcurrency = navigator.hardwareConcurrency ?? 0;
+
+    deviceIdentifier = '$vendor$userAgent$hardwareConcurrency';
+    debugPrint("deviceIdentifier: $deviceIdentifier");
+    await storeLocal.write(key: Constant.MY_DEVICE_ID, value: deviceIdentifier);
+
+    return deviceIdentifier;
+  }
+
 
   // Future<String> deviceInfo() async {
   //   late String deviceId;
